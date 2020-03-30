@@ -25,3 +25,4 @@ sinclude $(DEPS)
 .PHONY: clean
 clean:
 	rm -f $(OBJS) $(DEPS)
+	rm -f $(TARGET)
