@@ -20,6 +20,11 @@ void initialize(void);
 void mainloop(void);
 
 /**
+ * @brief Release all allocated memory.
+ */
+void terminate(void);
+
+/**
  * @brief Initialize states and start main loop.
  *        Clean up memory when the main loop is over.
  */
@@ -27,6 +32,7 @@ int main(void)
 {
   initialize();
   mainloop();
+  terminate();
 
   return 0;
 }
@@ -37,6 +43,11 @@ void initialize(void)
 }
 
 void mainloop(void)
+{
+  // TODO: to be implemented.
+}
+
+void terminate(void)
 {
   // TODO: to be implemented.
 }
