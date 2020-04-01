@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * @def   ARGC_MAX
@@ -102,6 +103,16 @@ void mainloop(void)
     if(fgets(input, INPUT_LEN, stdin))
     {
       tokenize_input();
+
+      // Test for tokenize_input().
+      printf("Command: '%s'\n", cmd);
+      printf("Args: ");
+      for(int i = 0; i < argc; ++i)
+      {
+        printf("'%s' ", argv[i]);
+      }
+      printf("\n");
+      printf("Argc: %d\n", argc);
     }
   }
 }
@@ -113,5 +124,17 @@ void terminate(void)
 
 static void tokenize_input(void)
 {
-  // TODO: to be implemented.
+  input[strlen(input) - 1] = '\0';
+
+  cmd = strtok(input, " \t");
+  for(argc = 0; argc < ARGC_MAX; ++argc)
+  {
+    // The input is separated by only comma.
+    // Disclaimer: this is an assumption that obeying the specification.
+    argv[argc] = strtok(NULL, " \t,");
+    if(!argv[argc])
+    {
+      break;
+    }
+  }
 }
