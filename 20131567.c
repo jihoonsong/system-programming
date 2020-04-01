@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /**
  * @brief The length of input string. Its value can be modified
@@ -59,6 +60,10 @@ void mainloop(void)
   while(true)
   {
     printf("sicsim> ");
+    if(fgets(input, INPUT_LEN, stdin))
+    {
+      printf("%s", input);
+    }
   }
 }
 
