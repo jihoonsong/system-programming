@@ -3,6 +3,7 @@
  * @brief The starting point of this program.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 
 /**
@@ -44,7 +45,10 @@ void initialize(void)
 
 void mainloop(void)
 {
-  // TODO: to be implemented.
+  while(true)
+  {
+    printf("sicsim> ");
+  }
 }
 
 void terminate(void)
