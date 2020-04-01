@@ -11,17 +11,32 @@
 void initialize(void);
 
 /**
+ * @brief The main loop of this program.
+ * @details Receives command along with its arguments,
+ *          check if the given command is valid,
+ *          pass it to the designated handler if valid,
+ *          and ignore it if invalid.
+ */
+void mainloop(void);
+
+/**
  * @brief Initialize states and start main loop.
  *        Clean up memory when the main loop is over.
  */
 int main(void)
 {
   initialize();
+  mainloop();
 
   return 0;
 }
 
 void initialize(void)
+{
+  // TODO: to be implemented.
+}
+
+void mainloop(void)
 {
   // TODO: to be implemented.
 }
