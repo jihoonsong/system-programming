@@ -6,12 +6,22 @@
 #include <stdio.h>
 
 /**
+ * @brief Initialize the global states.
+ */
+void initialize(void);
+
+/**
  * @brief Initialize states and start main loop.
  *        Clean up memory when the main loop is over.
  */
 int main(void)
 {
-  printf("hello world\n");
+  initialize();
 
   return 0;
+}
+
+void initialize(void)
+{
+  // TODO: to be implemented.
 }
