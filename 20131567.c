@@ -69,6 +69,14 @@ void mainloop(void);
 void terminate(void);
 
 /**
+ * @brief Tokenize input into cmd and argv, and update argc.
+ * @see   cmd
+ * @see   argv
+ * @see   argc
+ */
+static void tokenize_input(void);
+
+/**
  * @brief Initialize states and start main loop.
  *        Clean up memory when the main loop is over.
  */
@@ -93,12 +101,17 @@ void mainloop(void)
     printf("sicsim> ");
     if(fgets(input, INPUT_LEN, stdin))
     {
-      printf("%s", input);
+      tokenize_input();
     }
   }
 }
 
 void terminate(void)
+{
+  // TODO: to be implemented.
+}
+
+static void tokenize_input(void)
 {
   // TODO: to be implemented.
 }
