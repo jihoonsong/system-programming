@@ -7,6 +7,17 @@
 #include <stdio.h>
 
 /**
+ * @brief The length of input string. Its value can be modified
+ *        if it is long enough to hold command and arguments.
+ */
+#define INPUT_LEN 64
+
+/**
+ * @brief An array of char that holds received command and arguments.
+ */
+static char input[INPUT_LEN] = {0,};
+
+/**
  * @brief Initialize the global states.
  */
 void initialize(void);
