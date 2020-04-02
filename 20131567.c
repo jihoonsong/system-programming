@@ -27,6 +27,17 @@
 #define INPUT_LEN 64
 
 /**
+ * @brief Types of handler.
+ */
+enum handler
+{
+  SHELL,
+  MEMSPACE,
+  OPCODE,
+  NONE,
+};
+
+/**
  * @brief The number of arguments. Its maximum value is ARGC_MAX.
  * @see   ARGC_MAX
  * @see   argv
