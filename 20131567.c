@@ -62,6 +62,11 @@ static char *cmd = NULL;
 static char input[INPUT_LEN] = {0,};
 
 /**
+ * @brief Assign handler designated to the command.
+ */
+void assign_handler(void);
+
+/**
  * @brief Initialize the global states.
  */
 void initialize(void);
@@ -99,6 +104,11 @@ int main(void)
   terminate();
 
   return 0;
+}
+
+void assign_handler(void)
+{
+  // TODO: to be implemented.
 }
 
 void initialize(void)
