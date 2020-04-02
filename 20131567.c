@@ -57,6 +57,11 @@ static char *argv[ARGC_MAX + 1] = {NULL,};
 static char *cmd = NULL;
 
 /**
+ * @brief A handler assigned to the current command.
+ */
+static enum handler handler = NONE;
+
+/**
  * @brief An array of char that holds received command and arguments.
  */
 static char input[INPUT_LEN] = {0,};
@@ -108,7 +113,55 @@ int main(void)
 
 void assign_handler(void)
 {
-  // TODO: to be implemented.
+  const char * const shell_cmds[] = {"h",
+                                     "help",
+                                     "d",
+                                     "dir",
+                                     "q",
+                                     "quit",
+                                     "hi",
+                                     "history"};
+  const char * const memspace_cmds[] = {"du",
+                                        "dump",
+                                        "e",
+                                        "edit",
+                                        "f",
+                                        "fill",
+                                        "reset"};
+  const char * const opcode_cmds[] = {"opcode",
+                                      "opcodelist"};
+  const int shell_cmds_count = (int)(sizeof(shell_cmds) /
+                                     sizeof(shell_cmds[0]));
+  const int memspace_cmds_count = (int)(sizeof(memspace_cmds) /
+                                        sizeof(memspace_cmds[0]));
+  const int opcode_cmds_count = (int)(sizeof(opcode_cmds) /
+                                      sizeof(opcode_cmds[0]));
+
+  for(int i = 0; i < shell_cmds_count; ++i)
+  {
+    if(!strcmp(cmd, shell_cmds[i]))
+    {
+      handler = SHELL;
+      return;
+    }
+  }
+  for(int i = 0; i < memspace_cmds_count; ++i)
+  {
+    if(!strcmp(cmd, memspace_cmds[i]))
+    {
+      handler = MEMSPACE;
+      return;
+    }
+  }
+  for(int i = 0; i < opcode_cmds_count; ++i)
+  {
+    if(!strcmp(cmd, opcode_cmds[i]))
+    {
+      handler = OPCODE;
+      return;
+    }
+  }
+  handler = NONE;
 }
 
 void initialize(void)
@@ -124,16 +177,25 @@ void mainloop(void)
     if(fgets(input, INPUT_LEN, stdin))
     {
       tokenize_input();
+      assign_handler();
 
-      // Test for tokenize_input().
-      printf("Command: '%s'\n", cmd);
-      printf("Args: ");
-      for(int i = 0; i < argc; ++i)
+      // Test for assign_handler().
+      if(SHELL == handler)
       {
-        printf("'%s' ", argv[i]);
+        printf("shell\n");
       }
-      printf("\n");
-      printf("Argc: %d\n", argc);
+      else if(MEMSPACE == handler)
+      {
+        printf("memspace\n");
+      }
+      else if(OPCODE == handler)
+      {
+        printf("opcode\n");
+      }
+      else
+      {
+        printf("none\n");
+      }
     }
   }
 }
