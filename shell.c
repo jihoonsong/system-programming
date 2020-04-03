@@ -25,6 +25,14 @@ static void shell_execute_dir(char *cmd, int argc, char *argv[]);
  */
 static void shell_execute_help(char *cmd, int argc, char *argv[]);
 
+/**
+ * @brief          Set flag to quit this program.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static void shell_execute_quit(char *cmd, int argc, char *argv[]);
+
 void shell_execute(char *cmd, int argc, char *argv[])
 {
   if(!strcmp("h", cmd) || !strcmp("help", cmd))
@@ -34,6 +42,10 @@ void shell_execute(char *cmd, int argc, char *argv[])
   else if(!strcmp("d", cmd) || !strcmp("dir", cmd))
   {
     shell_execute_dir(cmd, argc, argv);
+  }
+  else if(!strcmp("q", cmd) || !strcmp("quit", cmd))
+  {
+    shell_execute_quit(cmd, argc, argv);
   }
   else
   {
@@ -101,4 +113,15 @@ static void shell_execute_help(char *cmd, int argc, char *argv[])
   printf("reset\n");
   printf("opcode mnemonic\n");
   printf("opcodelist\n");
+}
+
+static void shell_execute_quit(char *cmd, int argc, char *argv[])
+{
+	if(0 < argc)
+  {
+    printf("quit: too many arguments\n");
+    return;
+  }
+
+  // TODO: to be implemented.
 }
