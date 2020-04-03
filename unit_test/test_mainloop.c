@@ -21,7 +21,17 @@
 /**
  * @brief The input which will be used to test.
  */
-static char input[INPUT_LEN] = {0,};
+static char _input[INPUT_LEN] = {0,};
+
+/**
+ * @brief The number of failed test cases.
+ */
+static int _fail_count = 0;
+
+/**
+ * @brief The number of passed test cases.
+ */
+static int _pass_count = 0;
 
 /**
  * @brief Test cases.
@@ -83,6 +93,10 @@ void test_mainloop(void)
     test_mainloop_tokenize_input(&_test_commands[i]);
     test_mainloop_assign_handler(&_test_commands[i]);
   }
+
+  printf("\n");
+  printf("Pass: %d\n", _pass_count);
+  printf("Fail: %d\n", _fail_count);
 }
 
 static void test_mainloop_assign_handler(const struct command *command)
@@ -94,42 +108,45 @@ static void test_mainloop_assign_handler(const struct command *command)
 
   if(command->handler == _command.handler)
   {
+    ++_pass_count;
     printf("pass.\n");
   }
   else
   {
+    ++_fail_count;
     printf("fail. it should be '%d', not '%d'.\n", command->handler, _command.handler);
   }
 }
 
 static void test_mainloop_generate_input(const struct command *command)
 {
-  strcpy(input, command->cmd);
-  strcat(input, " ");
+  strcpy(_input, command->cmd);
+  strcat(_input, " ");
   if(0 < command->argc)
   {
-    strcat(input, command->argv[0]);
+    strcat(_input, command->argv[0]);
   }
   for(int i = 1; i < command->argc; ++i)
   {
-    strcat(input, ", ");
-    strcat(input, command->argv[i]);
+    strcat(_input, ", ");
+    strcat(_input, command->argv[i]);
   }
-  strcat(input, "\n");
+  strcat(_input, "\n");
 }
 
 static void test_mainloop_tokenize_input(const struct command *command)
 {
   bool is_pass = true;
 
-  printf("Test mainloop_tokenize_input() with '%s': ", input);
+  printf("Test mainloop_tokenize_input() with '%s': ", _input);
 
-  mainloop_tokenize_input(input);
+  mainloop_tokenize_input(_input);
 
   if(strcmp(command->cmd, _command.cmd))
   {
     if(is_pass)
     {
+      ++_fail_count;
       is_pass = false;
       printf("fail.\n");
     }
@@ -140,6 +157,7 @@ static void test_mainloop_tokenize_input(const struct command *command)
   {
     if(is_pass)
     {
+      ++_fail_count;
       is_pass = false;
       printf("fail.\n");
     }
@@ -152,6 +170,7 @@ static void test_mainloop_tokenize_input(const struct command *command)
     {
       if(is_pass)
       {
+        ++_fail_count;
         is_pass = false;
         printf("fail.\n");
       }
@@ -162,6 +181,7 @@ static void test_mainloop_tokenize_input(const struct command *command)
   {
     if(is_pass)
     {
+      ++_fail_count;
       is_pass = false;
       printf("fail.\n");
     }
@@ -170,6 +190,7 @@ static void test_mainloop_tokenize_input(const struct command *command)
 
   if(is_pass)
   {
+    ++_pass_count;
     printf("pass.\n");
   }
 }
