@@ -7,6 +7,14 @@
 #include <string.h>
 
 /**
+ * @brief          Show all files in the current directory.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static void shell_execute_dir(char *cmd, int argc, char *argv[]);
+
+/**
  * @brief          Show all executable commands.
  * @param[in] cmd  A type of the command.
  * @param[in] argc The number of arguments.
@@ -20,6 +28,25 @@ void shell_execute(char *cmd, int argc, char *argv[])
   {
     shell_execute_help(cmd, argc, argv);
   }
+  else if(!strcmp("d", cmd) || !strcmp("dir", cmd))
+  {
+    shell_execute_dir(cmd, argc, argv);
+  }
+  else
+  {
+    printf("%s: command not found\n", cmd);
+  }
+}
+
+static void shell_execute_dir(char *cmd, int argc, char *argv[])
+{
+  if(0 < argc)
+  {
+    printf("dir: too many arguments\n");
+    return;
+  }
+
+  // TODO: to be implemented.
 }
 
 static void shell_execute_help(char *cmd, int argc, char *argv[])
