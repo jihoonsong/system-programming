@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include "../mainloop.c"
-#include "../shell.c"
 
 #include "test_mainloop.h"
 
