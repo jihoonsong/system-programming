@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "memspace.h"
 #include "shell.h"
 
 #include "mainloop.h"
@@ -130,7 +131,7 @@ static bool mainloop_assign_handler(void)
   {
     if(!strcmp(MEMSPACE_CMDS[i], _command.cmd))
     {
-      _command.handler = NULL;
+      _command.handler = memspace_execute;
       return true;
     }
   }
