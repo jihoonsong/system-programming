@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "../mainloop.c"
+#include "../shell.c"
 
 #include "test_mainloop.h"
 
@@ -39,27 +40,27 @@ static int _pass_count = 0;
 static struct command _test_commands[] = {(struct command){.cmd = "hi",
                                                            .argc = 0,
                                                            .argv = {NULL},
-                                                           .handler = SHELL},
+                                                           .handler = shell_execute},
                                           (struct command){.cmd = "he",
                                                            .argc = 0,
                                                            .argv = {NULL},
-                                                           .handler = NONE},
+                                                           .handler = NULL},
                                           (struct command){.cmd = "du",
                                                            .argc = 2,
                                                            .argv = {"10", "20"},
-                                                           .handler = MEMSPACE},
+                                                           .handler = NULL},
                                           (struct command){.cmd = "fill",
                                                            .argc = 3,
                                                            .argv = {"10", "20", "30"},
-                                                           .handler = MEMSPACE},
+                                                           .handler = NULL},
                                           (struct command){.cmd = "edit",
                                                            .argc = 0,
                                                            .argv = {NULL},
-                                                           .handler = MEMSPACE},
+                                                           .handler = NULL},
                                           (struct command){.cmd = "opcode",
                                                            .argc = 0,
                                                            .argv = {NULL},
-                                                           .handler = OPCODE}};
+                                                           .handler = NULL}};
 
 /**
  * @brief The number of test cases.
@@ -114,7 +115,7 @@ static void test_mainloop_assign_handler(const struct command *command)
   else
   {
     ++_fail_count;
-    printf("fail. it should be '%d', not '%d'.\n", command->handler, _command.handler);
+    printf("fail. it should be '%p', not '%p'.\n", (void *)command->handler, (void *)_command.handler);
   }
 }
 

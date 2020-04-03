@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "shell.h"
+
 #include "mainloop.h"
 
 /**
@@ -22,26 +24,19 @@
 #define ARGC_MAX 4
 
 /**
- * @brief Types of handler.
- */
-enum handler
-{
-  NONE,
-  SHELL,
-  MEMSPACE,
-  OPCODE,
-};
-
-/**
  * @brief Structure of elements required to execute command.
  * @note  Elements are ordered in a way that can reduce their size.
  */
 struct command
 {
-  char *cmd;                /** A command to be executed. */
-  char *argv[ARGC_MAX + 1]; /** A NULL-terminated list of arguments. */
-  int  argc;                /** The number of arguments. */
-  enum handler handler;     /** An assigned handler. */
+  /** A command to be executed. */
+  char *cmd;
+  /** A NULL-terminated list of arguments. */
+  char *argv[ARGC_MAX + 1];
+  /** The number of arguments. */
+  int  argc;
+  /** An assigned handler. */
+  void (*handler)(char *, int, char *[]);
 };
 
 /**
@@ -80,7 +75,9 @@ void mainloop_launch(void)
       mainloop_tokenize_input(input);
       if(mainloop_assign_handler())
       {
-        // TODO: invoke handler.
+        _command.handler(_command.cmd,
+                         _command.argc,
+                         _command.argv);
       }
       else
       {
@@ -125,7 +122,7 @@ static bool mainloop_assign_handler(void)
   {
     if(!strcmp(SHELL_CMDS[i], _command.cmd))
     {
-      _command.handler = SHELL;
+      _command.handler = shell_execute;
       return true;
     }
   }
@@ -133,7 +130,7 @@ static bool mainloop_assign_handler(void)
   {
     if(!strcmp(MEMSPACE_CMDS[i], _command.cmd))
     {
-      _command.handler = MEMSPACE;
+      _command.handler = NULL;
       return true;
     }
   }
@@ -141,12 +138,12 @@ static bool mainloop_assign_handler(void)
   {
     if(!strcmp(OPCODE_CMDS[i], _command.cmd))
     {
-      _command.handler = OPCODE;
+      _command.handler = NULL;
       return true;
     }
   }
 
-  _command.handler = NONE;
+  _command.handler = NULL;
   return false;
 }
 
