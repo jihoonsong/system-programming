@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "mainloop.h"
+
 /**
  * @brief          Show all files in the current directory.
  * @param[in] cmd  A type of the command.
@@ -123,5 +125,5 @@ static void shell_execute_quit(char *cmd, int argc, char *argv[])
     return;
   }
 
-  // TODO: to be implemented.
+  mainloop_quit();
 }
