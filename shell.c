@@ -3,8 +3,11 @@
  * @brief A handler of shell related commands.
  */
 
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 /**
  * @brief          Show all files in the current directory.
@@ -46,7 +49,38 @@ static void shell_execute_dir(char *cmd, int argc, char *argv[])
     return;
   }
 
-  // TODO: to be implemented.
+  DIR *dir = NULL;
+  if((dir = opendir(".")))
+  {
+    struct dirent *ent = NULL;
+		while((ent = readdir(dir)))
+		{
+      if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name))
+      {
+        // Skipped ./ and ../ for simplicity.
+        continue;
+      }
+
+			printf("%s", ent->d_name);
+      if(DT_DIR == ent->d_type)
+      {
+        // This entry is a directory.
+        printf("/");
+      }
+			if(DT_REG == ent->d_type && (0 == access(ent->d_name, X_OK)))
+			{
+        // This entry is executable file.
+				printf("*");
+			}
+			printf("\n");
+		}
+  }
+  else
+  {
+    printf("dir: cannot open directory\n");
+    return;
+  }
+  closedir(dir);
 }
 
 static void shell_execute_help(char *cmd, int argc, char *argv[])
