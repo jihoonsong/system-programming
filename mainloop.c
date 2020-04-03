@@ -96,7 +96,7 @@ void mainloop_launch(void)
 
 void mainloop_quit(void)
 {
-  // TODO: to be implemented.
+  _quit_mainloop = true;
 }
 
 void mainloop_terminate(void)
