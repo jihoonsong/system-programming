@@ -59,7 +59,7 @@ static struct command _test_commands[] = {(struct command){.cmd = "hi",
                                           (struct command){.cmd = "opcode",
                                                            .argc = 0,
                                                            .argv = {NULL},
-                                                           .handler = NULL}};
+                                                           .handler = opcode_execute}};
 
 /**
  * @brief The number of test cases.
