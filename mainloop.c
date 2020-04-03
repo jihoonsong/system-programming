@@ -89,6 +89,11 @@ void mainloop_launch(void)
   }
 }
 
+void mainloop_quit(void)
+{
+  // TODO: to be implemented.
+}
+
 void mainloop_terminate(void)
 {
   // TODO: to be implemented.
