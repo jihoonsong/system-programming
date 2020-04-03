@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "memspace.h"
+#include "opcode.h"
 #include "shell.h"
 
 #include "mainloop.h"
@@ -139,7 +140,7 @@ static bool mainloop_assign_handler(void)
   {
     if(!strcmp(OPCODE_CMDS[i], _command.cmd))
     {
-      _command.handler = NULL;
+      _command.handler = opcode_execute;
       return true;
     }
   }
