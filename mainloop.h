@@ -21,6 +21,11 @@ void mainloop_initialize(void);
 void mainloop_launch(void);
 
 /**
+ * @brief Break the main loop. This will quit this program.
+ */
+void mainloop_quit(void);
+
+/**
  * @brief Release all allocated memory.
  */
 void mainloop_terminate(void);

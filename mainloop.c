@@ -48,6 +48,11 @@ struct command
 static struct command _command = {0,};
 
 /**
+ * @brief A flag indicating whether quit mainloop or not.
+ */
+static bool _quit_mainloop = false;
+
+/**
  * @brief  Assign handler according to the command.
  * @return True on success, false on fail.
  */
@@ -66,10 +71,10 @@ void mainloop_initialize(void)
 
 void mainloop_launch(void)
 {
-  const int      INPUT_LEN        = 64;
-  char           input[INPUT_LEN];
+  const int INPUT_LEN        = 64;
+  char      input[INPUT_LEN];
 
-  while(true)
+  while(!_quit_mainloop)
   {
     printf("sicsim> ");
     if(fgets(input, INPUT_LEN, stdin))
@@ -87,6 +92,11 @@ void mainloop_launch(void)
       }
     }
   }
+}
+
+void mainloop_quit(void)
+{
+  _quit_mainloop = true;
 }
 
 void mainloop_terminate(void)
