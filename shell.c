@@ -3,8 +3,19 @@
  * @brief A handler of shell related commands.
  */
 
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+/**
+ * @brief          Show all files in the current directory.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static void shell_execute_dir(char *cmd, int argc, char *argv[]);
 
 /**
  * @brief          Show all executable commands.
@@ -20,6 +31,56 @@ void shell_execute(char *cmd, int argc, char *argv[])
   {
     shell_execute_help(cmd, argc, argv);
   }
+  else if(!strcmp("d", cmd) || !strcmp("dir", cmd))
+  {
+    shell_execute_dir(cmd, argc, argv);
+  }
+  else
+  {
+    printf("%s: command not found\n", cmd);
+  }
+}
+
+static void shell_execute_dir(char *cmd, int argc, char *argv[])
+{
+  if(0 < argc)
+  {
+    printf("dir: too many arguments\n");
+    return;
+  }
+
+  DIR *dir = NULL;
+  if((dir = opendir(".")))
+  {
+    struct dirent *ent = NULL;
+		while((ent = readdir(dir)))
+		{
+      if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name))
+      {
+        // Skipped ./ and ../ for simplicity.
+        continue;
+      }
+
+			printf("%s", ent->d_name);
+      if(DT_DIR == ent->d_type)
+      {
+        // This entry is a directory.
+        printf("/");
+      }
+			if(DT_REG == ent->d_type && (0 == access(ent->d_name, X_OK)))
+			{
+        // This entry is executable file.
+				printf("*");
+			}
+			printf("\n");
+		}
+  }
+  else
+  {
+    printf("dir: cannot open directory\n");
+    return;
+  }
+  closedir(dir);
 }
 
 static void shell_execute_help(char *cmd, int argc, char *argv[])
