@@ -48,7 +48,7 @@ struct command
  * @brief A command object that contains all information need to
  *        execute the command.
  */
-static struct command command = {0,};
+static struct command _command = {0,};
 
 /**
  * @brief  Assign handler according to the command.
@@ -84,7 +84,7 @@ void mainloop_launch(void)
       }
       else
       {
-        printf("%s: command not found\n", command.cmd);
+        printf("%s: command not found\n", _command.cmd);
       }
     }
   }
@@ -123,43 +123,43 @@ static bool mainloop_assign_handler(void)
 
   for(int i = 0; i < SHELL_CMDS_COUNT; ++i)
   {
-    if(!strcmp(SHELL_CMDS[i], command.cmd))
+    if(!strcmp(SHELL_CMDS[i], _command.cmd))
     {
-      command.handler = SHELL;
+      _command.handler = SHELL;
       return true;
     }
   }
   for(int i = 0; i < MEMSPACE_CMDS_COUNT; ++i)
   {
-    if(!strcmp(MEMSPACE_CMDS[i], command.cmd))
+    if(!strcmp(MEMSPACE_CMDS[i], _command.cmd))
     {
-      command.handler = MEMSPACE;
+      _command.handler = MEMSPACE;
       return true;
     }
   }
   for(int i = 0; i < OPCODE_CMDS_COUNT; ++i)
   {
-    if(!strcmp(OPCODE_CMDS[i], command.cmd))
+    if(!strcmp(OPCODE_CMDS[i], _command.cmd))
     {
-      command.handler = OPCODE;
+      _command.handler = OPCODE;
       return true;
     }
   }
 
-  command.handler = NONE;
+  _command.handler = NONE;
   return false;
 }
 
 static void mainloop_tokenize_input(char *input)
 {
   input[strlen(input) - 1] = '\0';
-  command.cmd = strtok(input, " \t");
-  for(command.argc = 0; command.argc < ARGC_MAX; ++command.argc)
+  _command.cmd = strtok(input, " \t");
+  for(_command.argc = 0; _command.argc < ARGC_MAX; ++_command.argc)
   {
     // The input is separated by only comma.
     // Disclaimer: it is an assumption that following the specification.
-    command.argv[command.argc] = strtok(NULL, " \t,");
-    if(!command.argv[command.argc])
+    _command.argv[_command.argc] = strtok(NULL, " \t,");
+    if(!_command.argv[_command.argc])
     {
       break;
     }
