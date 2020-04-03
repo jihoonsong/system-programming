@@ -26,46 +26,39 @@
  */
 enum handler
 {
+  NONE,
   SHELL,
   MEMSPACE,
   OPCODE,
-  NONE,
 };
 
 /**
- * @brief The number of arguments. Its maximum value is ARGC_MAX.
- * @see   ARGC_MAX
- * @see   argv
+ * @brief Structure of elements required to execute command.
+ * @note  Elements are ordered in a way that can reduce their size.
  */
-static int argc = 0;
+struct command
+{
+  char *cmd;                /** A command to be executed. */
+  char *argv[ARGC_MAX + 1]; /** A NULL-terminated list of arguments. */
+  int  argc;                /** The number of arguments. */
+  enum handler handler;     /** An assigned handler. */
+};
 
 /**
- * @brief An list of arguments with trailing NULL.
- * @see   ARGC_MAX
- * @see   argc
+ * @brief A command object that contains all information need to
+ *        execute the command.
  */
-static char *argv[ARGC_MAX + 1] = {NULL,};
+static struct command command = {0,};
 
 /**
- * @brief A pointer to an array of char that contains command.
+ * @brief  Assign handler according to the command.
+ * @return True on success, false on fail.
  */
-static char *cmd = NULL;
+static bool mainloop_assign_handler(void);
 
 /**
- * @brief A handler assigned to the current command.
- */
-static enum handler handler = NONE;
-
-/**
- * @brief Assign handler designated to the command.
- */
-static void mainloop_assign_handler(void);
-
-/**
- * @brief Tokenize input into cmd and argv, and update argc.
- * @see   cmd
- * @see   argv
- * @see   argc
+ * @brief           Tokenize input to cmd and argv, and return argc.
+ * @param[in] input An array of char to be tokenized.
  */
 static void mainloop_tokenize_input(char *input);
 
@@ -76,8 +69,8 @@ void mainloop_initialize(void)
 
 void mainloop_launch(void)
 {
-  const int INPUT_LEN = 64;
-  char      input[INPUT_LEN];
+  const int      INPUT_LEN        = 64;
+  char           input[INPUT_LEN];
 
   while(true)
   {
@@ -85,24 +78,13 @@ void mainloop_launch(void)
     if(fgets(input, INPUT_LEN, stdin))
     {
       mainloop_tokenize_input(input);
-      mainloop_assign_handler();
-
-      // Test for assign_handler().
-      if(SHELL == handler)
+      if(mainloop_assign_handler())
       {
-        printf("shell\n");
-      }
-      else if(MEMSPACE == handler)
-      {
-        printf("memspace\n");
-      }
-      else if(OPCODE == handler)
-      {
-        printf("opcode\n");
+        // TODO: invoke handler.
       }
       else
       {
-        printf("none\n");
+        printf("%s: command not found\n", command.cmd);
       }
     }
   }
@@ -113,70 +95,71 @@ void mainloop_terminate(void)
   // TODO: to be implemented.
 }
 
-static void mainloop_assign_handler(void)
+static bool mainloop_assign_handler(void)
 {
-  const char * const shell_cmds[] = {"h",
-                                     "help",
-                                     "d",
-                                     "dir",
-                                     "q",
-                                     "quit",
-                                     "hi",
-                                     "history"};
-  const char * const memspace_cmds[] = {"du",
+  const char * const SHELL_CMDS[]    = {"h",
+                                        "help",
+                                        "d",
+                                        "dir",
+                                        "q",
+                                        "quit",
+                                        "hi",
+                                        "history"};
+  const char * const MEMSPACE_CMDS[] = {"du",
                                         "dump",
                                         "e",
                                         "edit",
                                         "f",
                                         "fill",
                                         "reset"};
-  const char * const opcode_cmds[] = {"opcode",
-                                      "opcodelist"};
-  const int shell_cmds_count = (int)(sizeof(shell_cmds) /
-                                     sizeof(shell_cmds[0]));
-  const int memspace_cmds_count = (int)(sizeof(memspace_cmds) /
-                                        sizeof(memspace_cmds[0]));
-  const int opcode_cmds_count = (int)(sizeof(opcode_cmds) /
-                                      sizeof(opcode_cmds[0]));
+  const char * const OPCODE_CMDS[]    = {"opcode",
+                                         "opcodelist"};
+  const int SHELL_CMDS_COUNT    = (int)(sizeof(SHELL_CMDS) /
+                                        sizeof(SHELL_CMDS[0]));
+  const int MEMSPACE_CMDS_COUNT = (int)(sizeof(MEMSPACE_CMDS) /
+                                        sizeof(MEMSPACE_CMDS[0]));
+  const int OPCODE_CMDS_COUNT   = (int)(sizeof(OPCODE_CMDS) /
+                                        sizeof(OPCODE_CMDS[0]));
 
-  for(int i = 0; i < shell_cmds_count; ++i)
+  for(int i = 0; i < SHELL_CMDS_COUNT; ++i)
   {
-    if(!strcmp(cmd, shell_cmds[i]))
+    if(!strcmp(SHELL_CMDS[i], command.cmd))
     {
-      handler = SHELL;
-      return;
+      command.handler = SHELL;
+      return true;
     }
   }
-  for(int i = 0; i < memspace_cmds_count; ++i)
+  for(int i = 0; i < MEMSPACE_CMDS_COUNT; ++i)
   {
-    if(!strcmp(cmd, memspace_cmds[i]))
+    if(!strcmp(MEMSPACE_CMDS[i], command.cmd))
     {
-      handler = MEMSPACE;
-      return;
+      command.handler = MEMSPACE;
+      return true;
     }
   }
-  for(int i = 0; i < opcode_cmds_count; ++i)
+  for(int i = 0; i < OPCODE_CMDS_COUNT; ++i)
   {
-    if(!strcmp(cmd, opcode_cmds[i]))
+    if(!strcmp(OPCODE_CMDS[i], command.cmd))
     {
-      handler = OPCODE;
-      return;
+      command.handler = OPCODE;
+      return true;
     }
   }
-  handler = NONE;
+
+  command.handler = NONE;
+  return false;
 }
 
 static void mainloop_tokenize_input(char *input)
 {
   input[strlen(input) - 1] = '\0';
-
-  cmd = strtok(input, " \t");
-  for(argc = 0; argc < ARGC_MAX; ++argc)
+  command.cmd = strtok(input, " \t");
+  for(command.argc = 0; command.argc < ARGC_MAX; ++command.argc)
   {
     // The input is separated by only comma.
-    // Disclaimer: this is an assumption that obeying the specification.
-    argv[argc] = strtok(NULL, " \t,");
-    if(!argv[argc])
+    // Disclaimer: it is an assumption that following the specification.
+    command.argv[command.argc] = strtok(NULL, " \t,");
+    if(!command.argv[command.argc])
     {
       break;
     }

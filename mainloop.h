@@ -8,16 +8,15 @@
 #define __MAINLOOP_H__
 
 /**
- * @brief Initialize states.
+ * @brief Initialize all interal states.
  */
 void mainloop_initialize(void);
 
 /**
- * @brief The main loop of this program.
- * @details Receives command along with its arguments,
- *          check if the given command is valid,
- *          pass it to the designated handler if valid,
- *          and ignore it if invalid.
+ * @brief   The main loop of this program.
+ * @details Receives command along with its arguments, check if the
+ *          given command is valid, pass it to the designated handler
+ *          if valid, and ignore it if invalid.
  */
 void mainloop_launch(void);
 
