@@ -20,6 +20,11 @@
 const int HEX = 16;
 
 /**
+ * @brief A flag indicating the last dumped address.
+ */
+static int _last_dumped = -1;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
