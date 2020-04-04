@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -D _DEFAULT_SOURCE -g -std=c11 -Wall
 TARGET = 20131567.out
 
 SRCS := $(wildcard *.c)
