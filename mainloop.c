@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "logger.h"
 #include "memspace.h"
 #include "opcode.h"
 #include "shell.h"
@@ -42,6 +43,11 @@ struct command
 };
 
 /**
+ * @brief A const variable that holds the length of input.
+ */
+const int INPUT_LEN = 64;
+
+/**
  * @brief A command object that contains all information need to
  *        execute the command.
  */
@@ -66,13 +72,12 @@ static void mainloop_tokenize_input(char *input);
 
 void mainloop_initialize(void)
 {
-  // TODO: to be implemented.
+  logger_initialize(INPUT_LEN);
 }
 
 void mainloop_launch(void)
 {
-  const int INPUT_LEN        = 64;
-  char      input[INPUT_LEN];
+  char input[INPUT_LEN];
 
   while(!_quit_mainloop)
   {
