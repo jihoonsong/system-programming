@@ -15,6 +15,11 @@
 #define MEMORY_SIZE 0xFFFFF
 
 /**
+ * @brief Equals to 16.
+ */
+const int HEX = 16;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
