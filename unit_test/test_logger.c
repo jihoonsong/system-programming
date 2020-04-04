@@ -88,13 +88,14 @@ void test_logger(void)
 {
   printf("\nStart test logger.\n");
 
-
   logger_initialize(INPUT_LEN);
 
   for(int i = 0; i < _test_log_count; ++i)
   {
     test_logger_write_log(&_test_logs[i]);
   }
+
+  logger_terminate();
 
   printf("\n");
   printf("Pass: %d\n", _pass_count);
