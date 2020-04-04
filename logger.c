@@ -34,6 +34,18 @@ struct log *_log_tail;
  */
 static int INPUT_LEN = 0;
 
+void logger_terminate(void)
+{
+  struct log *walk = _log_head;
+
+  while(walk)
+  {
+    struct log *del = walk;
+    walk = walk->next;
+    free(del);
+  }
+}
+
 void logger_initialize(const int input_len)
 {
   INPUT_LEN = input_len;

@@ -106,7 +106,7 @@ void mainloop_quit(void)
 
 void mainloop_terminate(void)
 {
-  // TODO: to be implemented.
+  logger_terminate();
 }
 
 static bool mainloop_assign_handler(void)

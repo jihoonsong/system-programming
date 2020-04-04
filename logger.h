@@ -13,6 +13,11 @@
 void logger_initialize(const int input_len);
 
 /**
+ * @brief Release all allocated memories.
+ */
+void logger_terminate(void);
+
+/**
  * @brief  View all logs.
  * @return The number of logs.
  */
