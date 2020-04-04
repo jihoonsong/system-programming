@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -61,6 +62,70 @@ void memspace_execute(char *cmd, int argc, char *argv[])
 
 static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
 {
-  // TODO: to be implemented.
-  return false;
+  if(2 < argc)
+  {
+    printf("dump: too many arguments\n");
+    return false;
+  }
+
+  int  dump_start = 0;
+  int  dump_end = 0;
+  char *endptr = NULL;
+
+  if(0 == argc)
+  {
+    dump_start = _last_dumped + 1;
+    if(dump_start > MEMORY_SIZE)
+    {
+      dump_start = 0;
+    }
+  }
+  else
+  {
+    dump_start = strtol(argv[0], &endptr, HEX);
+    if('\0' != *endptr)
+    {
+      printf("dump: argument '%s' is invalid\n", argv[0]);
+      return false;
+    }
+    if(dump_start > MEMORY_SIZE)
+    {
+      printf("dump: start value '%d' is too large\n", dump_start);
+      return false;
+    }
+  }
+
+  if(2 > argc)
+  {
+    dump_end = dump_start + DEFAULT_DUMP - 1; // Closed interval.
+    if(dump_end > MEMORY_SIZE)
+    {
+      dump_end = MEMORY_SIZE;
+    }
+  }
+  else
+  {
+    dump_end = strtol(argv[1], &endptr, HEX);
+    if('\0' != *endptr)
+    {
+      printf("dump: argument '%s' is invalid\n", argv[1]);
+      return false;
+    }
+    if(dump_end > MEMORY_SIZE)
+    {
+      printf("dump: end value '%d' is too large\n", dump_end);
+      return false;
+    }
+
+    if(dump_start > dump_end)
+    {
+      printf("dump: start value '%d' is larger than end value '%d'\n",
+          dump_start, dump_end);
+      return false;
+    }
+  }
+
+  printf("start: %d, end: %d\n", dump_start, dump_end);
+
+  return true;
 }
