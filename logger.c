@@ -4,6 +4,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * @brief An element of log list.
@@ -39,6 +41,32 @@ void logger_initialize(const int input_len)
 
 void logger_write_log(char *cmd, int argc, char *argv[])
 {
-  // TODO: to be implemented.
-  printf("logger_write_log() is called\n");
+  char command[INPUT_LEN];
+
+  strcpy(command, cmd);
+  if(0 < argc)
+  {
+    strcat(command, " ");
+    strcat(command, argv[0]);
+    for(int i = 1; i < argc; ++i)
+    {
+      strcat(command, ", ");
+      strcat(command, argv[i]);
+    }
+  }
+
+  struct log *new_log = malloc(sizeof(*new_log) +
+                               sizeof(char) * (strlen(command) + 1));
+  new_log->next = NULL;
+  strcpy(new_log->command, command);
+
+  if(!_log_head)
+  {
+    _log_head = new_log;
+  }
+  else
+  {
+    _log_tail->next = new_log;
+  }
+  _log_tail = new_log;
 }
