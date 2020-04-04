@@ -12,4 +12,12 @@
  */
 void logger_initialize(const int input_length);
 
+/**
+ * @brief          Write log about the given command information.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+void logger_write_log(char *cmd, int argc, char *argv[]);
+
 #endif
