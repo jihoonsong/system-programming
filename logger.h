@@ -10,7 +10,7 @@
  * @brief                  Receives the length of input.
  * @param[in] input_length The length of input.
  */
-void logger_initialize(const int input_length);
+void logger_initialize(const int input_len);
 
 /**
  * @brief          Write log about the given command information.

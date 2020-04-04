@@ -26,10 +26,15 @@ struct log *_log_head;
  */
 struct log *_log_tail;
 
-void logger_initialize(const int input_length)
+/**
+ * @brief A length of input. Used to set the length of temporal char
+ *        array that stores command
+ */
+static int INPUT_LEN = 0;
+
+void logger_initialize(const int input_len)
 {
-  // TODO: to be implemented.
-  printf("logger_initialize() is called\n");
+  INPUT_LEN = input_len;
 }
 
 void logger_write_log(char *cmd, int argc, char *argv[])
