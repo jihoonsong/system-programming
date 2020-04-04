@@ -8,9 +8,21 @@
 #include <string.h>
 
 /**
+ * @def   MEMORY_SIZE
+ * @brief 1Mbyte, i.e. 2^20.
+ * @see   memory
+ */
+#define MEMORY_SIZE 1048576
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
+
+/**
+ * @brief A memory on that object file will be loaded.
+ */
+static char _memory[MEMORY_SIZE] = {0,};
 
 /**
  * @brief          Print memory in the given range.
