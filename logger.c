@@ -39,6 +39,23 @@ void logger_initialize(const int input_len)
   INPUT_LEN = input_len;
 }
 
+int logger_view_log(void)
+{
+  int count = 0;
+  struct log *walk = _log_head;
+
+  while(walk)
+  {
+    ++count;
+    printf("%d\t", count);
+    printf("%s\n", walk->command);
+
+    walk = walk->next;
+  }
+
+  return count;
+}
+
 void logger_write_log(char *cmd, int argc, char *argv[])
 {
   char command[INPUT_LEN];

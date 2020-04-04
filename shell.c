@@ -153,7 +153,10 @@ static bool shell_execute_history(char *cmd, int argc, char *argv[])
     printf("history: too many arguments\n");
     return false;
   }
-  // TODO: to be implemented.
+
+  int log_count = logger_view_log();
+  printf("%d\t", log_count + 1);
+  printf("%s\n", cmd); // Current execution is considered successful.
 
   return true;
 }

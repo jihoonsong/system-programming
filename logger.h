@@ -13,6 +13,12 @@
 void logger_initialize(const int input_len);
 
 /**
+ * @brief  View all logs.
+ * @return The number of logs.
+ */
+int logger_view_log(void);
+
+/**
  * @brief          Write log about the given command information.
  * @param[in] cmd  A type of the command.
  * @param[in] argc The number of arguments.
