@@ -12,7 +12,7 @@
  * @brief 1Mbyte, i.e. 2^20.
  * @see   memory
  */
-#define MEMORY_SIZE 1048576
+#define MEMORY_SIZE 0xFFFFF
 
 /**
  * @brief A flag indicating whether command is executed or not.
