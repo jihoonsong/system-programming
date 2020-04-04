@@ -20,6 +20,11 @@
 const int HEX = 16;
 
 /**
+ * @brief Equals to 160. It is 10 lines with 16 bytes per line.
+ */
+const int DEFAULT_DUMP = 160;
+
+/**
  * @brief A flag indicating the last dumped address.
  */
 static int _last_dumped = -1;
