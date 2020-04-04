@@ -1,5 +1,5 @@
 /**
- * @file  shell.h
+ * @file  shell.c
  * @brief A handler of shell related commands.
  */
 

@@ -1,5 +1,5 @@
 /**
- * @file  memspace.h
+ * @file  memspace.c
  * @brief A handler of memspace related commands.
  */
 

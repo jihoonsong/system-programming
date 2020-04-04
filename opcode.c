@@ -1,5 +1,5 @@
 /**
- * @file  opcode.h
+ * @file  opcode.c
  * @brief A handler of opcode related commands.
  */
 
