@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+#include "test_logger.h"
 #include "test_mainloop.h"
 #include "test_memspace.h"
 #include "test_opcode.h"
@@ -12,6 +13,7 @@
 
 int main(void)
 {
+  test_logger();
   test_mainloop();
   test_memspace();
   test_opcode();
