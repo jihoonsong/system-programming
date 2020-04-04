@@ -20,6 +20,13 @@
 #define ARGC_MAX 4
 
 /**
+ * @def   INPUT_LEN
+ * @brief The length of input.
+ * @see   input
+ */
+#define INPUT_LEN 64
+
+/**
  * @brief Structure of command elements and expected log.
  */
 struct test_log
@@ -43,7 +50,7 @@ static int _pass_count = 0;
 /**
  * @brief Test cases.
  */
-struct test_log _test_logs[] = \
+static struct test_log _test_logs[] = \
   {(struct test_log){.cmd = "h",
                      .argc = 0,
                      .argv = {NULL},
@@ -54,15 +61,15 @@ struct test_log _test_logs[] = \
                     .command = "history"},
   (struct test_log){.cmd = "du",
                     .argc = 2,
-                    .argv = {"12", "3F"},
+                    .argv = {"12", "3F", NULL},
                     .command = "du 12, 3F"},
   (struct test_log){.cmd = "edit",
                     .argc = 2,
-                    .argv = {"23", "DD"},
+                    .argv = {"23", "DD", NULL},
                     .command = "edit 23, DD"},
   (struct test_log){.cmd = "fill",
                     .argc = 3,
-                    .argv = {"4", "37", "1D"},
+                    .argv = {"4", "37", "1D", NULL},
                     .command = "fill 4, 37, 1D"}};
 
 /**
@@ -79,6 +86,8 @@ static void test_logger_write_log(struct test_log *log);
 
 void test_logger(void)
 {
+  logger_initialize(INPUT_LEN);
+
   for(int i = 0; i < _test_log_count; ++i)
   {
     test_logger_write_log(&_test_logs[i]);
