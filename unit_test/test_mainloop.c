@@ -87,6 +87,8 @@ static void test_mainloop_tokenize_input(const struct command *command);
 
 void test_mainloop(void)
 {
+  printf("\nStart test mainloop.\n");
+
   for(int i = 0; i < _test_commands_count; ++i)
   {
     test_mainloop_generate_input(&_test_commands[i]);
@@ -97,6 +99,7 @@ void test_mainloop(void)
   printf("\n");
   printf("Pass: %d\n", _pass_count);
   printf("Fail: %d\n", _fail_count);
+  printf("End test mainloop.\n");
 }
 
 static void test_mainloop_assign_handler(const struct command *command)

@@ -86,6 +86,9 @@ static void test_logger_write_log(struct test_log *log);
 
 void test_logger(void)
 {
+  printf("\nStart test logger.\n");
+
+
   logger_initialize(INPUT_LEN);
 
   for(int i = 0; i < _test_log_count; ++i)
@@ -96,6 +99,7 @@ void test_logger(void)
   printf("\n");
   printf("Pass: %d\n", _pass_count);
   printf("Fail: %d\n", _fail_count);
+  printf("End test logger.\n");
 }
 
 static void test_logger_write_log(struct test_log *log)
