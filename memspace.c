@@ -322,5 +322,7 @@ static bool memspace_execute_fill(char *cmd, int argc, char *argv[])
     return false;
   }
 
+  memset(&_memory[start], value, end - start + 1);
+
   return true;
 }
