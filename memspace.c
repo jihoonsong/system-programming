@@ -62,11 +62,23 @@ static char _memory[MEMORY_SIZE] = {0,};
  */
 static bool memspace_execute_dump(char *cmd, int argc, char *argv[]);
 
+/**
+ * @brief          Set memory the given value.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool memspace_execute_edit(char *cmd, int argc, char *argv[]);
+
 void memspace_execute(char *cmd, int argc, char *argv[])
 {
   if(!strcmp("du", cmd) || !strcmp("dump", cmd))
   {
     _is_command_executed = memspace_execute_dump(cmd, argc, argv);
+  }
+  else if(!strcmp("e", cmd) || !strcmp("edit", cmd))
+  {
+    _is_command_executed = memspace_execute_edit(cmd, argc, argv);
   }
   else
   {
@@ -183,4 +195,8 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
   _last_dumped = dump_end;
 
   return true;
+}
+
+static bool memspace_execute_edit(char *cmd, int argc, char *argv[])
+{
 }
