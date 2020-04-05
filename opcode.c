@@ -9,11 +9,26 @@
 #include <string.h>
 #include <time.h>
 
+#include "logger.h"
+
 /**
  * @def   OPCODE_TABLE_LEN
  * @brief The length of opcode hash table.
  */
 #define OPCODE_TABLE_LEN 20
+
+/**
+ * @brief Structure of linear congruential generator integer constants.
+ */
+struct lcg
+{
+  /** 0<= increment < modulus. */
+  int increment;
+  /** 0 < modulus. */
+  int modulus;
+  /** 0 < multipler < modulus. */
+  int multipler;
+};
 
 /**
  * @brief Structure of opcode elements.
@@ -44,10 +59,9 @@ static const int HEX = 16;
 static int OPCODE_LEN = 25;
 
 /**
- * @brief Equals to 61.
- * @note  A prime number larger than OPCODE_TABLE_LEN;
+ * @brief LCG constants used to create opcode table.
  */
-static int LCG_MODULUS = 61;
+static struct lcg _lcg = {0,};
 
 /**
  * @brief A flag indicating whether command is executed or not.
@@ -82,21 +96,46 @@ static struct opcode * opcode_create_opcode(char *opcode,
 static void opcode_create_table(void);
 
 /**
+ * @brief          Print opcode of the given mnemonic.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool opcode_execute_opcode(char *cmd, int argc, char *argv[]);
+
+/**
  * @brief            Insert new opcode object into hash table.
  * @param[in] opcode An opcode object to be inserted into table.
  */
 static void opcode_insert_opcode(struct opcode *opcode);
 
+/*
+ * @brief Initialize lcg constants.
+ */
+static void opcode_initialize_lcg(void);
+
 void opcode_execute(char *cmd, int argc, char *argv[])
 {
-  // TODO: to be implemented.
-  printf("opcode_execute() is called\n");
+  if(!strcmp("opcode", cmd))
+  {
+    _is_command_executed = opcode_execute_opcode(cmd, argc, argv);
+  }
+  else
+  {
+    printf("%s: command not found\n", cmd);
+  }
+
+  if(_is_command_executed)
+  {
+    logger_write_log(cmd, argc, argv);
+  }
 }
 
 void opcode_initialize(void)
 {
   srand((unsigned int)time(NULL)); // For universal hashing.
 
+  opcode_initialize_lcg();
   opcode_create_table();
 }
 
@@ -116,32 +155,15 @@ void opcode_terminate(void)
 
 static int opcode_compute_key(char *mnemonic)
 {
-  int seed      = 0;
-  int multipler = 0;
-  int increment = 0;
-  int divisor   = RAND_MAX / LCG_MODULUS; // To eliminate skewness.
+  int seed = 0;
 
   for(int i = 0; i < strlen(mnemonic); ++i)
   {
     seed += (int)mnemonic[i];
   }
 
-  do
-  {
-    do
-    {
-      multipler = random() / divisor;
-    } while(multipler > LCG_MODULUS);
-  } while(!multipler);
-  // multipler is a random integer in [1, LCG_MODULUS).
-
-  do
-  {
-    increment = random() / divisor;
-  } while(increment > LCG_MODULUS);
-  // increment is a random integer in [0, LCG_MODULUS).
-
-  return ((multipler * seed + increment) % LCG_MODULUS) % OPCODE_TABLE_LEN;
+  int lcg = (_lcg.multipler * seed + _lcg.increment) % _lcg.modulus;
+  return lcg % OPCODE_TABLE_LEN;
 }
 
 static struct opcode * opcode_create_opcode(char *opcode,
@@ -210,6 +232,38 @@ static void opcode_create_table(void)
   fclose(fp);
 }
 
+static bool opcode_execute_opcode(char *cmd, int argc, char *argv[])
+{
+  if(0 == argc)
+  {
+    printf("opcode: one argument is required\n");
+    return false;
+  }
+  if(1 < argc)
+  {
+    printf("opcode: too many arguments\n");
+    return false;
+  }
+
+  int key = opcode_compute_key(argv[0]);
+  struct opcode *walk = _opcode_table[key];
+  while(walk && strcmp(argv[0], walk->mnemonic))
+  {
+    walk = walk->next;
+  }
+
+  if(walk)
+  {
+    printf("opcode is %X\n", walk->opcode);
+    return true;
+  }
+  else
+  {
+    printf("opcode: cannot find mnemonic %s\n", argv[0]);
+    return false;
+  }
+}
+
 static void opcode_insert_opcode(struct opcode *opcode)
 {
   int key = opcode_compute_key(opcode->mnemonic);
@@ -227,4 +281,26 @@ static void opcode_insert_opcode(struct opcode *opcode)
     }
     walk->next = opcode;
   }
+}
+
+static void opcode_initialize_lcg(void)
+{
+  // Any prime number larger than OPCODE_TABLE_LEN is fine.
+  _lcg.modulus = 61;
+
+  int divisor = RAND_MAX / _lcg.modulus; // To eliminate skewness.
+  do
+  {
+    do
+    {
+      _lcg.multipler = rand() / divisor;
+    } while(_lcg.multipler > _lcg.modulus);
+  } while(!_lcg.multipler);
+  // _lcg.multipler is a random integer in [1, _lcg.modulus).
+
+  do
+  {
+    _lcg.increment = rand() / divisor;
+  } while(_lcg.increment > _lcg.modulus);
+  // _lcg.increment is a random integer in [0, _lcg.modulus).
 }
