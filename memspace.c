@@ -144,7 +144,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
     }
     if(dump_start > ADDRESS_MAX)
     {
-      printf("dump: start value '%d' is too large\n", dump_start);
+      printf("dump: start '%x' is too large\n", dump_start);
       return false;
     }
   }
@@ -167,13 +167,13 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
     }
     if(dump_end > ADDRESS_MAX)
     {
-      printf("dump: end value '%d' is too large\n", dump_end);
+      printf("dump: end '%x' is too large\n", dump_end);
       return false;
     }
 
     if(dump_start > dump_end)
     {
-      printf("dump: start value '%d' is larger than end value '%d'\n",
+      printf("dump: start '%x' is larger than end value '%d'\n",
           dump_start, dump_end);
       return false;
     }
