@@ -46,6 +46,11 @@ struct opcode
 };
 
 /**
+ * @brief Equals to 16.
+ */
+static const int HEX = 16;
+
+/**
  * @brief Equals to 25.
  */
 static int OPCODE_LEN = 25;

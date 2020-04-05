@@ -20,46 +20,46 @@
 /**
  * @brief Equals to 0x00000.
  */
-const int ADDRESS_MIN = 0x00000;
+static const int ADDRESS_MIN = 0x00000;
 
 /**
  * @brief Equals to 0xFFFFF.
  */
-const int ADDRESS_MAX = 0xFFFFF;
+static const int ADDRESS_MAX = 0xFFFFF;
 
 /**
  * @brief Equals to 10. i.e. dump 10 lines.
  */
-const int DUMP_LINE_COUNT = 10;
+static const int DUMP_LINE_COUNT = 10;
 
 /**
  * @brief Equals to 16. i.e. dump 16 bytes per line.
  */
-const int DUMP_LINE_LEN = 16;
+static const int DUMP_LINE_LEN = 16;
 
 /**
  * @brief Equals to 160. i.e. DUMP_LINE_COUNT * DUMP_LINE_LEN.
  * @see   DUMP_LINE_COUNT
  * @see   DUMP_LINE_LEN
  */
-const int DUMP_SIZE = 160;
+static const int DUMP_SIZE = 160;
 
 /**
  * @brief Equals to 16.
  */
-const int HEX = 16;
+static const int HEX = 16;
 
 /**
  * @brief Equals to 0x00.
  * @note  Assumption is that 1 byte is 8 bits.
  */
-const int VALUE_MIN = 0x00;
+static const int VALUE_MIN = 0x00;
 
 /**
  * @brief Equals to 0xFF.
  * @note  Assumption is that 1 byte is 8 bits.
  */
-const int VALUE_MAX = 0xFF;
+static const int VALUE_MAX = 0xFF;
 
 /**
  * @brief A flag indicating the last dumped address.
