@@ -102,7 +102,16 @@ void opcode_initialize(void)
 
 void opcode_terminate(void)
 {
-  // TODO: to be implemented.
+  for(int i = 0; i < OPCODE_TABLE_LEN; ++i)
+  {
+    struct opcode *walk = _opcode_table[i];
+    while(walk)
+    {
+      struct opcode *del = walk;
+      walk = walk->next;
+      free(del);
+    }
+  }
 }
 
 static int opcode_compute_key(char *mnemonic)
