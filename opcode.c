@@ -18,6 +18,19 @@
 #define OPCODE_TABLE_LEN 20
 
 /**
+ * @brief Structure of linear congruential generator integer constants.
+ */
+struct lcg
+{
+  /** 0<= increment < modulus. */
+  int increment;
+  /** 0 < modulus. */
+  int modulus;
+  /** 0 < multipler < modulus. */
+  int multipler;
+};
+
+/**
  * @brief Structure of opcode elements.
  */
 struct opcode
@@ -46,10 +59,9 @@ static const int HEX = 16;
 static int OPCODE_LEN = 25;
 
 /**
- * @brief Equals to 61.
- * @note  A prime number larger than OPCODE_TABLE_LEN;
+ * @brief LCG constants used to create opcode table.
  */
-static int LCG_MODULUS = 61;
+static struct lcg _lcg = {0,};
 
 /**
  * @brief A flag indicating whether command is executed or not.
@@ -97,6 +109,11 @@ static bool opcode_execute_opcode(char *cmd, int argc, char *argv[]);
  */
 static void opcode_insert_opcode(struct opcode *opcode);
 
+/*
+ * @brief Initialize lcg constants.
+ */
+static void opcode_initialize_lcg(void);
+
 void opcode_execute(char *cmd, int argc, char *argv[])
 {
   if(!strcmp("opcode", cmd))
@@ -118,6 +135,7 @@ void opcode_initialize(void)
 {
   srand((unsigned int)time(NULL)); // For universal hashing.
 
+  opcode_initialize_lcg();
   opcode_create_table();
 }
 
@@ -137,32 +155,15 @@ void opcode_terminate(void)
 
 static int opcode_compute_key(char *mnemonic)
 {
-  int seed      = 0;
-  int multipler = 0;
-  int increment = 0;
-  int divisor   = RAND_MAX / LCG_MODULUS; // To eliminate skewness.
+  int seed = 0;
 
   for(int i = 0; i < strlen(mnemonic); ++i)
   {
     seed += (int)mnemonic[i];
   }
 
-  do
-  {
-    do
-    {
-      multipler = random() / divisor;
-    } while(multipler > LCG_MODULUS);
-  } while(!multipler);
-  // multipler is a random integer in [1, LCG_MODULUS).
-
-  do
-  {
-    increment = random() / divisor;
-  } while(increment > LCG_MODULUS);
-  // increment is a random integer in [0, LCG_MODULUS).
-
-  return ((multipler * seed + increment) % LCG_MODULUS) % OPCODE_TABLE_LEN;
+  int lcg = (_lcg.multipler * seed + _lcg.increment) % _lcg.modulus;
+  return lcg % OPCODE_TABLE_LEN;
 }
 
 static struct opcode * opcode_create_opcode(char *opcode,
@@ -280,4 +281,26 @@ static void opcode_insert_opcode(struct opcode *opcode)
     }
     walk->next = opcode;
   }
+}
+
+static void opcode_initialize_lcg(void)
+{
+  // Any prime number larger than OPCODE_TABLE_LEN is fine.
+  _lcg.modulus = 61;
+
+  int divisor = RAND_MAX / _lcg.modulus; // To eliminate skewness.
+  do
+  {
+    do
+    {
+      _lcg.multipler = rand() / divisor;
+    } while(_lcg.multipler > _lcg.modulus);
+  } while(!_lcg.multipler);
+  // _lcg.multipler is a random integer in [1, _lcg.modulus).
+
+  do
+  {
+    _lcg.increment = rand() / divisor;
+  } while(_lcg.increment > _lcg.modulus);
+  // _lcg.increment is a random integer in [0, _lcg.modulus).
 }
