@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "logger.h"
+
 /**
  * @def   MEMORY_SIZE
  * @brief 1Mbyte, i.e. 2^20.
@@ -57,6 +59,11 @@ void memspace_execute(char *cmd, int argc, char *argv[])
   else
   {
     printf("%s: command not found\n", cmd);
+  }
+
+  if(_is_command_executed)
+  {
+    logger_write_log(cmd, argc, argv);
   }
 }
 
