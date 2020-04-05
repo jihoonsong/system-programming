@@ -77,6 +77,17 @@ struct opcode *_opcode_table[OPCODE_TABLE_LEN] = {NULL,};
 static int opcode_compute_key(int seed);
 
 /**
+ * @brief              Create opcode object
+ * @param[in] opcode   Opcode.
+ * @param[in] mnemonic Mnemonic.
+ * @param[in] format   Format type.
+ * @return             Created opcode object.
+ */
+static struct opcode * opcode_create_opcode(char *opcode,
+                                            char *mnemonic,
+                                            char *format);
+
+/**
  * @brief Create opcode hash table.
  */
 static void opcode_create_table(void);
@@ -108,6 +119,44 @@ static int opcode_compute_key(int seed)
   return (_lcg.multipler * seed + _lcg.increment) % _lcg.modulus;
 }
 
+static struct opcode * opcode_create_opcode(char *opcode,
+                                            char *mnemonic,
+                                            char *format)
+{
+  struct opcode *new_opcode = malloc(sizeof(*new_opcode) +
+                                     sizeof(char) * (strlen(mnemonic) + 1));
+  memset(new_opcode, 0, sizeof(*new_opcode));
+  new_opcode->next = NULL;
+  new_opcode->opcode = strtol(opcode, NULL, HEX);
+  for(int i = 0; i < format[i]; ++i)
+  {
+    int type = strtol(&format[i], NULL, HEX);
+    switch(type)
+    {
+      case 1:
+        new_opcode->format1 = 1;
+        break;
+      case 2:
+        new_opcode->format2 = 1;
+        break;
+      case 3:
+        new_opcode->format3 = 1;
+        break;
+      case 4:
+        new_opcode->format4 = 1;
+        break;
+      default:
+        // There is no format 0, so strtol() returns 0 means it failed.
+        // In this case, this happens when it reads '/', the separator.
+        // Do nothing.
+        break;
+    }
+  }
+  strcpy(new_opcode->mnemonic, mnemonic);
+
+  return new_opcode;
+}
+
 static void opcode_create_table(void)
 {
   FILE *fp                     = NULL;
@@ -123,23 +172,26 @@ static void opcode_create_table(void)
     return;
   }
 
-  int count[OPCODE_TABLE_LEN] = {0,};
-
   while(fgets(instruction, OPCODE_LEN, fp))
   {
     opcode = strtok(instruction, " \t\n");
     mnemonic = strtok(NULL, " \t\n");
     format = strtok(NULL, " \t\n");
 
-    int key = opcode_compute_key(strtol(opcode, NULL, 16)) % OPCODE_TABLE_LEN;
-    ++count[key];
-  }
+    struct opcode *new_opcode = opcode_create_opcode(opcode, mnemonic, format);
 
-  for(int i = 0; i < 20; ++i)
-  {
-    printf("%d ", count[i]);
+    printf("opcode: %X\n", new_opcode->opcode);
+    printf("mnemonic: %s\n", new_opcode->mnemonic);
+    printf("types: %d %d %d %d\n", new_opcode->format1,
+                                   new_opcode->format2,
+                                   new_opcode->format3,
+                                   new_opcode->format4);
+    printf("\n");
+
+    // TODO: compute key.
+
+    // TODO: insert to hash table.
   }
-  printf("\n");
 
   fclose(fp);
 }
