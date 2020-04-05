@@ -12,10 +12,20 @@
 
 /**
  * @def   MEMORY_SIZE
- * @brief 1Mbyte, i.e. 2^20.
+ * @brief Its address is represented in 20 bits. i.e. 1 Mbyte.
  * @see   memory
  */
-#define MEMORY_SIZE 0xFFFFF
+#define MEMORY_SIZE 0xFFFFF + 1
+
+/**
+ * @brief Equals to 0x00000.
+ */
+const int ADDRESS_MIN = 0x00000;
+
+/**
+ * @brief Equals to 0xFFFFF.
+ */
+const int ADDRESS_MAX = 0xFFFFF;
 
 /**
  * @brief Equals to 10. i.e. dump 10 lines.
@@ -40,6 +50,18 @@ const int DUMP_SIZE = 160;
 const int HEX = 16;
 
 /**
+ * @brief Equals to 0x00.
+ * @note  Assumption is that 1 byte is 8 bits.
+ */
+const int VALUE_MIN = 0x00;
+
+/**
+ * @brief Equals to 0xFF.
+ * @note  Assumption is that 1 byte is 8 bits.
+ */
+const int VALUE_MAX = 0xFF;
+
+/**
  * @brief A flag indicating the last dumped address.
  */
 static int _last_dumped = -1;
@@ -51,6 +73,7 @@ static bool _is_command_executed = false;
 
 /**
  * @brief A memory on that object file will be loaded.
+ * @note  The index range is [ADDRESS_MIN, ADDRESS_MAX].
  */
 static char _memory[MEMORY_SIZE] = {0,};
 
@@ -62,11 +85,23 @@ static char _memory[MEMORY_SIZE] = {0,};
  */
 static bool memspace_execute_dump(char *cmd, int argc, char *argv[]);
 
+/**
+ * @brief          Set memory the given value.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool memspace_execute_edit(char *cmd, int argc, char *argv[]);
+
 void memspace_execute(char *cmd, int argc, char *argv[])
 {
   if(!strcmp("du", cmd) || !strcmp("dump", cmd))
   {
     _is_command_executed = memspace_execute_dump(cmd, argc, argv);
+  }
+  else if(!strcmp("e", cmd) || !strcmp("edit", cmd))
+  {
+    _is_command_executed = memspace_execute_edit(cmd, argc, argv);
   }
   else
   {
@@ -94,7 +129,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
   if(0 == argc)
   {
     dump_start = _last_dumped + 1;
-    if(dump_start > MEMORY_SIZE)
+    if(dump_start > ADDRESS_MAX)
     {
       dump_start = 0;
     }
@@ -107,9 +142,9 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
       printf("dump: argument '%s' is invalid\n", argv[0]);
       return false;
     }
-    if(dump_start > MEMORY_SIZE)
+    if(dump_start > ADDRESS_MAX)
     {
-      printf("dump: start value '%d' is too large\n", dump_start);
+      printf("dump: start '%x' is too large\n", dump_start);
       return false;
     }
   }
@@ -117,9 +152,9 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
   if(2 > argc)
   {
     dump_end = dump_start + DUMP_SIZE - 1; // Closed interval.
-    if(dump_end > MEMORY_SIZE)
+    if(dump_end > ADDRESS_MAX)
     {
-      dump_end = MEMORY_SIZE;
+      dump_end = ADDRESS_MAX;
     }
   }
   else
@@ -130,15 +165,15 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
       printf("dump: argument '%s' is invalid\n", argv[1]);
       return false;
     }
-    if(dump_end > MEMORY_SIZE)
+    if(dump_end > ADDRESS_MAX)
     {
-      printf("dump: end value '%d' is too large\n", dump_end);
+      printf("dump: end '%x' is too large\n", dump_end);
       return false;
     }
 
     if(dump_start > dump_end)
     {
-      printf("dump: start value '%d' is larger than end value '%d'\n",
+      printf("dump: start '%x' is larger than end value '%d'\n",
           dump_start, dump_end);
       return false;
     }
@@ -181,6 +216,47 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
   }
 
   _last_dumped = dump_end;
+
+  return true;
+}
+
+static bool memspace_execute_edit(char *cmd, int argc, char *argv[])
+{
+  if(2 != argc)
+  {
+    printf("edit: two arguments are required\n");
+    return false;
+  }
+
+  int  address = 0;
+  int  value = 0;
+  char *endptr = NULL;
+
+  address = strtol(argv[0], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("edit: argument '%s' is invalid\n", argv[0]);
+    return false;
+  }
+  if(address > ADDRESS_MAX)
+  {
+    printf("dump: address '%x' is too large\n", address);
+    return false;
+  }
+
+  value = strtol(argv[1], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("edit: argument '%s' is invalid\n", argv[1]);
+    return false;
+  }
+  if(value > VALUE_MAX)
+  {
+    printf("dump: value '%x' is too large\n", value);
+    return false;
+  }
+
+  _memory[address] = value;
 
   return true;
 }
