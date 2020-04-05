@@ -7,15 +7,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/**
+ * @brief Structure of opcode elements.
+ */
+struct opcode
+{
+  /** A pointer to the next log element. */
+  struct opcode *next;
+  /** An opcode value. */
+  int           opcode;
+  /** Type of format. */
+  unsigned int  format1 : 1;
+  unsigned int  format2 : 1;
+  unsigned int  format3 : 1;
+  unsigned int  format4 : 1;
+  /** A mnemonic equivalent to the opcode. */
+  char          mnemonic[];
+};
+
 /**
  * @brief Equals to 25.
  */
 static int INSTRUCTION_LEN = 25;
 
 /**
+ * @brief Equals to 20.
+ */
+static int OPCODE_TABLE_LEN = 20;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
+
+/**
+ * @brief A hash table of opcodes.
+ */
+struct opcode *_opcode_table[OPCODE_TABLE_LEN] = {NULL,};
 
 void opcode_execute(char *cmd, int argc, char *argv[])
 {
