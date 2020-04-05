@@ -179,6 +179,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
     }
     printf("\n");
   }
+
   _last_dumped = dump_end;
 
   return true;
