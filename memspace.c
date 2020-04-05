@@ -12,10 +12,20 @@
 
 /**
  * @def   MEMORY_SIZE
- * @brief 1Mbyte, i.e. 2^20.
+ * @brief Its address is represented in 20bits. i.e. 1Mbyte.
  * @see   memory
  */
-#define MEMORY_SIZE 0xFFFFF
+#define MEMORY_SIZE 0xFFFFF + 1
+
+/**
+ * @brief Equals to 0x00000.
+ */
+const int ADDRESS_MIN = 0x00000;
+
+/**
+ * @brief Equals to 0xFFFFF.
+ */
+const int ADDRESS_MAX = 0xFFFFF;
 
 /**
  * @brief Equals to 10. i.e. dump 10 lines.
@@ -51,6 +61,7 @@ static bool _is_command_executed = false;
 
 /**
  * @brief A memory on that object file will be loaded.
+ * @note  The index range is [ADDRESS_MIN, ADDRESS_MAX].
  */
 static char _memory[MEMORY_SIZE] = {0,};
 
@@ -106,7 +117,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
   if(0 == argc)
   {
     dump_start = _last_dumped + 1;
-    if(dump_start > MEMORY_SIZE)
+    if(dump_start > ADDRESS_MAX)
     {
       dump_start = 0;
     }
@@ -119,7 +130,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
       printf("dump: argument '%s' is invalid\n", argv[0]);
       return false;
     }
-    if(dump_start > MEMORY_SIZE)
+    if(dump_start > ADDRESS_MAX)
     {
       printf("dump: start value '%d' is too large\n", dump_start);
       return false;
@@ -129,9 +140,9 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
   if(2 > argc)
   {
     dump_end = dump_start + DUMP_SIZE - 1; // Closed interval.
-    if(dump_end > MEMORY_SIZE)
+    if(dump_end > ADDRESS_MAX)
     {
-      dump_end = MEMORY_SIZE;
+      dump_end = ADDRESS_MAX;
     }
   }
   else
@@ -142,7 +153,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
       printf("dump: argument '%s' is invalid\n", argv[1]);
       return false;
     }
-    if(dump_end > MEMORY_SIZE)
+    if(dump_end > ADDRESS_MAX)
     {
       printf("dump: end value '%d' is too large\n", dump_end);
       return false;
