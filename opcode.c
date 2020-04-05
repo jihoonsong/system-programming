@@ -9,6 +9,8 @@
 #include <string.h>
 #include <time.h>
 
+#include "logger.h"
+
 /**
  * @def   OPCODE_TABLE_LEN
  * @brief The length of opcode hash table.
@@ -82,6 +84,14 @@ static struct opcode * opcode_create_opcode(char *opcode,
 static void opcode_create_table(void);
 
 /**
+ * @brief          Print opcode of the given mnemonic.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool opcode_execute_opcode(char *cmd, int argc, char *argv[]);
+
+/**
  * @brief            Insert new opcode object into hash table.
  * @param[in] opcode An opcode object to be inserted into table.
  */
@@ -89,8 +99,19 @@ static void opcode_insert_opcode(struct opcode *opcode);
 
 void opcode_execute(char *cmd, int argc, char *argv[])
 {
-  // TODO: to be implemented.
-  printf("opcode_execute() is called\n");
+  if(!strcmp("opcode", cmd))
+  {
+    _is_command_executed = opcode_execute_opcode(cmd, argc, argv);
+  }
+  else
+  {
+    printf("%s: command not found\n", cmd);
+  }
+
+  if(_is_command_executed)
+  {
+    logger_write_log(cmd, argc, argv);
+  }
 }
 
 void opcode_initialize(void)
@@ -208,6 +229,38 @@ static void opcode_create_table(void)
   }
 
   fclose(fp);
+}
+
+static bool opcode_execute_opcode(char *cmd, int argc, char *argv[])
+{
+  if(0 == argc)
+  {
+    printf("opcode: one argument is required\n");
+    return false;
+  }
+  if(1 < argc)
+  {
+    printf("opcode: too many arguments\n");
+    return false;
+  }
+
+  int key = opcode_compute_key(argv[0]);
+  struct opcode *walk = _opcode_table[key];
+  while(walk && strcmp(argv[0], walk->mnemonic))
+  {
+    walk = walk->next;
+  }
+
+  if(walk)
+  {
+    printf("opcode is %X\n", walk->opcode);
+    return true;
+  }
+  else
+  {
+    printf("opcode: cannot find mnemonic %s\n", argv[0]);
+    return false;
+  }
 }
 
 static void opcode_insert_opcode(struct opcode *opcode)
