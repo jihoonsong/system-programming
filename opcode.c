@@ -104,6 +104,14 @@ static void opcode_create_table(void);
 static bool opcode_execute_opcode(char *cmd, int argc, char *argv[]);
 
 /**
+ * @brief          Print opcode table.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool opcode_execute_opcodelist(char *cmd, int argc, char *argv[]);
+
+/**
  * @brief            Insert new opcode object into hash table.
  * @param[in] opcode An opcode object to be inserted into table.
  */
@@ -119,6 +127,10 @@ void opcode_execute(char *cmd, int argc, char *argv[])
   if(!strcmp("opcode", cmd))
   {
     _is_command_executed = opcode_execute_opcode(cmd, argc, argv);
+  }
+  else if(!strcmp("opcodelist", cmd))
+  {
+    _is_command_executed = opcode_execute_opcodelist(cmd, argc, argv);
   }
   else
   {
@@ -262,6 +274,31 @@ static bool opcode_execute_opcode(char *cmd, int argc, char *argv[])
     printf("opcode: cannot find mnemonic %s\n", argv[0]);
     return false;
   }
+}
+
+static bool opcode_execute_opcodelist(char *cmd, int argc, char *argv[])
+{
+  if(0 < argc)
+  {
+    printf("opcodelist: too many arguments\n");
+    return false;
+  }
+
+  for(int i = 0; i < OPCODE_TABLE_LEN; ++i)
+  {
+    printf("%d :", i);
+    for(struct opcode *walk = _opcode_table[i]; walk; walk = walk->next)
+    {
+      printf(" [%s,%X] ", walk->mnemonic, walk->opcode);
+      if(walk->next)
+      {
+        printf("->");
+      }
+    }
+    printf("\n");
+  }
+
+  return true;
 }
 
 static void opcode_insert_opcode(struct opcode *opcode)
