@@ -9,6 +9,19 @@
 #include <string.h>
 
 /**
+ * @brief Structure of linear congruential generator integer constants.
+ */
+struct lcg
+{
+  /** 0<= increment < modulus. */
+  int increment;
+  /** 0 < modulus. */
+  int modulus;
+  /** 0 < multipler < modulus. */
+  int multipler;
+};
+
+/**
  * @brief Structure of opcode elements.
  */
 struct opcode
@@ -35,6 +48,11 @@ static int INSTRUCTION_LEN = 25;
  * @brief Equals to 20.
  */
 static int OPCODE_TABLE_LEN = 20;
+
+/**
+ * @brief LCG constants used to create opcode table.
+ */
+static struct lcg _lcg = {0,};
 
 /**
  * @brief A flag indicating whether command is executed or not.
