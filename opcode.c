@@ -7,25 +7,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /**
  * @def   OPCODE_TABLE_LEN
  * @brief The length of opcode hash table.
  */
 #define OPCODE_TABLE_LEN 20
-
-/**
- * @brief Structure of linear congruential generator integer constants.
- */
-struct lcg
-{
-  /** 0<= increment < modulus. */
-  int increment;
-  /** 0 < modulus. */
-  int modulus;
-  /** 0 < multipler < modulus. */
-  int multipler;
-};
 
 /**
  * @brief Structure of opcode elements.
@@ -56,9 +44,10 @@ static const int HEX = 16;
 static int OPCODE_LEN = 25;
 
 /**
- * @brief LCG constants used to create opcode table.
+ * @brief Equals to 61.
+ * @note  A prime number larger than OPCODE_TABLE_LEN;
  */
-static struct lcg _lcg = {0,};
+static int LCG_MODULUS = 61;
 
 /**
  * @brief A flag indicating whether command is executed or not.
@@ -71,10 +60,10 @@ static bool _is_command_executed = false;
 struct opcode *_opcode_table[OPCODE_TABLE_LEN] = {NULL,};
 
 /**
- * @brief          Compute key for hash table based on the given seed.
- * @param[in] seed A seed for single linear congruential generator.
+ * @brief              Compute key for hash table based on the given seed.
+ * @param[in] mnemonic A seed for single linear congruential generator.
  */
-static int opcode_compute_key(int seed);
+static int opcode_compute_key(char *mnemonic);
 
 /**
  * @brief              Create opcode object
@@ -88,14 +77,9 @@ static struct opcode * opcode_create_opcode(char *opcode,
                                             char *format);
 
 /**
- * @brief Create opcode hash table.
+ * @brief Create opcode hash table using universal hasing.
  */
 static void opcode_create_table(void);
-
-/**
- * @brief Initialize lcg constants.
- */
-static void opcode_initialize_lcg(void);
 
 void opcode_execute(char *cmd, int argc, char *argv[])
 {
@@ -105,7 +89,8 @@ void opcode_execute(char *cmd, int argc, char *argv[])
 
 void opcode_initialize(void)
 {
-  opcode_initialize_lcg();
+  srand((unsigned int)time(NULL)); // For universal hashing.
+
   opcode_create_table();
 }
 
@@ -114,9 +99,30 @@ void opcode_terminate(void)
   // TODO: to be implemented.
 }
 
-static int opcode_compute_key(int seed)
+static int opcode_compute_key(char *mnemonic)
 {
-  return (_lcg.multipler * seed + _lcg.increment) % _lcg.modulus;
+  int multipler = 0;
+  int increment = 0;
+  int divisor = RAND_MAX / LCG_MODULUS;
+  // Each character of mnemonic is [A, Z], and
+  // 36 base representation has range of [0, Z].
+  // Note that strtol() can take base between 2 and 36.
+  int seed = strtol(mnemonic, NULL, 36);
+
+  do
+  {
+    do
+    {
+      multipler = random() / divisor;
+    } while(multipler > LCG_MODULUS);
+  } while(!multipler);
+
+  do
+  {
+    increment = random() / divisor;
+  } while(increment > LCG_MODULUS);
+
+  return ((multipler * seed + increment) % LCG_MODULUS) % OPCODE_TABLE_LEN;
 }
 
 static struct opcode * opcode_create_opcode(char *opcode,
@@ -172,6 +178,7 @@ static void opcode_create_table(void)
     return;
   }
 
+  int key_count[OPCODE_TABLE_LEN] = {0,};
   while(fgets(instruction, OPCODE_LEN, fp))
   {
     opcode = strtok(instruction, " \t\n");
@@ -179,31 +186,17 @@ static void opcode_create_table(void)
     format = strtok(NULL, " \t\n");
 
     struct opcode *new_opcode = opcode_create_opcode(opcode, mnemonic, format);
+    int key = opcode_compute_key(mnemonic);
 
-    printf("opcode: %X\n", new_opcode->opcode);
-    printf("mnemonic: %s\n", new_opcode->mnemonic);
-    printf("types: %d %d %d %d\n", new_opcode->format1,
-                                   new_opcode->format2,
-                                   new_opcode->format3,
-                                   new_opcode->format4);
-    printf("\n");
-
-    // TODO: compute key.
+    ++key_count[key];
 
     // TODO: insert to hash table.
   }
+  for(int i = 0; i < OPCODE_TABLE_LEN; ++i)
+  {
+    printf("%d ", key_count[i]);
+  }
+  printf("\n");
 
   fclose(fp);
-}
-
-static void opcode_initialize_lcg(void)
-{
-  // Any number in [0, OPCODE_TABLE_LEN] relatively prime with modulus is fine.
-  _lcg.increment = 19;
-
-  // Any prime number larger than OPCODE_TABLE_LEN is fine.
-  _lcg.modulus = 31;
-
-  // multipler - 1 should be divisible by all prime factors in modulus.
-  _lcg.multipler = 1;
 }
