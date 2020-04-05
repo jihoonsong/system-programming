@@ -12,7 +12,7 @@
 
 /**
  * @def   MEMORY_SIZE
- * @brief Its address is represented in 20bits. i.e. 1Mbyte.
+ * @brief Its address is represented in 20 bits. i.e. 1 Mbyte.
  * @see   memory
  */
 #define MEMORY_SIZE 0xFFFFF + 1
@@ -48,6 +48,18 @@ const int DUMP_SIZE = 160;
  * @brief Equals to 16.
  */
 const int HEX = 16;
+
+/**
+ * @brief Equals to 0x00.
+ * @note  Assumption is that 1 byte is 8 bits.
+ */
+const int VALUE_MIN = 0x00;
+
+/**
+ * @brief Equals to 0xFF.
+ * @note  Assumption is that 1 byte is 8 bits.
+ */
+const int VALUE_MAX = 0xFF;
 
 /**
  * @brief A flag indicating the last dumped address.
