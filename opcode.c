@@ -48,7 +48,7 @@ struct opcode
 /**
  * @brief Equals to 25.
  */
-static int INSTRUCTION_LEN = 25;
+static int OPCODE_LEN = 25;
 
 /**
  * @brief LCG constants used to create opcode table.
@@ -64,6 +64,12 @@ static bool _is_command_executed = false;
  * @brief A hash table of opcodes.
  */
 struct opcode *_opcode_table[OPCODE_TABLE_LEN] = {NULL,};
+
+/**
+ * @brief          Compute key for hash table based on the given seed.
+ * @param[in] seed A seed for single linear congruential generator.
+ */
+static int opcode_compute_key(int seed);
 
 /**
  * @brief Create opcode hash table.
@@ -92,13 +98,18 @@ void opcode_terminate(void)
   // TODO: to be implemented.
 }
 
+static int opcode_compute_key(int seed)
+{
+  return (_lcg.multipler * seed + _lcg.increment) % _lcg.modulus;
+}
+
 static void opcode_create_table(void)
 {
-  FILE *fp                          = NULL;
-  char instruction[INSTRUCTION_LEN];
-  char *opcode                      = NULL;
-  char *mnemonic                    = NULL;
-  char *format                      = NULL;
+  FILE *fp                     = NULL;
+  char instruction[OPCODE_LEN];
+  char *opcode                 = NULL;
+  char *mnemonic               = NULL;
+  char *format                 = NULL;
 
   fp = fopen("opcode.txt", "r");
   if(!fp)
@@ -107,14 +118,23 @@ static void opcode_create_table(void)
     return;
   }
 
-  while(fgets(instruction, INSTRUCTION_LEN, fp))
+  int count[OPCODE_TABLE_LEN] = {0,};
+
+  while(fgets(instruction, OPCODE_LEN, fp))
   {
     opcode = strtok(instruction, " \t\n");
     mnemonic = strtok(NULL, " \t\n");
     format = strtok(NULL, " \t\n");
 
-    printf("%s %s %s\n", opcode, mnemonic, format);
+    int key = opcode_compute_key(strtol(opcode, NULL, 16)) % OPCODE_TABLE_LEN;
+    ++count[key];
   }
+
+  for(int i = 0; i < 20; ++i)
+  {
+    printf("%d ", count[i]);
+  }
+  printf("\n");
 
   fclose(fp);
 }
