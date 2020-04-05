@@ -101,6 +101,14 @@ static bool memspace_execute_edit(char *cmd, int argc, char *argv[]);
  */
 static bool memspace_execute_fill(char *cmd, int argc, char *argv[]);
 
+/**
+ * @brief          Clear all memory.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool memspace_execute_reset(char *cmd, int argc, char *argv[]);
+
 void memspace_execute(char *cmd, int argc, char *argv[])
 {
   if(!strcmp("du", cmd) || !strcmp("dump", cmd))
@@ -114,6 +122,10 @@ void memspace_execute(char *cmd, int argc, char *argv[])
   else if(!strcmp("f", cmd) || !strcmp("fill", cmd))
   {
     _is_command_executed = memspace_execute_fill(cmd, argc, argv);
+  }
+  else if(!strcmp("reset", cmd))
+  {
+    _is_command_executed = memspace_execute_reset(cmd, argc, argv);
   }
   else
   {
@@ -323,6 +335,19 @@ static bool memspace_execute_fill(char *cmd, int argc, char *argv[])
   }
 
   memset(&_memory[start], value, end - start + 1);
+
+  return true;
+}
+
+static bool memspace_execute_reset(char *cmd, int argc, char *argv[])
+{
+  if(0 < argc)
+  {
+    printf("reset: too many arguments\n");
+    return false;
+  }
+
+  memset(_memory, 0, MEMORY_SIZE);
 
   return true;
 }
