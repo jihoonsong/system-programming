@@ -18,14 +18,26 @@
 #define MEMORY_SIZE 0xFFFFF
 
 /**
+ * @brief Equals to 10. i.e. dump 10 lines.
+ */
+const int DUMP_LINE_COUNT = 10;
+
+/**
+ * @brief Equals to 16. i.e. dump 16 bytes per line.
+ */
+const int DUMP_LINE_LEN = 16;
+
+/**
+ * @brief Equals to 160. i.e. DUMP_LINE_COUNT * DUMP_LINE_LEN.
+ * @see   DUMP_LINE_COUNT
+ * @see   DUMP_LINE_LEN
+ */
+const int DUMP_SIZE = 160;
+
+/**
  * @brief Equals to 16.
  */
 const int HEX = 16;
-
-/**
- * @brief Equals to 160. It is 10 lines with 16 bytes per line.
- */
-const int DEFAULT_DUMP = 160;
 
 /**
  * @brief A flag indicating the last dumped address.
@@ -104,7 +116,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
 
   if(2 > argc)
   {
-    dump_end = dump_start + DEFAULT_DUMP - 1; // Closed interval.
+    dump_end = dump_start + DUMP_SIZE - 1; // Closed interval.
     if(dump_end > MEMORY_SIZE)
     {
       dump_end = MEMORY_SIZE;
@@ -132,7 +144,42 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
     }
   }
 
-  printf("start: %d, end: %d\n", dump_start, dump_end);
+  for(int line = dump_start / DUMP_LINE_LEN;
+      line <= dump_end / DUMP_LINE_LEN;
+      ++line)
+  {
+    int base = line * DUMP_LINE_LEN;
+
+    printf("%05X ", base);
+    for(int offset = 0; offset < DUMP_LINE_LEN; ++offset)
+    {
+      int address = base + offset;
+      if(address < dump_start || address > dump_end)
+      {
+        printf("%2c ", ' ');
+      }
+      else
+      {
+        printf("%02X ", _memory[address]);
+      }
+    }
+    printf("; ");
+    for(int offset = 0; offset < DUMP_LINE_LEN; ++offset)
+    {
+      int address = base + offset;
+      if(address < dump_start || address > dump_end ||
+         _memory[address] < 0x20 || _memory[address] > 0x7E)
+      {
+        printf(".");
+      }
+      else
+      {
+        printf("%c", _memory[address]);
+      }
+    }
+    printf("\n");
+  }
+  _last_dumped = dump_end;
 
   return true;
 }
