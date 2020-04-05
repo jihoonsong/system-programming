@@ -275,5 +275,52 @@ static bool memspace_execute_edit(char *cmd, int argc, char *argv[])
 
 static bool memspace_execute_fill(char *cmd, int argc, char *argv[])
 {
+  if(3 != argc)
+  {
+    printf("fill: three arguments are required\n");
+    return false;
+  }
+
+  int  start = 0;
+  int  end = 0;
+  int  value = 0;
+  char *endptr = NULL;
+
+  start = strtol(argv[0], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("fill: argument '%s' is invalid\n", argv[0]);
+    return false;
+  }
+  if(start > ADDRESS_MAX)
+  {
+    printf("fill: start '%x' is too large\n", start);
+    return false;
+  }
+
+  end = strtol(argv[1], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("fill: argument '%s' is invalid\n", argv[1]);
+    return false;
+  }
+  if(end > ADDRESS_MAX)
+  {
+    printf("fill: end '%x' is too large\n", end);
+    return false;
+  }
+
+  value = strtol(argv[2], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("fill: argument '%s' is invalid\n", argv[2]);
+    return false;
+  }
+  if(value > VALUE_MAX)
+  {
+    printf("fill: value '%x' is too large\n", value);
+    return false;
+  }
+
   return true;
 }
