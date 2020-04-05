@@ -81,6 +81,12 @@ static struct opcode * opcode_create_opcode(char *opcode,
  */
 static void opcode_create_table(void);
 
+/**
+ * @brief            Insert new opcode object into hash table.
+ * @param[in] opcode An opcode object to be inserted into table.
+ */
+static void opcode_insert_opcode(struct opcode *opcode);
+
 void opcode_execute(char *cmd, int argc, char *argv[])
 {
   // TODO: to be implemented.
@@ -101,13 +107,15 @@ void opcode_terminate(void)
 
 static int opcode_compute_key(char *mnemonic)
 {
+  int seed      = 0;
   int multipler = 0;
   int increment = 0;
-  int divisor = RAND_MAX / LCG_MODULUS;
-  // Each character of mnemonic is [A, Z], and
-  // 36 base representation has range of [0, Z].
-  // Note that strtol() can take base between 2 and 36.
-  int seed = strtol(mnemonic, NULL, 36);
+  int divisor   = RAND_MAX / LCG_MODULUS; // To eliminate skewness.
+
+  for(int i = 0; i < strlen(mnemonic); ++i)
+  {
+    seed += (int)mnemonic[i];
+  }
 
   do
   {
@@ -116,11 +124,13 @@ static int opcode_compute_key(char *mnemonic)
       multipler = random() / divisor;
     } while(multipler > LCG_MODULUS);
   } while(!multipler);
+  // multipler is a random integer in [1, LCG_MODULUS).
 
   do
   {
     increment = random() / divisor;
   } while(increment > LCG_MODULUS);
+  // increment is a random integer in [0, LCG_MODULUS).
 
   return ((multipler * seed + increment) % LCG_MODULUS) % OPCODE_TABLE_LEN;
 }
@@ -178,7 +188,6 @@ static void opcode_create_table(void)
     return;
   }
 
-  int key_count[OPCODE_TABLE_LEN] = {0,};
   while(fgets(instruction, OPCODE_LEN, fp))
   {
     opcode = strtok(instruction, " \t\n");
@@ -186,17 +195,27 @@ static void opcode_create_table(void)
     format = strtok(NULL, " \t\n");
 
     struct opcode *new_opcode = opcode_create_opcode(opcode, mnemonic, format);
-    int key = opcode_compute_key(mnemonic);
-
-    ++key_count[key];
-
-    // TODO: insert to hash table.
+    opcode_insert_opcode(new_opcode);
   }
-  for(int i = 0; i < OPCODE_TABLE_LEN; ++i)
-  {
-    printf("%d ", key_count[i]);
-  }
-  printf("\n");
 
   fclose(fp);
+}
+
+static void opcode_insert_opcode(struct opcode *opcode)
+{
+  int key = opcode_compute_key(opcode->mnemonic);
+
+  if(!_opcode_table[key])
+  {
+    _opcode_table[key] = opcode;
+  }
+  else
+  {
+    struct opcode *walk = _opcode_table[key];
+    while(walk->next)
+    {
+      walk = walk->next;
+    }
+    walk->next = opcode;
+  }
 }
