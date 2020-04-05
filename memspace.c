@@ -222,4 +222,41 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
 
 static bool memspace_execute_edit(char *cmd, int argc, char *argv[])
 {
+  if(2 != argc)
+  {
+    printf("edit: two arguments are required\n");
+    return false;
+  }
+
+  int  address = 0;
+  int  value = 0;
+  char *endptr = NULL;
+
+  address = strtol(argv[0], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("edit: argument '%s' is invalid\n", argv[0]);
+    return false;
+  }
+  if(address > ADDRESS_MAX)
+  {
+    printf("dump: address '%x' is too large\n", address);
+    return false;
+  }
+
+  value = strtol(argv[1], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("edit: argument '%s' is invalid\n", argv[1]);
+    return false;
+  }
+  if(value > VALUE_MAX)
+  {
+    printf("dump: value '%x' is too large\n", value);
+    return false;
+  }
+
+  printf("address: '%d', value: '%d'\n", address, value);
+
+  return true;
 }
