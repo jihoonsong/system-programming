@@ -73,6 +73,7 @@ static void mainloop_tokenize_input(char *input);
 void mainloop_initialize(void)
 {
   logger_initialize(INPUT_LEN);
+  opcode_initialize();
 }
 
 void mainloop_launch(void)
@@ -107,6 +108,7 @@ void mainloop_quit(void)
 void mainloop_terminate(void)
 {
   logger_terminate();
+  opcode_terminate();
 }
 
 static bool mainloop_assign_handler(void)

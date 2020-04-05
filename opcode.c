@@ -16,3 +16,13 @@ void opcode_execute(char *cmd, int argc, char *argv[])
   // TODO: to be implemented.
   printf("opcode_execute() is called\n");
 }
+
+void opcode_initialize(void)
+{
+  // TODO: to be implemented.
+}
+
+void opcode_terminate(void)
+{
+  // TODO: to be implemented.
+}

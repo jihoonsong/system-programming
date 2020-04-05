@@ -14,4 +14,14 @@
  */
 void opcode_execute(char *cmd, int argc, char *argv[]);
 
+/**
+ * @brief Create opcode hash table.
+ */
+void opcode_initialize(void);
+
+/**
+ * @brief Release hash table.
+ */
+void opcode_terminate(void);
+
 #endif
