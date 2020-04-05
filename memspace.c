@@ -256,7 +256,7 @@ static bool memspace_execute_edit(char *cmd, int argc, char *argv[])
     return false;
   }
 
-  printf("address: '%d', value: '%d'\n", address, value);
+  _memory[address] = value;
 
   return true;
 }
