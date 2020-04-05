@@ -9,6 +9,12 @@
 #include <string.h>
 
 /**
+ * @def   OPCODE_TABLE_LEN
+ * @brief The length of opcode hash table.
+ */
+#define OPCODE_TABLE_LEN 20
+
+/**
  * @brief Structure of linear congruential generator integer constants.
  */
 struct lcg
@@ -45,11 +51,6 @@ struct opcode
 static int INSTRUCTION_LEN = 25;
 
 /**
- * @brief Equals to 20.
- */
-static int OPCODE_TABLE_LEN = 20;
-
-/**
  * @brief LCG constants used to create opcode table.
  */
 static struct lcg _lcg = {0,};
@@ -64,6 +65,16 @@ static bool _is_command_executed = false;
  */
 struct opcode *_opcode_table[OPCODE_TABLE_LEN] = {NULL,};
 
+/**
+ * @brief Create opcode hash table.
+ */
+static void opcode_create_table(void);
+
+/**
+ * @brief Initialize lcg constants.
+ */
+static void opcode_initialize_lcg(void);
+
 void opcode_execute(char *cmd, int argc, char *argv[])
 {
   // TODO: to be implemented.
@@ -71,6 +82,17 @@ void opcode_execute(char *cmd, int argc, char *argv[])
 }
 
 void opcode_initialize(void)
+{
+  opcode_initialize_lcg();
+  opcode_create_table();
+}
+
+void opcode_terminate(void)
+{
+  // TODO: to be implemented.
+}
+
+static void opcode_create_table(void)
 {
   FILE *fp                          = NULL;
   char instruction[INSTRUCTION_LEN];
@@ -97,7 +119,14 @@ void opcode_initialize(void)
   fclose(fp);
 }
 
-void opcode_terminate(void)
+static void opcode_initialize_lcg(void)
 {
-  // TODO: to be implemented.
+  // Any number in [0, OPCODE_TABLE_LEN] relatively prime with modulus is fine.
+  _lcg.increment = 19;
+
+  // Any prime number larger than OPCODE_TABLE_LEN is fine.
+  _lcg.modulus = 31;
+
+  // multipler - 1 should be divisible by all prime factors in modulus.
+  _lcg.multipler = 1;
 }
