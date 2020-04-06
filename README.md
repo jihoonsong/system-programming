@@ -1,6 +1,6 @@
 # SIC/XE Machine
 
-This is a project of System programming course at Sogang University.
+This is a course project of System Programming lecture at Sogang University.
 
 ## Execution
 
