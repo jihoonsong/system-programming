@@ -113,6 +113,13 @@ void mainloop_terminate(void)
 
 static bool mainloop_assign_handler(void)
 {
+  if(!_command.cmd)
+  {
+    // The input was empty.
+    _command.handler = NULL;
+    return false;
+  }
+
   const char * const SHELL_CMDS[]    = {"h",
                                         "help",
                                         "d",
