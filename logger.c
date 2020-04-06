@@ -51,7 +51,7 @@ void logger_initialize(const int input_len)
   INPUT_LEN = input_len;
 }
 
-int logger_view_log(void)
+const int logger_view_log(void)
 {
   int count = 0;
   struct log *walk = _log_head;
@@ -68,7 +68,7 @@ int logger_view_log(void)
   return count;
 }
 
-void logger_write_log(char *cmd, int argc, char *argv[])
+void logger_write_log(const char *cmd, const int argc, const char *argv[])
 {
   char command[INPUT_LEN];
 

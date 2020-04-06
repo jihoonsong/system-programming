@@ -39,7 +39,7 @@ struct command
   /** The number of arguments. */
   int  argc;
   /** An assigned handler. */
-  void (*handler)(char *, int, char *[]);
+  void (*handler)(const char *, const int, const char *[]);
 };
 
 /**
@@ -90,9 +90,9 @@ void mainloop_launch(void)
       {
         if(_command.handler)
         {
-          _command.handler(_command.cmd,
-                           _command.argc,
-                           _command.argv);
+          _command.handler((const char *)_command.cmd,
+                           (const int)_command.argc,
+                           (const char **)_command.argv);
         }
         else
         {

@@ -83,7 +83,7 @@ static char _memory[MEMORY_SIZE] = {0,};
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_dump(char *cmd, int argc, char *argv[]);
+static bool memspace_execute_dump(const char *cmd, const int argc, const char *argv[]);
 
 /**
  * @brief          Set memory the given value.
@@ -91,7 +91,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[]);
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_edit(char *cmd, int argc, char *argv[]);
+static bool memspace_execute_edit(const char *cmd, const int argc, const char *argv[]);
 
 /**
  * @brief          Fill memory the given value.
@@ -99,7 +99,7 @@ static bool memspace_execute_edit(char *cmd, int argc, char *argv[]);
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_fill(char *cmd, int argc, char *argv[]);
+static bool memspace_execute_fill(const char *cmd, const int argc, const char *argv[]);
 
 /**
  * @brief          Clear all memory.
@@ -107,9 +107,9 @@ static bool memspace_execute_fill(char *cmd, int argc, char *argv[]);
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_reset(char *cmd, int argc, char *argv[]);
+static bool memspace_execute_reset(const char *cmd, const int argc, const char *argv[]);
 
-void memspace_execute(char *cmd, int argc, char *argv[])
+void memspace_execute(const char *cmd, const int argc, const char *argv[])
 {
   if(!strcmp("du", cmd) || !strcmp("dump", cmd))
   {
@@ -138,7 +138,7 @@ void memspace_execute(char *cmd, int argc, char *argv[])
   }
 }
 
-static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
+static bool memspace_execute_dump(const char *cmd, const int argc, const char *argv[])
 {
   if(2 < argc)
   {
@@ -246,7 +246,7 @@ static bool memspace_execute_dump(char *cmd, int argc, char *argv[])
   return true;
 }
 
-static bool memspace_execute_edit(char *cmd, int argc, char *argv[])
+static bool memspace_execute_edit(const char *cmd, const int argc, const char *argv[])
 {
   if(2 != argc)
   {
@@ -289,7 +289,7 @@ static bool memspace_execute_edit(char *cmd, int argc, char *argv[])
   return true;
 }
 
-static bool memspace_execute_fill(char *cmd, int argc, char *argv[])
+static bool memspace_execute_fill(const char *cmd, const int argc, const char *argv[])
 {
   if(3 != argc)
   {
@@ -346,7 +346,7 @@ static bool memspace_execute_fill(char *cmd, int argc, char *argv[])
   return true;
 }
 
-static bool memspace_execute_reset(char *cmd, int argc, char *argv[])
+static bool memspace_execute_reset(const char *cmd, const int argc, const char *argv[])
 {
   if(0 < argc)
   {

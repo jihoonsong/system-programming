@@ -56,7 +56,7 @@ static const int HEX = 16;
 /**
  * @brief Equals to 25.
  */
-static int OPCODE_LEN = 25;
+static const int OPCODE_LEN = 25;
 
 /**
  * @brief LCG constants used to create opcode table.
@@ -77,7 +77,7 @@ struct opcode *_opcode_table[OPCODE_TABLE_LEN] = {NULL,};
  * @brief              Compute key for hash table based on the given seed.
  * @param[in] mnemonic A seed for single linear congruential generator.
  */
-static int opcode_compute_key(char *mnemonic);
+static const int opcode_compute_key(const char *mnemonic);
 
 /**
  * @brief              Create opcode object
@@ -86,9 +86,9 @@ static int opcode_compute_key(char *mnemonic);
  * @param[in] format   Format type.
  * @return             Created opcode object.
  */
-static struct opcode * opcode_create_opcode(char *opcode,
-                                            char *mnemonic,
-                                            char *format);
+static struct opcode *opcode_create_opcode(const char *opcode,
+                                           const char *mnemonic,
+                                           const char *format);
 
 /**
  * @brief Create opcode hash table using universal hasing.
@@ -101,7 +101,7 @@ static void opcode_create_table(void);
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool opcode_execute_opcode(char *cmd, int argc, char *argv[]);
+static bool opcode_execute_opcode(const char *cmd, const int argc, const char *argv[]);
 
 /**
  * @brief          Print opcode table.
@@ -109,7 +109,7 @@ static bool opcode_execute_opcode(char *cmd, int argc, char *argv[]);
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool opcode_execute_opcodelist(char *cmd, int argc, char *argv[]);
+static bool opcode_execute_opcodelist(const char *cmd, const int argc, const char *argv[]);
 
 /**
  * @brief            Insert new opcode object into hash table.
@@ -122,7 +122,7 @@ static void opcode_insert_opcode(struct opcode *opcode);
  */
 static void opcode_initialize_lcg(void);
 
-void opcode_execute(char *cmd, int argc, char *argv[])
+void opcode_execute(const char *cmd, const int argc, const char *argv[])
 {
   if(!strcmp("opcode", cmd))
   {
@@ -165,7 +165,7 @@ void opcode_terminate(void)
   }
 }
 
-static int opcode_compute_key(char *mnemonic)
+static const int opcode_compute_key(const char *mnemonic)
 {
   int seed = 0;
 
@@ -178,9 +178,9 @@ static int opcode_compute_key(char *mnemonic)
   return lcg % OPCODE_TABLE_LEN;
 }
 
-static struct opcode * opcode_create_opcode(char *opcode,
-                                            char *mnemonic,
-                                            char *format)
+static struct opcode *opcode_create_opcode(const char *opcode,
+                                           const char *mnemonic,
+                                           const char *format)
 {
   struct opcode *new_opcode = malloc(sizeof(*new_opcode) +
                                      sizeof(char) * (strlen(mnemonic) + 1));
@@ -244,7 +244,7 @@ static void opcode_create_table(void)
   fclose(fp);
 }
 
-static bool opcode_execute_opcode(char *cmd, int argc, char *argv[])
+static bool opcode_execute_opcode(const char *cmd, const int argc, const char *argv[])
 {
   if(0 == argc)
   {
@@ -257,7 +257,7 @@ static bool opcode_execute_opcode(char *cmd, int argc, char *argv[])
     return false;
   }
 
-  int key = opcode_compute_key(argv[0]);
+  const int key = opcode_compute_key(argv[0]);
   struct opcode *walk = _opcode_table[key];
   while(walk && strcmp(argv[0], walk->mnemonic))
   {
@@ -276,7 +276,7 @@ static bool opcode_execute_opcode(char *cmd, int argc, char *argv[])
   }
 }
 
-static bool opcode_execute_opcodelist(char *cmd, int argc, char *argv[])
+static bool opcode_execute_opcodelist(const char *cmd, const int argc, const char *argv[])
 {
   if(0 < argc)
   {
