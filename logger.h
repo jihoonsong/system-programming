@@ -21,7 +21,7 @@ void logger_terminate(void);
  * @brief  View all logs.
  * @return The number of logs.
  */
-int logger_view_log(void);
+const int logger_view_log(void);
 
 /**
  * @brief          Write log about the given command information.
@@ -29,6 +29,6 @@ int logger_view_log(void);
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-void logger_write_log(char *cmd, int argc, char *argv[]);
+void logger_write_log(const char *cmd, const int argc, const char *argv[]);
 
 #endif

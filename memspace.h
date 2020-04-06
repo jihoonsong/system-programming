@@ -12,6 +12,6 @@
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-void memspace_execute(char *cmd, int argc, char *argv[]);
+void memspace_execute(const char *cmd, const int argc, const char *argv[]);
 
 #endif

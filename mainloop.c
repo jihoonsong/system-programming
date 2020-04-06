@@ -39,7 +39,7 @@ struct command
   /** The number of arguments. */
   int  argc;
   /** An assigned handler. */
-  void (*handler)(char *, int, char *[]);
+  void (*handler)(const char *, const int, const char *[]);
 };
 
 /**
@@ -88,9 +88,16 @@ void mainloop_launch(void)
       mainloop_tokenize_input(input);
       if(mainloop_assign_handler())
       {
-        _command.handler(_command.cmd,
-                         _command.argc,
-                         _command.argv);
+        if(_command.handler)
+        {
+          _command.handler((const char *)_command.cmd,
+                           (const int)_command.argc,
+                           (const char **)_command.argv);
+        }
+        else
+        {
+          printf("%s: command cannot be handled\n", _command.cmd);
+        }
       }
       else
       {
@@ -113,6 +120,13 @@ void mainloop_terminate(void)
 
 static bool mainloop_assign_handler(void)
 {
+  if(!_command.cmd)
+  {
+    // The input was empty.
+    _command.handler = NULL;
+    return false;
+  }
+
   const char * const SHELL_CMDS[]    = {"h",
                                         "help",
                                         "d",
