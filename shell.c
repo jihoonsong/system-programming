@@ -92,27 +92,27 @@ static bool shell_execute_dir(const char *cmd, const int argc, const char *argv[
   if((dir = opendir(".")))
   {
     struct dirent *ent = NULL;
-		while((ent = readdir(dir)))
-		{
+    while((ent = readdir(dir)))
+    {
       if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name))
       {
         // Skipped ./ and ../ for simplicity.
         continue;
       }
 
-			printf("%s", ent->d_name);
+      printf("%s", ent->d_name);
       if(DT_DIR == ent->d_type)
       {
         // This entry is a directory.
         printf("/");
       }
-			if(DT_REG == ent->d_type && (0 == access(ent->d_name, X_OK)))
-			{
+      if(DT_REG == ent->d_type && (0 == access(ent->d_name, X_OK)))
+      {
         // This entry is executable file.
-				printf("*");
-			}
-			printf("\n");
-		}
+        printf("*");
+      }
+      printf("\n");
+    }
   }
   else
   {
@@ -126,7 +126,7 @@ static bool shell_execute_dir(const char *cmd, const int argc, const char *argv[
 
 static bool shell_execute_help(const char *cmd, const int argc, const char *argv[])
 {
-	if(0 < argc)
+  if(0 < argc)
   {
     printf("help: too many arguments\n");
     return false;
@@ -148,7 +148,7 @@ static bool shell_execute_help(const char *cmd, const int argc, const char *argv
 
 static bool shell_execute_history(const char *cmd, const int argc, const char *argv[])
 {
-	if(0 < argc)
+  if(0 < argc)
   {
     printf("history: too many arguments\n");
     return false;
@@ -163,7 +163,7 @@ static bool shell_execute_history(const char *cmd, const int argc, const char *a
 
 static bool shell_execute_quit(const char *cmd, const int argc, const char *argv[])
 {
-	if(0 < argc)
+  if(0 < argc)
   {
     printf("quit: too many arguments\n");
     return false;
