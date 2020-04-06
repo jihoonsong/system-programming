@@ -53,7 +53,7 @@ void logger_initialize(const int input_len)
 
 const int logger_view_log(void)
 {
-  int count = 0;
+  int        count = 0;
   struct log *walk = _log_head;
 
   while(walk)

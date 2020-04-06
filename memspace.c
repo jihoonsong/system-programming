@@ -147,8 +147,8 @@ static bool memspace_execute_dump(const char *cmd, const int argc, const char *a
   }
 
   int  dump_start = 0;
-  int  dump_end = 0;
-  char *endptr = NULL;
+  int  dump_end   = 0;
+  char *endptr    = NULL;
 
   if(0 == argc)
   {
@@ -255,7 +255,7 @@ static bool memspace_execute_edit(const char *cmd, const int argc, const char *a
   }
 
   int  address = 0;
-  int  value = 0;
+  int  value   = 0;
   char *endptr = NULL;
 
   address = strtol(argv[0], &endptr, HEX);
@@ -297,9 +297,9 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
     return false;
   }
 
-  int  start = 0;
-  int  end = 0;
-  int  value = 0;
+  int  start   = 0;
+  int  end     = 0;
+  int  value   = 0;
   char *endptr = NULL;
 
   start = strtol(argv[0], &endptr, HEX);

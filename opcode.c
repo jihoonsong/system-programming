@@ -257,7 +257,7 @@ static bool opcode_execute_opcode(const char *cmd, const int argc, const char *a
     return false;
   }
 
-  const int key = opcode_compute_key(argv[0]);
+  const int     key   = opcode_compute_key(argv[0]);
   struct opcode *walk = _opcode_table[key];
   while(walk && strcmp(argv[0], walk->mnemonic))
   {
