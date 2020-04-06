@@ -88,9 +88,16 @@ void mainloop_launch(void)
       mainloop_tokenize_input(input);
       if(mainloop_assign_handler())
       {
-        _command.handler(_command.cmd,
-                         _command.argc,
-                         _command.argv);
+        if(_command.handler)
+        {
+          _command.handler(_command.cmd,
+                           _command.argc,
+                           _command.argv);
+        }
+        else
+        {
+          printf("%s: command cannot be handled\n", _command.cmd);
+        }
       }
       else
       {
