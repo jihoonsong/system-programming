@@ -15,6 +15,12 @@
 #include "mainloop.h"
 
 /**
+ * @brief A const variable that holds the length of buffer used for
+ *        file reading.
+ */
+static const int BUFFER_LEN = 80;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
@@ -178,8 +184,33 @@ static bool shell_execute_history(const char *cmd, const int argc, const char *a
 
 static bool shell_execute_type(const char *cmd, const int argc, const char *argv[])
 {
-  // TODO: to be implemented.
-  printf("type called\n");
+  if(1 != argc)
+  {
+    printf("type: one argument is required\n");
+    return false;
+  }
+
+  if(opendir(argv[0]))
+  {
+    // Ignore directory file.
+    printf("type: '%s' is a directory\n", argv[0]);
+    return false;
+  }
+
+  FILE *fp = fopen(argv[0], "r");
+  if(!fp)
+  {
+    printf("type: there is no such file '%s'\n", argv[0]);
+    return false;
+  }
+
+  char buffer[BUFFER_LEN];
+  while(fgets(buffer, BUFFER_LEN, fp))
+  {
+    printf("%s", buffer);
+  }
+
+  fclose(fp);
 
   return true;
 }
