@@ -61,21 +61,25 @@ static bool shell_execute_quit(const char *cmd, const int argc, const char *argv
 
 void shell_execute(const char *cmd, const int argc, const char *argv[])
 {
-  if(!strcmp("h", cmd) || !strcmp("help", cmd))
-  {
-    _is_command_executed = shell_execute_help(cmd, argc, argv);
-  }
-  else if(!strcmp("d", cmd) || !strcmp("dir", cmd))
+  if(!strcmp("d", cmd) || !strcmp("dir", cmd))
   {
     _is_command_executed = shell_execute_dir(cmd, argc, argv);
   }
-  else if(!strcmp("q", cmd) || !strcmp("quit", cmd))
+  else if(!strcmp("h", cmd) || !strcmp("help", cmd))
   {
-    _is_command_executed = shell_execute_quit(cmd, argc, argv);
+    _is_command_executed = shell_execute_help(cmd, argc, argv);
   }
   else if(!strcmp("hi", cmd) || !strcmp("history", cmd))
   {
     _is_command_executed = shell_execute_history(cmd, argc, argv);
+  }
+  else if(!strcmp("type", cmd))
+  {
+    _is_command_executed = shell_execute_type(cmd, argc, argv);
+  }
+  else if(!strcmp("q", cmd) || !strcmp("quit", cmd))
+  {
+    _is_command_executed = shell_execute_quit(cmd, argc, argv);
   }
   else
   {

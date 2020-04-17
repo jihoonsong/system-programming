@@ -134,7 +134,8 @@ static bool mainloop_assign_handler(void)
                                         "q",
                                         "quit",
                                         "hi",
-                                        "history"};
+                                        "history",
+                                        "type"};
   const char * const MEMSPACE_CMDS[] = {"du",
                                         "dump",
                                         "e",
