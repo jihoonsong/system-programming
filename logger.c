@@ -21,12 +21,12 @@ struct log
 /**
  * @brief A pointer to a head of log list.
  */
-struct log *_log_head;
+static struct log *_log_head;
 
 /**
  * @brief A pointer to a tail of log list.
  */
-struct log *_log_tail;
+static struct log *_log_tail;
 
 /**
  * @brief A length of input. Used to set the length of temporal char

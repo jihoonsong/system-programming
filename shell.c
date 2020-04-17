@@ -15,6 +15,12 @@
 #include "mainloop.h"
 
 /**
+ * @brief A const variable that holds the length of buffer used for
+ *        file reading.
+ */
+static const int BUFFER_LEN = 80;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
@@ -44,6 +50,14 @@ static bool shell_execute_help(const char *cmd, const int argc, const char *argv
 static bool shell_execute_history(const char *cmd, const int argc, const char *argv[]);
 
 /**
+ * @brief          Print the content of file of the given name.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool shell_execute_type(const char *cmd, const int argc, const char *argv[]);
+
+/**
  * @brief          Set flag to quit this program.
  * @param[in] cmd  A type of the command.
  * @param[in] argc The number of arguments.
@@ -53,21 +67,25 @@ static bool shell_execute_quit(const char *cmd, const int argc, const char *argv
 
 void shell_execute(const char *cmd, const int argc, const char *argv[])
 {
-  if(!strcmp("h", cmd) || !strcmp("help", cmd))
-  {
-    _is_command_executed = shell_execute_help(cmd, argc, argv);
-  }
-  else if(!strcmp("d", cmd) || !strcmp("dir", cmd))
+  if(!strcmp("d", cmd) || !strcmp("dir", cmd))
   {
     _is_command_executed = shell_execute_dir(cmd, argc, argv);
   }
-  else if(!strcmp("q", cmd) || !strcmp("quit", cmd))
+  else if(!strcmp("h", cmd) || !strcmp("help", cmd))
   {
-    _is_command_executed = shell_execute_quit(cmd, argc, argv);
+    _is_command_executed = shell_execute_help(cmd, argc, argv);
   }
   else if(!strcmp("hi", cmd) || !strcmp("history", cmd))
   {
     _is_command_executed = shell_execute_history(cmd, argc, argv);
+  }
+  else if(!strcmp("type", cmd))
+  {
+    _is_command_executed = shell_execute_type(cmd, argc, argv);
+  }
+  else if(!strcmp("q", cmd) || !strcmp("quit", cmd))
+  {
+    _is_command_executed = shell_execute_quit(cmd, argc, argv);
   }
   else
   {
@@ -160,6 +178,39 @@ static bool shell_execute_history(const char *cmd, const int argc, const char *a
   const int log_count = logger_view_log();
   printf("%d\t", log_count + 1);
   printf("%s\n", cmd); // Current execution is considered successful.
+
+  return true;
+}
+
+static bool shell_execute_type(const char *cmd, const int argc, const char *argv[])
+{
+  if(1 != argc)
+  {
+    printf("type: one argument is required\n");
+    return false;
+  }
+
+  if(opendir(argv[0]))
+  {
+    // Ignore directory file.
+    printf("type: '%s' is a directory\n", argv[0]);
+    return false;
+  }
+
+  FILE *fp = fopen(argv[0], "r");
+  if(!fp)
+  {
+    printf("type: there is no such file '%s'\n", argv[0]);
+    return false;
+  }
+
+  char buffer[BUFFER_LEN];
+  while(fgets(buffer, BUFFER_LEN, fp))
+  {
+    printf("%s", buffer);
+  }
+
+  fclose(fp);
 
   return true;
 }
