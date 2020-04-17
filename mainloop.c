@@ -45,7 +45,7 @@ struct command
 /**
  * @brief A const variable that holds the length of input.
  */
-const int INPUT_LEN = 64;
+static const int INPUT_LEN = 64;
 
 /**
  * @brief A command object that contains all information need to
