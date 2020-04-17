@@ -44,6 +44,14 @@ static bool shell_execute_help(const char *cmd, const int argc, const char *argv
 static bool shell_execute_history(const char *cmd, const int argc, const char *argv[]);
 
 /**
+ * @brief          Print the content of file of the given name.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool shell_execute_type(const char *cmd, const int argc, const char *argv[]);
+
+/**
  * @brief          Set flag to quit this program.
  * @param[in] cmd  A type of the command.
  * @param[in] argc The number of arguments.
@@ -160,6 +168,14 @@ static bool shell_execute_history(const char *cmd, const int argc, const char *a
   const int log_count = logger_view_log();
   printf("%d\t", log_count + 1);
   printf("%s\n", cmd); // Current execution is considered successful.
+
+  return true;
+}
+
+static bool shell_execute_type(const char *cmd, const int argc, const char *argv[])
+{
+  // TODO: to be implemented.
+  printf("type called\n");
 
   return true;
 }
