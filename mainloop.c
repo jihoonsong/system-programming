@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "assembler.h"
 #include "logger.h"
 #include "memspace.h"
 #include "opcode.h"
@@ -127,31 +128,43 @@ static bool mainloop_assign_handler(void)
     return false;
   }
 
-  const char * const SHELL_CMDS[]    = {"h",
-                                        "help",
-                                        "d",
-                                        "dir",
-                                        "q",
-                                        "quit",
-                                        "hi",
-                                        "history",
-                                        "type"};
-  const char * const MEMSPACE_CMDS[] = {"du",
-                                        "dump",
-                                        "e",
-                                        "edit",
-                                        "f",
-                                        "fill",
-                                        "reset"};
+  const char * const ASSEMBLER_CMDS[] = {"assemble",
+                                         "symbol"};
+  const char * const SHELL_CMDS[]     = {"h",
+                                         "help",
+                                         "d",
+                                         "dir",
+                                         "q",
+                                         "quit",
+                                         "hi",
+                                         "history",
+                                         "type"};
+  const char * const MEMSPACE_CMDS[]  = {"du",
+                                         "dump",
+                                         "e",
+                                         "edit",
+                                         "f",
+                                         "fill",
+                                         "reset"};
   const char * const OPCODE_CMDS[]    = {"opcode",
                                          "opcodelist"};
-  const int SHELL_CMDS_COUNT    = (int)(sizeof(SHELL_CMDS) /
-                                        sizeof(SHELL_CMDS[0]));
-  const int MEMSPACE_CMDS_COUNT = (int)(sizeof(MEMSPACE_CMDS) /
-                                        sizeof(MEMSPACE_CMDS[0]));
-  const int OPCODE_CMDS_COUNT   = (int)(sizeof(OPCODE_CMDS) /
-                                        sizeof(OPCODE_CMDS[0]));
+  const int ASSEMBLER_CMDS_COUNT = (int)(sizeof(ASSEMBLER_CMDS) /
+                                         sizeof(ASSEMBLER_CMDS[0]));
+  const int SHELL_CMDS_COUNT     = (int)(sizeof(SHELL_CMDS) /
+                                         sizeof(SHELL_CMDS[0]));
+  const int MEMSPACE_CMDS_COUNT  = (int)(sizeof(MEMSPACE_CMDS) /
+                                         sizeof(MEMSPACE_CMDS[0]));
+  const int OPCODE_CMDS_COUNT    = (int)(sizeof(OPCODE_CMDS) /
+                                         sizeof(OPCODE_CMDS[0]));
 
+  for(int i = 0; i < ASSEMBLER_CMDS_COUNT; ++i)
+  {
+    if(!strcmp(ASSEMBLER_CMDS[i], _command.cmd))
+    {
+      _command.handler = assembler_execute;
+      return true;
+    }
+  }
   for(int i = 0; i < SHELL_CMDS_COUNT; ++i)
   {
     if(!strcmp(SHELL_CMDS[i], _command.cmd))
