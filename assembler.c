@@ -75,14 +75,14 @@ static bool assembler_execute_symbol(const char *cmd,
                        pairs of symbol and its locctr.
  * @param[in] asm_file A file pointer to an .asm file to be assembled.
  */
-static bool assembler_pass1(const FILE *asm_file);
+static bool assembler_pass1(FILE *asm_file);
 
 /**
  * @brief              Write .lst file and obj file.
  * @param[in] lst_file A file pointer to an .lst file to be written.
  * @param[in] obj_file A file pointer to an .obj file to be written.
  */
-static bool assembler_pass2(const FILE *lst_file, const FILE *obj_file);
+static bool assembler_pass2(FILE *lst_file, FILE *obj_file);
 
 void assembler_execute(const char *cmd,
                        const int argc,
@@ -192,14 +192,14 @@ static bool assembler_execute_symbol(const char *cmd,
   return true;
 }
 
-static bool assembler_pass1(const FILE *asm_file)
+static bool assembler_pass1(FILE *asm_file)
 {
   // TODO: to be implemented.
   printf("pass1 invoked\n");
   return true;
 }
 
-static bool assembler_pass2(const FILE *lst_file, const FILE *obj_file)
+static bool assembler_pass2(FILE *lst_file, FILE *obj_file)
 {
   // TODO: to be implemented.
   printf("pass2 invoked\n");
