@@ -14,6 +14,10 @@
 #include "logger.h"
 
 /**
+ * @brief A const variable that holds the length of buffer used for
+ *        file reading.
+ */
+static const int BUFFER_LEN = 50;
 
 /**
  * @brief A const variable that holds the extension of asm file.
@@ -194,8 +198,12 @@ static bool assembler_execute_symbol(const char *cmd,
 
 static bool assembler_pass1(FILE *asm_file)
 {
-  // TODO: to be implemented.
-  printf("pass1 invoked\n");
+  char buffer[BUFFER_LEN];
+  while(fgets(buffer, BUFFER_LEN, asm_file))
+  {
+    printf("%s", buffer);
+  }
+
   return true;
 }
 
