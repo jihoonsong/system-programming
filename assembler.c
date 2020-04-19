@@ -38,7 +38,9 @@ static const char *DIRECTIVES[] = {"START",
                                    "BYTE",
                                    "WORD",
                                    "RESB",
-                                   "RESW"};
+                                   "RESW",
+                                   "BASE",
+                                   "NOBASE"};
 
 /**
  * @brief A const variable that holds the number of assembler directives.
