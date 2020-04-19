@@ -5,6 +5,7 @@
 
 #include <dirent.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -23,6 +24,26 @@ static const char *ASM_EXTENSION = "asm";
  * @brief A const variable that holds the length of asm file extension.
  */
 static const int ASM_EXTENSION_LEN = 3;
+
+/**
+ * @brief A const variable that holds the extension of lst file.
+ */
+static const char *LST_EXTENSION = "lst";
+
+/**
+ * @brief A const variable that holds the length of lst file extension.
+ */
+static const int LST_EXTENSION_LEN = 3;
+
+/**
+ * @brief A const variable that holds the extension of obj file.
+ */
+static const char *OBJ_EXTENSION = "obj";
+
+/**
+ * @brief A const variable that holds the length of obj file extension.
+ */
+static const int OBJ_EXTENSION_LEN = 3;
 
 /**
  * @brief A flag indicating whether command is executed or not.
@@ -116,7 +137,48 @@ static bool assembler_execute_assemble(const char *cmd,
     return false;
   }
 
+  bool is_success = assembler_pass1(asm_file);
   fclose(asm_file);
+  if(!is_success)
+  {
+    // Although there was an error, assemble command was executed.
+    return true;
+  }
+
+  char *lst_filename = malloc((strlen(argv[0]) + 1) * sizeof(*lst_filename));
+  strcpy(lst_filename, argv[0]);
+  strcpy(lst_filename + strlen(lst_filename) - LST_EXTENSION_LEN, LST_EXTENSION);
+  FILE *lst_file = fopen(lst_filename, "w");
+  if(!lst_file)
+  {
+    printf("assemble: cannot create '%s' file\n", lst_filename);
+    free(lst_filename);
+    return true;
+  }
+
+  char *obj_filename = malloc((strlen(argv[0]) + 1) * sizeof(*obj_filename));
+  strcpy(obj_filename, argv[0]);
+  strcpy(obj_filename + strlen(obj_filename) - OBJ_EXTENSION_LEN, OBJ_EXTENSION);
+  FILE *obj_file = fopen(obj_filename, "w");
+  if(!obj_file)
+  {
+    printf("assemble: cannot create '%s' file\n", obj_filename);
+    remove(lst_filename);
+    free(obj_filename);
+    free(lst_filename);
+    return true;
+  }
+
+  is_success = assembler_pass2(lst_file, obj_file);
+  fclose(obj_file);
+  fclose(lst_file);
+  if(!is_success)
+  {
+    remove(obj_filename);
+    remove(lst_filename);
+  }
+  free(obj_filename);
+  free(lst_filename);
 
   return true;
 }
