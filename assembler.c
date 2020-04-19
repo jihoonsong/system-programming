@@ -11,6 +11,7 @@
 
 #include "assembler.h"
 
+#include "opcode.h"
 #include "logger.h"
 
 /**
@@ -32,12 +33,18 @@ static const int ASM_EXTENSION_LEN = 3;
 /**
  * @brief A const variable that holds the list of assembler directives.
  */
-static const char DIRECTIVES = {"START",
-                                "END",
-                                "BYTE",
-                                "WORD",
-                                "RESB",
-                                "RESW"};
+static const char *DIRECTIVES[] = {"START",
+                                   "END",
+                                   "BYTE",
+                                   "WORD",
+                                   "RESB",
+                                   "RESW"};
+
+/**
+ * @brief A const variable that holds the number of assembler directives.
+ */
+const int DIRECTIVES_COUNT = (int)(sizeof(DIRECTIVES) /
+                                   sizeof(DIRECTIVES[0]));
 
 /**
  * @brief A const variable that holds the extension of lst file.
@@ -83,6 +90,13 @@ static bool assembler_execute_assemble(const char *cmd,
 static bool assembler_execute_symbol(const char *cmd,
                                      const int argc,
                                      const char *argv[]);
+
+/**
+ * @brief         Check if the str is mnemonic.
+ * @param[in] str A str to be validated.
+ * @return        True if mnemonic, false otherwise.
+ */
+static bool assembler_is_mnemonic(char *str);
 
 /**
  * @brief              Create symbol table. The symbol table contains
@@ -204,6 +218,33 @@ static bool assembler_execute_symbol(const char *cmd,
   // TODO: to be implemented.
   printf("symbol invoked\n");
   return true;
+}
+
+static bool assembler_is_mnemonic(char *str)
+{
+  if(!str)
+  {
+    return false;
+  }
+
+  for(int i = 0; i < DIRECTIVES_COUNT; ++i)
+  {
+    if(!strcmp(DIRECTIVES[i], str))
+    {
+      return true;
+    }
+  }
+
+  if('+' == str[0])
+  {
+    ++str;
+  }
+  if(opcode_is_opcode(str))
+  {
+    return true;
+  }
+
+  return false;
 }
 
 static bool assembler_pass1(FILE *asm_file)
