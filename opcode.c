@@ -151,6 +151,30 @@ void opcode_initialize(void)
   opcode_create_table();
 }
 
+bool opcode_is_opcode(char *mnemonic)
+{
+  if(!mnemonic)
+  {
+    return false;
+  }
+
+  for(int i = 0; i < OPCODE_TABLE_LEN; ++i)
+  {
+    struct opcode *walk = _opcode_table[i];
+    while(walk)
+    {
+      if(!strcmp(mnemonic, walk->mnemonic))
+      {
+        return true;
+      }
+
+      walk = walk->next;
+    }
+  }
+
+  return false;
+}
+
 void opcode_terminate(void)
 {
   for(int i = 0; i < OPCODE_TABLE_LEN; ++i)

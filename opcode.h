@@ -20,6 +20,13 @@ void opcode_execute(const char *cmd, const int argc, const char *argv[]);
 void opcode_initialize(void);
 
 /**
+ * @brief              Check if the mnemonic is opcode.
+ * @param[in] mnemonic A mnemonic to be validated.
+ * @return             True if corresponding opcode is found, false otherwise.
+ */
+bool opcode_is_opcode(char *mnemonic);
+
+/**
  * @brief Release hash table.
  */
 void opcode_terminate(void);
