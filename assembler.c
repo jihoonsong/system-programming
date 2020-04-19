@@ -22,7 +22,9 @@ static bool _is_command_executed = false;
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool assembler_execute_assemble(const char *cmd, const int argc, const char *argv[]);
+static bool assembler_execute_assemble(const char *cmd,
+                                       const int argc,
+                                       const char *argv[]);
 
 /**
  * @brief          Print symbol table created during assembly.
@@ -30,9 +32,13 @@ static bool assembler_execute_assemble(const char *cmd, const int argc, const ch
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool assembler_execute_symbol(const char *cmd, const int argc, const char *argv[]);
+static bool assembler_execute_symbol(const char *cmd,
+                                     const int argc,
+                                     const char *argv[]);
 
-void assembler_execute(const char *cmd, const int argc, const char *argv[])
+void assembler_execute(const char *cmd,
+                       const int argc,
+                       const char *argv[])
 {
   if(!strcmp("assemble", cmd))
   {
@@ -53,14 +59,18 @@ void assembler_execute(const char *cmd, const int argc, const char *argv[])
   }
 }
 
-static bool assembler_execute_assemble(const char *cmd, const int argc, const char *argv[])
+static bool assembler_execute_assemble(const char *cmd,
+                                       const int argc,
+                                       const char *argv[])
 {
   // TODO: to be implemented.
   printf("assemble invoked\n");
   return true;
 }
 
-static bool assembler_execute_symbol(const char *cmd, const int argc, const char *argv[])
+static bool assembler_execute_symbol(const char *cmd,
+                                     const int argc,
+                                     const char *argv[])
 {
   // TODO: to be implemented.
   printf("symbol invoked\n");

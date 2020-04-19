@@ -12,6 +12,8 @@
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-void assembler_execute(const char *cmd, const int argc, const char *argv[]);
+void assembler_execute(const char *cmd,
+                       const int argc,
+                       const char *argv[]);
 
 #endif
