@@ -30,6 +30,16 @@ static const char *ASM_EXTENSION = "asm";
 static const int ASM_EXTENSION_LEN = 3;
 
 /**
+ * @brief A const variable that holds the list of assembler directives.
+ */
+static const char DIRECTIVES = {"START",
+                                "END",
+                                "BYTE",
+                                "WORD",
+                                "RESB",
+                                "RESW"};
+
+/**
  * @brief A const variable that holds the extension of lst file.
  */
 static const char *LST_EXTENSION = "lst";
