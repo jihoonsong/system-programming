@@ -69,6 +69,11 @@ static const char *OBJ_EXTENSION = "obj";
 static const int OBJ_EXTENSION_LEN = 3;
 
 /**
+ * @brief A const variable that holds the manximum number of operands.
+ */
+static const int OPERANDS_COUNT = 2;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
@@ -99,6 +104,19 @@ static bool assembler_execute_symbol(const char *cmd,
  * @return        True if mnemonic, false otherwise.
  */
 static bool assembler_is_mnemonic(char *str);
+
+/**
+ * @brief              Tokenize line into label, mnemonic, and operands.
+ * @param[in] buffer   A line to be tokenized.
+ * @param[in] label    A label.
+ * @param[in] mnemonic A mnemonic.
+ * @param[in] operands An list of operands.
+ * @return             False if empty or comment line, true otherwise.
+ */
+static bool assembler_tokenize_line(char *buffer,
+                                    char **label,
+                                    char **mnemonic,
+                                    char *(*operands)[]);
 
 /**
  * @brief              Create symbol table. The symbol table contains
@@ -249,12 +267,54 @@ static bool assembler_is_mnemonic(char *str)
   return false;
 }
 
+static bool assembler_tokenize_line(char *buffer,
+                                    char **label,
+                                    char **mnemonic,
+                                    char *(*operands)[])
+{
+  buffer[strlen(buffer) - 1] = '\0';
+
+  char *substr = strtok(buffer, " \t");
+  if(!substr || !strcmp(".", substr))
+  {
+    // This line is empty or comment.
+    return false;
+  }
+
+  if(assembler_is_mnemonic(substr))
+  {
+    *label = NULL;
+    *mnemonic = substr;
+  }
+  else
+  {
+    *label = substr;
+    *mnemonic = strtok(NULL, " \t");
+  }
+  for(int i = 0; i < OPERANDS_COUNT; ++i)
+  {
+    (*operands)[i] = strtok(NULL, " \t,");
+  }
+
+  return true;
+}
+
 static bool assembler_pass1(FILE *asm_file)
 {
+  char *label                    = NULL;
+  char *mnemonic                 = NULL;
+  char *operands[OPERANDS_COUNT];
   char buffer[BUFFER_LEN];
+
   while(fgets(buffer, BUFFER_LEN, asm_file))
   {
-    printf("%s", buffer);
+    if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
+    {
+      printf("label: '%s', mnemonic: '%s', operands: '%s', '%s'\n", label,
+                                                                    mnemonic,
+                                                                    operands[0],
+                                                                    operands[1]);
+    }
   }
 
   return true;
