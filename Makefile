@@ -5,6 +5,7 @@ TARGET = 20131567.out
 SRCS := $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
 DEPS := $(SRCS:.c=.d)
+INTS := $(wildcard *.lst *obj)
 
 .PHONY: all
 all: $(TARGET)
@@ -24,5 +25,5 @@ sinclude $(DEPS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(DEPS)
+	rm -f $(OBJS) $(DEPS) $(INTS)
 	rm -f $(TARGET)
