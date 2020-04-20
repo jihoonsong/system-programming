@@ -317,7 +317,15 @@ static bool assembler_pass1(FILE *asm_file)
         }
 
         locctr = strtol(operands[0], NULL, HEX);
-        fgets(buffer, BUFFER_LEN, asm_file);
+
+        // Read lines until meet the first non-empty and non-comment line.
+        while(fgets(buffer, BUFFER_LEN, asm_file))
+        {
+          if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
+          {
+            break;
+          }
+        }
       }
       else
       {
@@ -327,22 +335,25 @@ static bool assembler_pass1(FILE *asm_file)
       break;
     }
   }
+  // Now, buffer has the first non-comment line after the START line.
 
-  do
+  while(strcmp("END", mnemonic))
   {
-    // TODO read lines...
-    if(fgets(buffer, BUFFER_LEN, asm_file))
+    // TODO: do LOCCTR things.
+
+    printf("%s %s %s %s\n", label, mnemonic, operands[0], operands[1]);
+
+    do
     {
-      if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
+      if(!fgets(buffer, BUFFER_LEN, asm_file))
       {
+        printf("assemble: END mnemonic is not found\n");
+        return false;
       }
-    }
-    else
-    {
-      printf("assemble: END mnemonic is not found\n");
-      return false;
-    }
-  } while(strcmp("END", mnemonic));
+
+      // Skip empty or comment lines.
+    } while(!assembler_tokenize_line(buffer, &label, &mnemonic, &operands));
+  }
 
   return true;
 }
