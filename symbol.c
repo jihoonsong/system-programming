@@ -214,12 +214,24 @@ void symbol_show_error_msg(void)
   switch(_error->type)
   {
     case DUPLICATE_SYMBOL:
-      printf("symbol: (line %d) symbol '%s' duplicate\n", _error->line,
-                                                          _error->keyword);
+      printf("symbol: (line %d) symbol '%s' duplicate\n",
+          _error->line,
+          _error->keyword);
       break;
     case INVALID_OPCODE:
-      printf("symbol: (line %d) opcode '%s' is invalid\n", _error->line,
-                                                           _error->keyword);
+      printf("symbol: (line %d) opcode '%s' is invalid\n",
+          _error->line,
+          _error->keyword);
+      break;
+    case REQUIRED_ONE_OPERAND:
+      printf("symbol: (line %d) mnemonic '%s' requires one operand\n",
+          _error->line,
+          _error->keyword);
+      break;
+    case REQUIRED_TWO_OPERANDS:
+      printf("symbol: (line %d) mnemonic '%s' requires two operands\n",
+          _error->line,
+          _error->keyword);
       break;
     default:
       // Do nothing.
