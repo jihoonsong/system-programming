@@ -53,6 +53,15 @@ enum symbol_error _symbol_error = NONE;
 struct symbol **_working_symbol_table = NULL;
 
 /**
+ * @brief          Compare two strings.
+ * @param[in] str1 The first string to be compared.
+ * @param[in] str2 The second string to be compared.
+ * @return         Return negative if str1 < str2, positive if str1 > str2,
+                   and 0 if str1 == str2.
+ */
+static int symbol_compare_string(const char *str1, const char *str2);
+
+/**
  * @brief Release _saved_symbol_table.
  */
 static void symbol_release_saved_table(void);
@@ -137,6 +146,23 @@ void symbol_terminate(void)
 {
   symbol_release_saved_table();
   symbol_release_working_table();
+}
+
+static int symbol_compare_string(const char *str1, const char *str2)
+{
+  int str1_len = strlen(str1);
+  int str2_len = strlen(str2);
+  int min_len = str1_len < str2_len ? str1_len : str2_len;
+
+  for(int i = 0; i < min_len; ++i)
+  {
+    if(str1[i] != str2[i])
+    {
+      return str1[i] - str2[i];
+    }
+  }
+
+  return str1_len - str2_len;
 }
 
 static void symbol_release_saved_table(void)
