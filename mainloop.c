@@ -14,6 +14,7 @@
 #include "memspace.h"
 #include "opcode.h"
 #include "shell.h"
+#include "symbol.h"
 
 #include "mainloop.h"
 
@@ -75,6 +76,7 @@ void mainloop_initialize(void)
 {
   logger_initialize(INPUT_LEN);
   opcode_initialize();
+  symbol_initialize();
 }
 
 void mainloop_launch(void)
@@ -117,6 +119,7 @@ void mainloop_terminate(void)
 {
   logger_terminate();
   opcode_terminate();
+  symbol_terminate();
 }
 
 static bool mainloop_assign_handler(void)
