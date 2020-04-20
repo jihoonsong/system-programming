@@ -122,6 +122,12 @@ static void opcode_insert_opcode(struct opcode *opcode);
  */
 static void opcode_initialize_lcg(void);
 
+/**
+ * @brief            Search for the opcode in hash table.
+ * @param[in] opcode An opcode object to be inserted into table.
+ */
+static struct opcode *opcode_search_opcode(const char *opcode);
+
 void opcode_execute(const char *cmd, const int argc, const char *argv[])
 {
   if(!strcmp("opcode", cmd))
@@ -153,19 +159,7 @@ void opcode_initialize(void)
 
 bool opcode_is_opcode(const char *mnemonic)
 {
-  if(!mnemonic)
-  {
-    return false;
-  }
-
-  const int     key   = opcode_compute_key(mnemonic);
-  struct opcode *walk = _opcode_table[key];
-  while(walk && strcmp(mnemonic, walk->mnemonic))
-  {
-    walk = walk->next;
-  }
-
-  return walk ? true : false;
+  return opcode_search_opcode(mnemonic) ? true : false;
 }
 
 void opcode_terminate(void)
@@ -274,16 +268,10 @@ static bool opcode_execute_opcode(const char *cmd, const int argc, const char *a
     return false;
   }
 
-  const int     key   = opcode_compute_key(argv[0]);
-  struct opcode *walk = _opcode_table[key];
-  while(walk && strcmp(argv[0], walk->mnemonic))
+  struct opcode *opcode = opcode_search_opcode(argv[0]);
+  if(opcode)
   {
-    walk = walk->next;
-  }
-
-  if(walk)
-  {
-    printf("opcode is %X\n", walk->opcode);
+    printf("opcode is %X\n", opcode->opcode);
     return true;
   }
   else
@@ -357,4 +345,21 @@ static void opcode_initialize_lcg(void)
     _lcg.increment = rand() / divisor;
   } while(_lcg.increment > _lcg.modulus);
   // _lcg.increment is a random integer in [0, _lcg.modulus).
+}
+
+static struct opcode *opcode_search_opcode(const char *opcode)
+{
+  if(!opcode)
+  {
+    return NULL;
+  }
+
+  const int     key   = opcode_compute_key(opcode);
+  struct opcode *walk = _opcode_table[key];
+  while(walk && strcmp(opcode, walk->mnemonic))
+  {
+    walk = walk->next;
+  }
+
+  return walk;
 }
