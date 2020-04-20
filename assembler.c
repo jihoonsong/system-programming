@@ -10,8 +10,9 @@
 
 #include "assembler.h"
 
-#include "opcode.h"
 #include "logger.h"
+#include "opcode.h"
+#include "symbol.h"
 
 /**
  * @brief A const variable that holds the length of buffer used for
@@ -182,6 +183,8 @@ static bool assembler_execute_assemble(const char *cmd,
     return false;
   }
 
+  symbol_new_table();
+
   bool is_success = assembler_pass1(asm_file);
   fclose(asm_file);
   if(!is_success)
@@ -223,6 +226,8 @@ static bool assembler_execute_assemble(const char *cmd,
   }
   free(obj_filename);
   free(lst_filename);
+
+  symbol_save_table();
 
   return true;
 }
