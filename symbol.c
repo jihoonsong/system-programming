@@ -158,9 +158,20 @@ void symbol_new_table(void)
 
   _working_symbol_table = malloc(SYMBOL_TABLE_LEN *
                                  sizeof(*_working_symbol_table));
-  memset(_working_symbol_table, 0, SYMBOL_TABLE_LEN);
+  memset(_working_symbol_table,
+         0,
+         SYMBOL_TABLE_LEN * sizeof(*_working_symbol_table));
 
-  // TODO: Add registers.
+  // Insert registers as symbols.
+  symbol_insert_symbol("A",  0);
+  symbol_insert_symbol("X",  1);
+  symbol_insert_symbol("L",  2);
+  symbol_insert_symbol("PC", 8);
+  symbol_insert_symbol("SW", 9);
+  symbol_insert_symbol("B",  3);
+  symbol_insert_symbol("S",  4);
+  symbol_insert_symbol("T",  5);
+  symbol_insert_symbol("F",  6);
 }
 
 void symbol_save_table(void)
