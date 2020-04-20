@@ -189,6 +189,7 @@ static bool assembler_execute_assemble(const char *cmd,
   fclose(asm_file);
   if(!is_success)
   {
+    symbol_show_error_msg();
     return false;
   }
 
@@ -221,6 +222,8 @@ static bool assembler_execute_assemble(const char *cmd,
   fclose(lst_file);
   if(!is_success)
   {
+    symbol_show_error_msg();
+
     remove(obj_filename);
     remove(lst_filename);
   }
