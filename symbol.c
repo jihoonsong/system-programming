@@ -135,6 +135,12 @@ bool symbol_insert_symbol(const char *symbol, const int locctr)
 
 bool symbol_is_exist(const char *symbol)
 {
+  if(!_working_symbol_table)
+  {
+    printf("symbol: symbol table does not exist\n");
+    return false;
+  }
+
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
   {
     struct symbol *walk = _working_symbol_table[i];
