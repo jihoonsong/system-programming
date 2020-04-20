@@ -158,21 +158,14 @@ bool opcode_is_opcode(const char *mnemonic)
     return false;
   }
 
-  for(int i = 0; i < OPCODE_TABLE_LEN; ++i)
+  const int     key   = opcode_compute_key(mnemonic);
+  struct opcode *walk = _opcode_table[key];
+  while(walk && strcmp(mnemonic, walk->mnemonic))
   {
-    struct opcode *walk = _opcode_table[i];
-    while(walk)
-    {
-      if(!strcmp(mnemonic, walk->mnemonic))
-      {
-        return true;
-      }
-
-      walk = walk->next;
-    }
+    walk = walk->next;
   }
 
-  return false;
+  return walk ? true : false;
 }
 
 void opcode_terminate(void)
