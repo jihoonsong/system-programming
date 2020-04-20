@@ -80,6 +80,59 @@ void symbol_initialize(void)
   _working_symbol_table = NULL;
 }
 
+bool symbol_insert_symbol(const char *symbol, const int locctr)
+{
+  if(!_working_symbol_table)
+  {
+    printf("symbol: symbol table does not exist\n");
+    return false;
+  }
+
+  if(symbol_is_exist(symbol))
+  {
+    printf("symbol: symbol '%s' already exists\n", symbol);
+    return false;
+  }
+
+  struct symbol *new_symbol = malloc(sizeof(*new_symbol) +
+                                     sizeof(char) * (strlen(symbol) + 1));
+  new_symbol->next = NULL;
+  new_symbol->locctr = locctr;
+  strcpy(new_symbol->symbol, symbol);
+
+  int key = symbol[0] - 'A';
+
+  if(!_working_symbol_table[key])
+  {
+    _working_symbol_table[key] = new_symbol;
+  }
+  else
+  {
+    struct symbol *walk = _working_symbol_table[key];
+
+    if(symbol_compare_string(walk->symbol, symbol) > 0)
+    {
+      _working_symbol_table[key] = new_symbol;
+      new_symbol->next = walk;
+    }
+    else
+    {
+      struct symbol *prev = walk;
+      walk = walk->next;
+      while(walk && symbol_compare_string(walk->symbol, symbol) < 0)
+      {
+        prev = walk;
+        walk = walk->next;
+      }
+
+      prev->next = new_symbol;
+      new_symbol = walk;
+    }
+  }
+
+  return true;
+}
+
 bool symbol_is_exist(const char *symbol)
 {
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)

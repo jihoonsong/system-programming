@@ -12,6 +12,14 @@
 void symbol_initialize(void);
 
 /**
+ * @brief            Insert the symbol if it is not duplicate.
+ * @param[in] symbol A symbol to be inserted.
+ * @param[in] locctr A locctr of the symbol.
+ * @return           True on success, false otherwise.
+ */
+bool symbol_insert_symbol(const char *symbol, const int locctr);
+
+/**
  * @brief            Check if the symbol exists in symbol table.
  * @param[in] symbol A symbol to be validated.
  * @return           True if exists, false otherwise.
