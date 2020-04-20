@@ -3,6 +3,7 @@
  * @brief A handler of assembler related commands.
  */
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,6 +32,11 @@ static const char *ASM_EXTENSION = "asm";
 static const int ASM_EXTENSION_LEN = 3;
 
 /**
+ * @brief Equals to 10.
+ */
+static const int DECIMAL = 10;
+
+/**
  * @brief A const variable that holds the list of assembler directives.
  */
 static const char *DIRECTIVES[] = {"START",
@@ -47,6 +53,11 @@ static const char *DIRECTIVES[] = {"START",
  */
 const int DIRECTIVES_COUNT = (int)(sizeof(DIRECTIVES) /
                                    sizeof(DIRECTIVES[0]));
+
+/**
+ * @brief A const variable that holds the maximum error margin between floats.
+ */
+const float EPSILON = 1e-3f;
 
 /**
  * @brief Equals to 16.
@@ -369,6 +380,97 @@ static bool assembler_pass1(FILE *asm_file)
           return false;
         }
       }
+    }
+
+    if(opcode_is_opcode(mnemonic))
+    {
+      float format = opcode_get_format(mnemonic);
+      if(fabsf(1.0f - format) <= EPSILON)
+      {
+        locctr += 1;
+      }
+      else if(fabsf(2.0f - format) <= EPSILON)
+      {
+        locctr += 2;
+      }
+      else if(fabsf(3.5f - format) <= EPSILON)
+      {
+        locctr += 3;
+      }
+      else
+      {
+        symbol_set_error(INVALID_OPCODE, line, mnemonic);
+        return false;
+      }
+    }
+    else if('+' == mnemonic[0] && opcode_is_opcode(&mnemonic[1]))
+    {
+      float format = opcode_get_format(&mnemonic[1]);
+      if(fabsf(3.5f - format) <= EPSILON)
+      {
+        locctr += 4;
+      }
+      else
+      {
+        symbol_set_error(INVALID_OPCODE, line, mnemonic);
+        return false;
+      }
+    }
+    else if(!strcmp("BYTE", mnemonic))
+    {
+      if(!operands[0])
+      {
+        symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+        return false;
+      }
+
+      if('C' == operands[0][0])
+      {
+        // TODO
+      }
+      else if('X' == operands[0][0])
+      {
+        // TODO
+      }
+      else
+      {
+        symbol_set_error(INVALID_OPERAND, line, operands[0]);
+        return false;
+      }
+    }
+    else if(!strcmp("WORD", mnemonic))
+    {
+      locctr += 3;
+    }
+    else if(!strcmp("RESB", mnemonic))
+    {
+      if(!operands[0])
+      {
+        symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+        return false;
+      }
+
+      locctr += strtol(operands[0], NULL, DECIMAL);
+    }
+    else if(!strcmp("RESW", mnemonic))
+    {
+      if(!operands[0])
+      {
+        symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+        return false;
+      }
+
+      locctr += 3 * strtol(operands[0], NULL, DECIMAL);
+    }
+    else if(!strcmp("BASE", mnemonic) ||
+            !strcmp("NOBASE", mnemonic))
+    {
+      // Do nothing.
+    }
+    else
+    {
+      symbol_set_error(INVALID_OPCODE, line, mnemonic);
+      return false;
     }
 
     do

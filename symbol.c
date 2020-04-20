@@ -223,6 +223,11 @@ void symbol_show_error_msg(void)
           _error->line,
           _error->keyword);
       break;
+    case INVALID_OPERAND:
+      printf("symbol: (line %d) operand '%s' is invalid\n",
+          _error->line,
+          _error->keyword);
+      break;
     case REQUIRED_ONE_OPERAND:
       printf("symbol: (line %d) mnemonic '%s' requires one operand\n",
           _error->line,
