@@ -17,6 +17,11 @@ void symbol_initialize(void);
 void symbol_show_error_msg(void);
 
 /**
+ * @brief Print the last successfully created symbol table.
+ */
+void symbol_show_table(void);
+
+/**
  * @brief Release symbol table.
  */
 void symbol_terminate(void);

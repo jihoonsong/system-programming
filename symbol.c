@@ -70,6 +70,21 @@ void symbol_show_error_msg(void)
   }
 }
 
+void symbol_show_table(void)
+{
+  for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
+  {
+    struct symbol *walk = _saved_symbol_table[i];
+    while(walk)
+    {
+      printf("%s\t", walk->symbol);
+      printf("%4X\n", walk->locctr);
+
+      walk = walk->next;
+    }
+  }
+}
+
 void symbol_terminate(void)
 {
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
