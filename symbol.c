@@ -90,6 +90,17 @@ bool symbol_is_exist(const char *symbol)
   return false;
 }
 
+void symbol_new_table(void)
+{
+  symbol_release_working_table();
+
+  _working_symbol_table = malloc(SYMBOL_TABLE_LEN *
+                                 sizeof(*_working_symbol_table));
+  memset(_working_symbol_table, 0, SYMBOL_TABLE_LEN);
+
+  // TODO: Add registers.
+}
+
 void symbol_save_table(void)
 {
   symbol_release_saved_table();

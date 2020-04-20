@@ -19,6 +19,12 @@ void symbol_initialize(void);
 bool symbol_is_exist(const char *symbol);
 
 /**
+ * @brief Create new working symbol table. The new symbol table
+ *        has registers as symbols initially.
+ */
+void symbol_new_table(void);
+
+/**
  * @brief Save current symbol table. This function should be called
  *        when assembly is successfully done.
  */
