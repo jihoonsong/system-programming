@@ -361,10 +361,6 @@ static bool assembler_pass1(FILE *asm_file)
 
   while(strcmp("END", mnemonic))
   {
-    // TODO: do LOCCTR things.
-
-    printf("%d %s %s %s %s\n", line, label, mnemonic, operands[0], operands[1]);
-
     if(label)
     {
       if(symbol_is_exist(label))
@@ -418,19 +414,37 @@ static bool assembler_pass1(FILE *asm_file)
     }
     else if(!strcmp("BYTE", mnemonic))
     {
-      if(!operands[0])
+      if(!operands[0] || operands[1])
       {
         symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
         return false;
       }
 
+      if('\'' != operands[0][1] ||
+         '\'' != operands[0][strlen(operands[0]) - 1])
+      {
+        symbol_set_error(INVALID_OPERAND, line, operands[0]);
+        return false;
+      }
+      for(int i = 2; i < strlen(operands[0]) - 1; ++i)
+      {
+        if(!(('A' <= operands[0][i] && 'Z' >= operands[0][i]) ||
+             ('0' <= operands[0][i] && '9' >= operands[0][i])))
+        {
+          // If not upper alphbets or number.
+          symbol_set_error(INVALID_OPERAND, line, operands[0]);
+          return false;
+        }
+      }
+
       if('C' == operands[0][0])
       {
-        // TODO
+        locctr += strlen(operands[0]) - 3;
       }
       else if('X' == operands[0][0])
       {
-        // TODO
+        // Round up if length is odd.
+        locctr += (strlen(operands[0]) - 3 + 1) / 2;
       }
       else
       {
@@ -440,11 +454,17 @@ static bool assembler_pass1(FILE *asm_file)
     }
     else if(!strcmp("WORD", mnemonic))
     {
+      if(!operands[0] || operands[1])
+      {
+        symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+        return false;
+      }
+
       locctr += 3;
     }
     else if(!strcmp("RESB", mnemonic))
     {
-      if(!operands[0])
+      if(!operands[0] || operands[1])
       {
         symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
         return false;
@@ -454,7 +474,7 @@ static bool assembler_pass1(FILE *asm_file)
     }
     else if(!strcmp("RESW", mnemonic))
     {
-      if(!operands[0])
+      if(!operands[0] || operands[1])
       {
         symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
         return false;
