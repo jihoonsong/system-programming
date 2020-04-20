@@ -3,7 +3,6 @@
  * @brief A handler of assembler related commands.
  */
 
-#include <dirent.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -170,13 +169,6 @@ static bool assembler_execute_assemble(const char *cmd,
     return false;
   }
 
-  if(opendir(argv[0]))
-  {
-    // Ignore directory file.
-    printf("assemble: '%s' is a directory\n", argv[0]);
-    return false;
-  }
-
   if(strcmp(ASM_EXTENSION, argv[0] + strlen(argv[0]) - ASM_EXTENSION_LEN))
   {
     printf("assemble: '%s' is not .asm file\n", argv[0]);
@@ -194,8 +186,7 @@ static bool assembler_execute_assemble(const char *cmd,
   fclose(asm_file);
   if(!is_success)
   {
-    // Although there was an error, assemble command was executed.
-    return true;
+    return false;
   }
 
   char *lst_filename = malloc((strlen(argv[0]) + 1) * sizeof(*lst_filename));
@@ -206,7 +197,7 @@ static bool assembler_execute_assemble(const char *cmd,
   {
     printf("assemble: cannot create '%s' file\n", lst_filename);
     free(lst_filename);
-    return true;
+    return false;
   }
 
   char *obj_filename = malloc((strlen(argv[0]) + 1) * sizeof(*obj_filename));
@@ -219,7 +210,7 @@ static bool assembler_execute_assemble(const char *cmd,
     remove(lst_filename);
     free(obj_filename);
     free(lst_filename);
-    return true;
+    return false;
   }
 
   is_success = assembler_pass2(lst_file, obj_file);
