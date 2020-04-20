@@ -305,6 +305,7 @@ static bool assembler_tokenize_line(char *buffer,
 
 static bool assembler_pass1(FILE *asm_file)
 {
+  int  line                      = 0; // line is increased by 5.
   int  locctr                    = 0;
   char *label                    = NULL;
   char *mnemonic                 = NULL;
@@ -314,6 +315,7 @@ static bool assembler_pass1(FILE *asm_file)
   // Read lines until meet the first non-empty and non-comment line.
   while(fgets(buffer, BUFFER_LEN, asm_file))
   {
+    line += 5;
     if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
     {
       if(!strcmp("START", mnemonic))
@@ -329,6 +331,7 @@ static bool assembler_pass1(FILE *asm_file)
         // Read lines until meet the first non-empty and non-comment line.
         while(fgets(buffer, BUFFER_LEN, asm_file))
         {
+          line += 5;
           if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
           {
             break;
@@ -349,7 +352,24 @@ static bool assembler_pass1(FILE *asm_file)
   {
     // TODO: do LOCCTR things.
 
-    printf("%s %s %s %s\n", label, mnemonic, operands[0], operands[1]);
+    printf("%d %s %s %s %s\n", line, label, mnemonic, operands[0], operands[1]);
+
+    if(label)
+    {
+      if(symbol_is_exist(label))
+      {
+        symbol_set_error(DUPLICATE_SYMBOL, line, label);
+        return false;
+      }
+      else
+      {
+        if(!symbol_insert_symbol(label, locctr))
+        {
+          printf("assemble: symbol '%s' insertion failed\n", label);
+          return false;
+        }
+      }
+    }
 
     do
     {
@@ -358,6 +378,7 @@ static bool assembler_pass1(FILE *asm_file)
         printf("assemble: END mnemonic is not found\n");
         return false;
       }
+      line += 5;
 
       // Skip empty or comment lines.
     } while(!assembler_tokenize_line(buffer, &label, &mnemonic, &operands));
