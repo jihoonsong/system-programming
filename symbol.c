@@ -60,6 +60,16 @@ void symbol_initialize(void)
   memset(_working_symbol_table, 0, SYMBOL_TABLE_LEN);
 }
 
+void symbol_show_error_msg(void)
+{
+  switch(_symbol_error)
+  {
+    default:
+      // Do nothing.
+      break;
+  }
+}
+
 void symbol_terminate(void)
 {
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)

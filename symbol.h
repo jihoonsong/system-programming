@@ -12,6 +12,11 @@
 void symbol_initialize(void);
 
 /**
+ * @brief Print error msg.
+ */
+void symbol_show_error_msg(void);
+
+/**
  * @brief Release symbol table.
  */
 void symbol_terminate(void);
