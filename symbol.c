@@ -3,6 +3,7 @@
  * @brief A symbol table used when assembly.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -58,6 +59,25 @@ void symbol_initialize(void)
   _symbol_error = NONE;
   memset(_saved_symbol_table, 0, SYMBOL_TABLE_LEN);
   memset(_working_symbol_table, 0, SYMBOL_TABLE_LEN);
+}
+
+bool symbol_is_exist(const char *symbol)
+{
+  for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
+  {
+    struct symbol *walk = _working_symbol_table[i];
+    while(walk)
+    {
+      if(!strcmp(symbol, walk->symbol))
+      {
+        return true;
+      }
+
+      walk = walk->next;
+    }
+  }
+
+  return false;
 }
 
 void symbol_show_error_msg(void)

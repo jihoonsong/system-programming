@@ -12,6 +12,13 @@
 void symbol_initialize(void);
 
 /**
+ * @brief            Check if the symbol exists in symbol table.
+ * @param[in] symbol A symbol to be validated.
+ * @return           True if exists, false otherwise.
+ */
+bool symbol_is_exist(const char *symbol);
+
+/**
  * @brief Print error msg.
  */
 void symbol_show_error_msg(void);
