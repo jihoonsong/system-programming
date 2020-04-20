@@ -40,7 +40,7 @@ struct symbol
 /**
  * @brief A hash table of symbols, made during the last successful assembly.
  */
-struct symbol *_saved_symbol_table[SYMBOL_TABLE_LEN] = {NULL,};
+struct symbol **_saved_symbol_table = NULL;
 
 /**
  * @brief The last occured error during assembly.
@@ -50,15 +50,25 @@ enum symbol_error _symbol_error = NONE;
 /**
  * @brief A hash table of symbols, which is under construction.
  */
-struct symbol *_working_symbol_table[SYMBOL_TABLE_LEN] = {NULL,};
+struct symbol **_working_symbol_table = NULL;
+
+/**
+ * @brief Release _saved_symbol_table.
+ */
+static void symbol_release_saved_table(void);
+
+/**
+ * @brief Release _working_symbol_table.
+ */
+static void symbol_release_working_table(void);
 
 void symbol_initialize(void)
 {
   symbol_terminate();
 
-  _symbol_error = NONE;
-  memset(_saved_symbol_table, 0, SYMBOL_TABLE_LEN);
-  memset(_working_symbol_table, 0, SYMBOL_TABLE_LEN);
+  _symbol_error         = NONE;
+  _saved_symbol_table   = NULL;
+  _working_symbol_table = NULL;
 }
 
 bool symbol_is_exist(const char *symbol)
@@ -78,6 +88,13 @@ bool symbol_is_exist(const char *symbol)
   }
 
   return false;
+}
+
+void symbol_save_table(void)
+{
+  symbol_release_saved_table();
+  _saved_symbol_table = _working_symbol_table;
+  _working_symbol_table = NULL;
 }
 
 void symbol_show_error_msg(void)
@@ -107,6 +124,17 @@ void symbol_show_table(void)
 
 void symbol_terminate(void)
 {
+  symbol_release_saved_table();
+  symbol_release_working_table();
+}
+
+static void symbol_release_saved_table(void)
+{
+  if(!_saved_symbol_table)
+  {
+    return;
+  }
+
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
   {
     struct symbol *walk = _saved_symbol_table[i];
@@ -116,8 +144,21 @@ void symbol_terminate(void)
       walk = walk->next;
       free(del);
     }
+  }
+  free(_saved_symbol_table);
+  _saved_symbol_table = NULL;
+}
 
-    walk = _working_symbol_table[i];
+static void symbol_release_working_table(void)
+{
+  if(!_working_symbol_table)
+  {
+    return;
+  }
+
+  for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
+  {
+    struct symbol *walk = _working_symbol_table[i];
     while(walk)
     {
       struct symbol *del = walk;
@@ -125,4 +166,6 @@ void symbol_terminate(void)
       free(del);
     }
   }
+  free(_working_symbol_table);
+  _working_symbol_table = NULL;
 }

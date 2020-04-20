@@ -19,6 +19,12 @@ void symbol_initialize(void);
 bool symbol_is_exist(const char *symbol);
 
 /**
+ * @brief Save current symbol table. This function should be called
+ *        when assembly is successfully done.
+ */
+void symbol_save_table(void);
+
+/**
  * @brief Print error msg.
  */
 void symbol_show_error_msg(void);
