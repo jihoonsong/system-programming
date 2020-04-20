@@ -17,14 +17,6 @@
 #define SYMBOL_TABLE_LEN 26
 
 /**
- * @brief An enum of error, possibly occurs during assembly.
- */
-enum symbol_error
-{
-  NONE,
-};
-
-/**
  * @brief Structure of symbol elements.
  */
 struct symbol
@@ -38,6 +30,16 @@ struct symbol
 };
 
 /**
+ * @brief Structure of symbol error.
+ */
+struct _symbol_error
+{
+  enum symbol_error type;
+  int               line;
+  char              keyword[];
+};
+
+/**
  * @brief A hash table of symbols, made during the last successful assembly.
  */
 struct symbol **_saved_symbol_table = NULL;
@@ -45,7 +47,7 @@ struct symbol **_saved_symbol_table = NULL;
 /**
  * @brief The last occured error during assembly.
  */
-enum symbol_error _symbol_error = NONE;
+struct _symbol_error *_error = NULL;
 
 /**
  * @brief A hash table of symbols, which is under construction.
@@ -75,7 +77,7 @@ void symbol_initialize(void)
 {
   symbol_terminate();
 
-  _symbol_error         = NONE;
+  _error                = NULL;
   _saved_symbol_table   = NULL;
   _working_symbol_table = NULL;
 }
@@ -187,10 +189,38 @@ void symbol_save_table(void)
   _working_symbol_table = NULL;
 }
 
+void symbol_set_error(const enum symbol_error error,
+                      const int line,
+                      const char *keyword)
+{
+  if(_error)
+  {
+    free(_error);
+  }
+
+  _error = malloc(sizeof(*_error) + sizeof(char) * (strlen(keyword) + 1));
+  _error->type = error;
+  _error->line = line;
+  strcpy(_error->keyword, keyword);
+}
+
 void symbol_show_error_msg(void)
 {
-  switch(_symbol_error)
+  if(!_error)
   {
+    return;
+  }
+
+  switch(_error->type)
+  {
+    case DUPLICATE_SYMBOL:
+      printf("symbol: (line %d) symbol '%s' duplicate\n", _error->line,
+                                                          _error->keyword);
+      break;
+    case INVALID_OPCODE:
+      printf("symbol: (line %d) opcode '%s' is invalid\n", _error->line,
+                                                           _error->keyword);
+      break;
     default:
       // Do nothing.
       break;
@@ -214,6 +244,10 @@ void symbol_show_table(void)
 
 void symbol_terminate(void)
 {
+  if(_error)
+  {
+    free(_error);
+  }
   symbol_release_saved_table();
   symbol_release_working_table();
 }

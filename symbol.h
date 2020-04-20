@@ -7,6 +7,16 @@
 #define __SYMBOL_H__
 
 /**
+ * @brief An enum of errors that can occur during assembly.
+ */
+enum symbol_error
+{
+  NONE,
+  DUPLICATE_SYMBOL,
+  INVALID_OPCODE,
+};
+
+/**
  * @brief Initialize symbol table.
  */
 void symbol_initialize(void);
@@ -37,6 +47,14 @@ void symbol_new_table(void);
  *        when assembly is successfully done.
  */
 void symbol_save_table(void);
+
+/**
+ * @brief           Set error flag
+ * @param[in] error The error occured.
+ */
+void symbol_set_error(const enum symbol_error error,
+                      const int line,
+                      const char *keyword);
 
 /**
  * @brief Print error msg.
