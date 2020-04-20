@@ -49,6 +49,11 @@ const int DIRECTIVES_COUNT = (int)(sizeof(DIRECTIVES) /
                                    sizeof(DIRECTIVES[0]));
 
 /**
+ * @brief Equals to 16.
+ */
+static const int HEX = 16;
+
+/**
  * @brief A const variable that holds the extension of lst file.
  */
 static const char *LST_EXTENSION = "lst";
@@ -103,7 +108,7 @@ static bool assembler_execute_symbol(const char *cmd,
  * @param[in] str A str to be validated.
  * @return        True if mnemonic, false otherwise.
  */
-static bool assembler_is_mnemonic(char *str);
+static bool assembler_is_mnemonic(const char *str);
 
 /**
  * @brief              Tokenize line into label, mnemonic, and operands.
@@ -240,7 +245,7 @@ static bool assembler_execute_symbol(const char *cmd,
   return true;
 }
 
-static bool assembler_is_mnemonic(char *str)
+static bool assembler_is_mnemonic(const char *str)
 {
   if(!str)
   {
@@ -301,21 +306,52 @@ static bool assembler_tokenize_line(char *buffer,
 
 static bool assembler_pass1(FILE *asm_file)
 {
+  int  locctr                    = 0;
   char *label                    = NULL;
   char *mnemonic                 = NULL;
   char *operands[OPERANDS_COUNT];
   char buffer[BUFFER_LEN];
 
+  // Read lines until meet the first non-empty and non-comment line.
   while(fgets(buffer, BUFFER_LEN, asm_file))
   {
     if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
     {
-      printf("label: '%s', mnemonic: '%s', operands: '%s', '%s'\n", label,
-                                                                    mnemonic,
-                                                                    operands[0],
-                                                                    operands[1]);
+      if(!strcmp("START", mnemonic))
+      {
+        if(!operands[0])
+        {
+          printf("assemble: START directive must have its operand\n");
+          return false;
+        }
+
+        locctr = strtol(operands[0], NULL, HEX);
+        fgets(buffer, BUFFER_LEN, asm_file);
+      }
+      else
+      {
+        locctr = 0;
+      }
+
+      break;
     }
   }
+
+  do
+  {
+    // TODO read lines...
+    if(fgets(buffer, BUFFER_LEN, asm_file))
+    {
+      if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
+      {
+      }
+    }
+    else
+    {
+      printf("assemble: END mnemonic is not found\n");
+      return false;
+    }
+  } while(strcmp("END", mnemonic));
 
   return true;
 }

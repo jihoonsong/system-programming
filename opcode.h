@@ -24,7 +24,7 @@ void opcode_initialize(void);
  * @param[in] mnemonic A mnemonic to be validated.
  * @return             True if corresponding opcode is found, false otherwise.
  */
-bool opcode_is_opcode(char *mnemonic);
+bool opcode_is_opcode(const char *mnemonic);
 
 /**
  * @brief Release hash table.

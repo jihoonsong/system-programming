@@ -151,7 +151,7 @@ void opcode_initialize(void)
   opcode_create_table();
 }
 
-bool opcode_is_opcode(char *mnemonic)
+bool opcode_is_opcode(const char *mnemonic)
 {
   if(!mnemonic)
   {
