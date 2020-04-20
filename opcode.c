@@ -159,16 +159,17 @@ float opcode_get_format(const char *mnemonic)
   struct opcode *opcode = opcode_search_opcode(mnemonic);
   if(opcode)
   {
-    if(1 == opcode->format1)
+    if(opcode->format1)
     {
       return 1.0f;
     }
-    else if(2 == opcode->format2)
+    else if(opcode->format2)
     {
       return 2.0f;
     }
     else
     {
+      // Format 3/4.
       return 3.5f;
     }
   }
