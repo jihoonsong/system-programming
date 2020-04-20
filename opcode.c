@@ -149,6 +149,35 @@ void opcode_execute(const char *cmd, const int argc, const char *argv[])
   }
 }
 
+float opcode_get_format(const char *mnemonic)
+{
+  if(!mnemonic)
+  {
+    return 0.0f;
+  }
+
+  struct opcode *opcode = opcode_search_opcode(mnemonic);
+  if(opcode)
+  {
+    if(1 == opcode->format1)
+    {
+      return 1.0f;
+    }
+    else if(2 == opcode->format2)
+    {
+      return 2.0f;
+    }
+    else
+    {
+      return 3.5f;
+    }
+  }
+  else
+  {
+    return 0.0f;
+  }
+}
+
 void opcode_initialize(void)
 {
   srand((unsigned int)time(NULL)); // For universal hashing.
