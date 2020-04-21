@@ -190,13 +190,6 @@ static bool shell_execute_type(const char *cmd, const int argc, const char *argv
     return false;
   }
 
-  if(opendir(argv[0]))
-  {
-    // Ignore directory file.
-    printf("type: '%s' is a directory\n", argv[0]);
-    return false;
-  }
-
   FILE *fp = fopen(argv[0], "r");
   if(!fp)
   {

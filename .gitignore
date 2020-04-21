@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
 *.lst
+*.int
 
 # Object files
 *.o
