@@ -945,6 +945,13 @@ static bool assembler_pass2(FILE *asm_file,
     }
     else if(!strcmp("WORD", mnemonic))
     {
+      if(!operands[0])
+      {
+        symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+        return false;
+      }
+
+      sprintf(object_code, "%06X", (unsigned int)strtol(operands[0], NULL, DECIMAL));
     }
     else if(!strcmp("RESB", mnemonic) || !strcmp("RESW", mnemonic))
     {
