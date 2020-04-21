@@ -32,9 +32,34 @@ static const char *ASM_EXTENSION = "asm";
 static const int ASM_EXTENSION_LEN = 3;
 
 /**
+ * @brief Equals to 0x000, equals to decimal 0 in unsigned.
+ */
+static const int BASE_MIN = 0x000;
+
+/**
+ * @brief Equals to 0x7FF, equals to decimal 4095 in unsigned.
+ */
+static const int BASE_MAX = 0xFFF;
+
+/**
  * @brief Equals to 10.
  */
 static const int DECIMAL = 10;
+
+/**
+ * @brief Equals to -0x800, equals to decimal -2048 in two's complement.
+ */
+static const int DISPLACEMENT_MIN = -0x800;
+
+/**
+ * @brief Equals to 0xFFF. The displacement field is 12-bits long.
+ */
+static const int DISPLACEMENT_MASK = 0xFFF;
+
+/**
+ * @brief Equals to 0x7FF, equals to decimal 2047 in two's complement.
+ */
+static const int DISPLACEMENT_MAX = 0x7FF;
 
 /**
  * @brief A const variable that holds the list of assembler directives.
@@ -763,184 +788,13 @@ static bool assembler_pass2(FILE *asm_file,
     int  b                       = 0;
     int  p                       = 0;
     int  e                       = 0;
-    int  disp                    = 0;
+    int  displacement            = 0;
     int  address                 = 0;
 
     locctr += instruction_len; // Advance locctr points to the next instruciton.
 
     memset(object_code, 0, sizeof(object_code));
-    if(opcode_is_opcode(mnemonic))
-    {
-      float format = opcode_get_format(mnemonic);
-      opcode = opcode_get_opcode(mnemonic);
-
-      if(fabsf(1.0f - format) <= EPSILON)
-      {
-        sprintf(object_code, "%02X", opcode);
-      }
-      else if(fabsf(2.0f - format) <= EPSILON)
-      {
-        sprintf(object_code, "%02X", opcode);
-        if(operands[0])
-        {
-          sprintf(&object_code[2], "%1X", symbol_get_locctr(operands[0]));
-        }
-        if(operands[1])
-        {
-          sprintf(&object_code[3], "%1X", symbol_get_locctr(operands[1]));
-        }
-        else
-        {
-          sprintf(&object_code[3], "%1X", 0);
-        }
-      }
-      else if(fabsf(3.5f - format) <= EPSILON)
-      {
-        if(!strcmp("RSUB", mnemonic))
-        {
-          sprintf(object_code, "4F0000");
-        }
-        else if(!operands[0])
-        {
-          symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
-          return false;
-        }
-        else
-        {
-          if('#' == operands[0][0])
-          {
-            n = 0;
-            i = 1;
-            ++operands[0];
-            if(symbol_is_exist(operands[0]))
-            {
-              int operand_address = symbol_get_locctr(operands[0]);
-              disp = operand_address - locctr;
-              if(-2048 <= disp && 2047 >= disp)
-              {
-                b = 0;
-                p = 1;
-              }
-              else if(is_base_relative_enabled)
-              {
-                disp = operand_address - base;
-                if(0 <= disp && 4095 >= disp)
-                {
-                  b = 1;
-                  p = 0;
-                }
-                else
-                {
-                  symbol_set_error(INVALID_OPERAND, line, operands[0]);
-                  return false;
-                }
-              }
-              else
-              {
-                symbol_set_error(INVALID_OPERAND, line, operands[0]);
-                return false;
-              }
-            }
-            else
-            {
-              disp = strtol(operands[0], NULL, DECIMAL);
-            }
-          }
-          else if('@' == operands[0][0])
-          {
-            n = 1;
-            i = 0;
-            ++operands[0];
-            if(symbol_is_exist(operands[0]))
-            {
-              int operand_address = symbol_get_locctr(operands[0]);
-              disp = operand_address - locctr;
-              if(-2048 <= disp && 2047 >= disp)
-              {
-                b = 0;
-                p = 1;
-              }
-              else if(is_base_relative_enabled)
-              {
-                disp = operand_address - base;
-                if(0 <= disp && 4095 >= disp)
-                {
-                  b = 1;
-                  p = 0;
-                }
-                else
-                {
-                  symbol_set_error(INVALID_OPERAND, line, operands[0]);
-                  return false;
-                }
-              }
-              else
-              {
-                symbol_set_error(INVALID_OPERAND, line, operands[0]);
-                return false;
-              }
-            }
-            else
-            {
-              symbol_set_error(INVALID_OPERAND, line, operands[0]);
-              return false;
-            }
-          }
-          else
-          {
-            if(operands[1])
-            {
-              x = 1;
-            }
-
-            int operand_address = symbol_get_locctr(operands[0]);
-            disp = operand_address - locctr;
-            if(-2048 <= disp && 2047 >= disp)
-            {
-              n = 1;
-              i = 1;
-              b = 0;
-              p = 1;
-              disp &= 0xFFF; // Set bits other than rightmost 12 bits 0.
-            }
-            else if(is_base_relative_enabled)
-            {
-              disp = operand_address - base;
-              if(0 <= disp && 4095 >= disp)
-              {
-                n = 1;
-                i = 1;
-                b = 1;
-                p = 0;
-              }
-              else
-              {
-                symbol_set_error(INVALID_OPERAND, line, operands[0]);
-                return false;
-              }
-            }
-            else
-            {
-              symbol_set_error(INVALID_OPERAND, line, operands[0]);
-              return false;
-            }
-          }
-
-          sprintf(object_code, "%02X", opcode + n * 2 + i);
-          sprintf(&object_code[2], "%1X", x * 8 + b * 4 + p * 2 + e);
-          sprintf(&object_code[3], "%03X", disp);
-        }
-      }
-      else
-      {
-        symbol_set_error(INVALID_OPCODE, line, mnemonic);
-        return false;
-      }
-    }
-    else if('+' == mnemonic[0] && opcode_is_opcode(&mnemonic[1]))
-    {
-    }
-    else if(!strcmp("BYTE", mnemonic))
+    if(!strcmp("BYTE", mnemonic))
     {
       if(!operands[0])
       {
@@ -997,8 +851,196 @@ static bool assembler_pass2(FILE *asm_file,
     }
     else
     {
-      symbol_set_error(INVALID_OPCODE, line, mnemonic);
-      return false;
+      if(opcode_is_opcode(mnemonic))
+      {
+        // Nothing to do.
+      }
+      else if('+' == mnemonic[0] && opcode_is_opcode(&mnemonic[1]))
+      {
+        // Format 4.
+        e = 1;
+        ++mnemonic;
+      }
+      else
+      {
+        symbol_set_error(INVALID_OPCODE, line, mnemonic);
+        return false;
+      }
+
+      opcode       = opcode_get_opcode(mnemonic);
+      float format = opcode_get_format(mnemonic);
+      if(fabsf(1.0f - format) <= EPSILON)
+      {
+        if(e)
+        {
+          --mnemonic;
+          symbol_set_error(INVALID_OPCODE, line, mnemonic);
+          return false;
+        }
+
+        sprintf(object_code, "%02X", opcode);
+      }
+      else if(fabsf(2.0f - format) <= EPSILON)
+      {
+        if(e)
+        {
+          --mnemonic;
+          symbol_set_error(INVALID_OPCODE, line, mnemonic);
+          return false;
+        }
+
+        if(!operands[0])
+        {
+          symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+          return false;
+        }
+
+        sprintf(object_code, "%02X", opcode);
+        sprintf(&object_code[2], "%1X", symbol_get_locctr(operands[0]));
+        sprintf(&object_code[3], "%1X", operands[1] ?
+                                        symbol_get_locctr(operands[1]) :
+                                        0);
+      }
+      else if(fabsf(3.5f - format) <= EPSILON)
+      {
+        if(!strcmp("RSUB", mnemonic))
+        {
+          // RSUB does not require any operand, uniquely.
+          // Simple addressing.
+          n = 1;
+          i = 1;
+        }
+        else if(!operands[0])
+        {
+          // All format 3 or 4 instructions require at least one operand.
+          symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+          return false;
+        }
+        else
+        {
+          if('#' == operands[0][0])
+          {
+            // Immediate addressing.
+            n = 0;
+            i = 1;
+            ++operands[0];
+          }
+          else if('@' == operands[0][0])
+          {
+            // Indirect addressing.
+            n = 1;
+            i = 0;
+            ++operands[0];
+          }
+          else
+          {
+            // Simple addressing.
+            n = 1;
+            i = 1;
+          }
+
+          if(operands[1])
+          {
+            if(!strcmp("X", operands[1]))
+            {
+              // Indexed addressing.
+              x = 1;
+            }
+            else
+            {
+              // Only register X can used for indexed addressing.
+              symbol_set_error(INVALID_OPERAND, line, operands[0]);
+              return false;
+            }
+          }
+        }
+
+        // Calculate displacement or address.
+        if(!strcmp("RSUB", mnemonic))
+        {
+          // RSUB does not have any operand, which is
+          // direct addressing in a sense.
+          b = 0;
+          p = 0;
+          displacement = 0;
+        }
+        else if(n == 0 && i == 1 && !symbol_is_exist(operands[0]))
+        {
+          // Immediate addressing with value.
+          // It is also direct addressing.
+          b = 0;
+          p = 0;
+          if(e)
+          {
+            address = strtol(operands[0], NULL, DECIMAL);
+          }
+          else
+          {
+            displacement = strtol(operands[0], NULL, DECIMAL);
+          }
+        }
+        else
+        {
+          int  target_address        = symbol_get_locctr(operands[0]);
+          bool is_addressing_success = false;
+
+          // Try PC-relative addressing first.
+          displacement = target_address - locctr;
+          if(DISPLACEMENT_MIN <= displacement &&
+              DISPLACEMENT_MAX >= displacement)
+          {
+            b = 0;
+            p = 1;
+            is_addressing_success = true;
+          }
+
+          // Try BASE-relative addressing, if PC-relative addressing failed.
+          if(!is_addressing_success)
+          {
+            if(!is_base_relative_enabled)
+            {
+              symbol_set_error(INVALID_OPERAND, line, operands[0]);
+              return false;
+            }
+
+            displacement = target_address - base;
+            if(BASE_MIN <= displacement &&
+                BASE_MAX >= displacement)
+            {
+              b = 1;
+              p = 0;
+              is_addressing_success = true;
+            }
+          }
+
+          // Try format 4, if BASE-relative addressing also failed.
+          if(!is_addressing_success)
+          {
+            if(!e)
+            {
+              symbol_set_error(INVALID_OPERAND, line, operands[0]);
+              return false;
+            }
+
+            // Direct addressing.
+            b = 0;
+            p = 0;
+            address = target_address;
+            is_addressing_success = true;
+          }
+        }
+
+        sprintf(object_code, "%02X", opcode + (n << 1) + i);
+        sprintf(&object_code[2], "%1X", (x << 3) + (b << 2) + (p << 1) + e);
+        sprintf(&object_code[3],
+                e ? "%05X" : "%03X",
+                e ? address : displacement & DISPLACEMENT_MASK);
+      }
+      else
+      {
+        symbol_set_error(INVALID_OPCODE, line, mnemonic);
+        return false;
+      }
     }
 
     strcat(text_record, object_code);
