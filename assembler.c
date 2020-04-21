@@ -65,6 +65,16 @@ const float EPSILON = 1e-3f;
 static const int HEX = 16;
 
 /**
+ * @brief A const variable that holds the extension of int file.
+ */
+static const char *INT_EXTENSION = "int";
+
+/**
+ * @brief A const variable that holds the length of int file extension.
+ */
+static const int INT_EXTENSION_LEN = 3;
+
+/**
  * @brief A const variable that holds the extension of lst file.
  */
 static const char *LST_EXTENSION = "lst";
@@ -136,17 +146,23 @@ static bool assembler_tokenize_line(char *buffer,
 
 /**
  * @brief              Create symbol table. The symbol table contains
-                       pairs of symbol and its locctr.
+ *                     pairs of symbol and its locctr.
  * @param[in] asm_file A file pointer to an .asm file to be assembled.
+ * @param[in] int_file A file pointer to an .int file to be written.
  */
-static bool assembler_pass1(FILE *asm_file);
+static bool assembler_pass1(FILE *asm_file, FILE *int_file);
 
 /**
  * @brief              Write .lst file and obj file.
+ * @param[in] asm_file A file pointer to an .asm file to be assembled.
+ * @param[in] int_file A file pointer to an .int file to be read.
  * @param[in] lst_file A file pointer to an .lst file to be written.
  * @param[in] obj_file A file pointer to an .obj file to be written.
  */
-static bool assembler_pass2(FILE *lst_file, FILE *obj_file);
+static bool assembler_pass2(FILE *asm_file,
+                            FILE *int_file,
+                            FILE *lst_file,
+                            FILE *obj_file);
 
 void assembler_execute(const char *cmd,
                        const int argc,
@@ -194,13 +210,28 @@ static bool assembler_execute_assemble(const char *cmd,
     return false;
   }
 
+  char *int_filename = malloc((strlen(argv[0]) + 1) * sizeof(*int_filename));
+  strcpy(int_filename, argv[0]);
+  strcpy(int_filename + strlen(int_filename) - INT_EXTENSION_LEN, INT_EXTENSION);
+  FILE *int_file = fopen(int_filename, "w");
+  if(!int_file)
+  {
+    printf("assemble: cannot create '%s' file\n", int_filename);
+    free(int_filename);
+    return false;
+  }
+
   symbol_new_table();
 
-  bool is_success = assembler_pass1(asm_file);
-  fclose(asm_file);
+  bool is_success = assembler_pass1(asm_file, int_file);
   if(!is_success)
   {
     symbol_show_error_msg();
+
+    fclose(asm_file);
+    fclose(int_file);
+    remove(int_filename);
+    free(int_filename);
     return false;
   }
 
@@ -211,6 +242,10 @@ static bool assembler_execute_assemble(const char *cmd,
   if(!lst_file)
   {
     printf("assemble: cannot create '%s' file\n", lst_filename);
+    fclose(asm_file);
+    fclose(int_file);
+    remove(int_filename);
+    free(int_filename);
     free(lst_filename);
     return false;
   }
@@ -222,24 +257,34 @@ static bool assembler_execute_assemble(const char *cmd,
   if(!obj_file)
   {
     printf("assemble: cannot create '%s' file\n", obj_filename);
+    fclose(asm_file);
+    fclose(int_file);
+    fclose(lst_file);
+    remove(int_filename);
     remove(lst_filename);
-    free(obj_filename);
+    free(int_filename);
     free(lst_filename);
+    free(obj_filename);
     return false;
   }
 
-  is_success = assembler_pass2(lst_file, obj_file);
-  fclose(obj_file);
+  is_success = assembler_pass2(asm_file, int_file, lst_file, obj_file);
+  fclose(asm_file);
+  fclose(int_file);
   fclose(lst_file);
+  fclose(obj_file);
   if(!is_success)
   {
     symbol_show_error_msg();
 
     remove(obj_filename);
     remove(lst_filename);
+    return false;
   }
-  free(obj_filename);
+  remove(int_filename);
+  free(int_filename);
   free(lst_filename);
+  free(obj_filename);
 
   symbol_save_table();
 
@@ -314,7 +359,7 @@ static bool assembler_tokenize_line(char *buffer,
   return true;
 }
 
-static bool assembler_pass1(FILE *asm_file)
+static bool assembler_pass1(FILE *asm_file, FILE *int_file)
 {
   int  line                      = 0; // line is increased by 5.
   int  locctr                    = 0;
@@ -331,9 +376,9 @@ static bool assembler_pass1(FILE *asm_file)
     {
       if(!strcmp("START", mnemonic))
       {
-        if(!operands[0])
+        if(!operands[0] || operands[1])
         {
-          printf("assemble: START directive must have its operand\n");
+          symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
           return false;
         }
 
@@ -509,7 +554,10 @@ static bool assembler_pass1(FILE *asm_file)
   return true;
 }
 
-static bool assembler_pass2(FILE *lst_file, FILE *obj_file)
+static bool assembler_pass2(FILE *asm_file,
+                            FILE *int_file,
+                            FILE *lst_file,
+                            FILE *obj_file)
 {
   // TODO: to be implemented.
   printf("pass2 invoked\n");
