@@ -75,6 +75,11 @@ static const char *INT_EXTENSION = "int";
 static const int INT_EXTENSION_LEN = 3;
 
 /**
+ * @brief A const variable that holds the amount of line increment.
+ */
+static const int LINE_INCREMENT = 5;
+
+/**
  * @brief A const variable that holds the extension of lst file.
  */
 static const char *LST_EXTENSION = "lst";
@@ -452,7 +457,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
   // Read lines until meet the first non-empty and non-comment line.
   while(fgets(buffer, BUFFER_LEN, asm_file))
   {
-    line += 5;
+    line += LINE_INCREMENT;
     if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
     {
       if(!strcmp("START", mnemonic))
@@ -470,7 +475,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
         // Read lines until meet the first non-empty and non-comment line.
         while(fgets(buffer, BUFFER_LEN, asm_file))
         {
-          line += 5;
+          line += LINE_INCREMENT;
           if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
           {
             fprintf(int_file, "%d\t%X\n", line, locctr);
@@ -631,7 +636,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
         printf("assemble: END mnemonic is not found\n");
         return false;
       }
-      line += 5;
+      line += LINE_INCREMENT;
 
       // Skip empty or comment lines.
     } while(!assembler_tokenize_line(buffer, &label, &mnemonic, &operands));
