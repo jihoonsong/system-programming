@@ -293,7 +293,7 @@ static bool assembler_execute_assemble(const char *cmd,
   char *int_filename = malloc((strlen(argv[0]) + 1) * sizeof(*int_filename));
   strcpy(int_filename, argv[0]);
   strcpy(int_filename + strlen(int_filename) - INT_EXTENSION_LEN, INT_EXTENSION);
-  FILE *int_file = fopen(int_filename, "w");
+  FILE *int_file = fopen(int_filename, "w+");
   if(!int_file)
   {
     printf("assemble: cannot create '%s' file\n", int_filename);
@@ -313,6 +313,9 @@ static bool assembler_execute_assemble(const char *cmd,
     free(int_filename);
     return false;
   }
+  fflush(int_file);
+  rewind(asm_file);
+  rewind(int_file);
 
   char *lst_filename = malloc((strlen(argv[0]) + 1) * sizeof(*lst_filename));
   strcpy(lst_filename, argv[0]);
@@ -360,8 +363,7 @@ static bool assembler_execute_assemble(const char *cmd,
     remove(lst_filename);
     return false;
   }
-  // TODO: remove int file!
-  //remove(int_filename);
+  remove(int_filename);
   free(int_filename);
   free(lst_filename);
   free(obj_filename);
