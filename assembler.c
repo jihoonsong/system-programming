@@ -768,8 +768,174 @@ static bool assembler_pass2(FILE *asm_file,
 
     locctr += instruction_len; // Advance locctr points to the next instruciton.
 
+    memset(object_code, 0, sizeof(object_code));
     if(opcode_is_opcode(mnemonic))
     {
+      float format = opcode_get_format(mnemonic);
+      opcode = opcode_get_opcode(mnemonic);
+
+      if(fabsf(1.0f - format) <= EPSILON)
+      {
+        sprintf(object_code, "%02X", opcode);
+      }
+      else if(fabsf(2.0f - format) <= EPSILON)
+      {
+        sprintf(object_code, "%02X", opcode);
+        if(operands[0])
+        {
+          sprintf(&object_code[2], "%1X", symbol_get_locctr(operands[0]));
+        }
+        if(operands[1])
+        {
+          sprintf(&object_code[3], "%1X", symbol_get_locctr(operands[1]));
+        }
+        else
+        {
+          sprintf(&object_code[3], "%1X", 0);
+        }
+      }
+      else if(fabsf(3.5f - format) <= EPSILON)
+      {
+        if(!strcmp("RSUB", mnemonic))
+        {
+          sprintf(object_code, "4F0000");
+        }
+        else if(!operands[0])
+        {
+          symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+          return false;
+        }
+        else
+        {
+          if('#' == operands[0][0])
+          {
+            n = 0;
+            i = 1;
+            ++operands[0];
+            if(symbol_is_exist(operands[0]))
+            {
+              int operand_address = symbol_get_locctr(operands[0]);
+              disp = operand_address - locctr;
+              if(-2048 <= disp && 2047 >= disp)
+              {
+                b = 0;
+                p = 1;
+              }
+              else if(is_base_relative_enabled)
+              {
+                disp = operand_address - base;
+                if(0 <= disp && 4095 >= disp)
+                {
+                  b = 1;
+                  p = 0;
+                }
+                else
+                {
+                  symbol_set_error(INVALID_OPERAND, line, operands[0]);
+                  return false;
+                }
+              }
+              else
+              {
+                symbol_set_error(INVALID_OPERAND, line, operands[0]);
+                return false;
+              }
+            }
+            else
+            {
+              disp = strtol(operands[0], NULL, DECIMAL);
+            }
+          }
+          else if('@' == operands[0][0])
+          {
+            n = 1;
+            i = 0;
+            ++operands[0];
+            if(symbol_is_exist(operands[0]))
+            {
+              int operand_address = symbol_get_locctr(operands[0]);
+              disp = operand_address - locctr;
+              if(-2048 <= disp && 2047 >= disp)
+              {
+                b = 0;
+                p = 1;
+              }
+              else if(is_base_relative_enabled)
+              {
+                disp = operand_address - base;
+                if(0 <= disp && 4095 >= disp)
+                {
+                  b = 1;
+                  p = 0;
+                }
+                else
+                {
+                  symbol_set_error(INVALID_OPERAND, line, operands[0]);
+                  return false;
+                }
+              }
+              else
+              {
+                symbol_set_error(INVALID_OPERAND, line, operands[0]);
+                return false;
+              }
+            }
+            else
+            {
+              symbol_set_error(INVALID_OPERAND, line, operands[0]);
+              return false;
+            }
+          }
+          else
+          {
+            if(operands[1])
+            {
+              x = 1;
+            }
+
+            int operand_address = symbol_get_locctr(operands[0]);
+            disp = operand_address - locctr;
+            if(-2048 <= disp && 2047 >= disp)
+            {
+              n = 1;
+              i = 1;
+              b = 0;
+              p = 1;
+              disp &= 0xFFF; // Set bits other than rightmost 12 bits 0.
+            }
+            else if(is_base_relative_enabled)
+            {
+              disp = operand_address - base;
+              if(0 <= disp && 4095 >= disp)
+              {
+                n = 1;
+                i = 1;
+                b = 1;
+                p = 0;
+              }
+              else
+              {
+                symbol_set_error(INVALID_OPERAND, line, operands[0]);
+                return false;
+              }
+            }
+            else
+            {
+              symbol_set_error(INVALID_OPERAND, line, operands[0]);
+              return false;
+            }
+          }
+
+          sprintf(object_code, "%02X", opcode + n * 2 + i);
+          sprintf(&object_code[2], "%1X", x * 8 + b * 4 + p * 2 + e);
+          sprintf(&object_code[3], "%03X", disp);
+        }
+      }
+      else
+      {
+        symbol_set_error(INVALID_OPCODE, line, mnemonic);
+        return false;
+      }
     }
     else if('+' == mnemonic[0] && opcode_is_opcode(&mnemonic[1]))
     {
@@ -785,9 +951,18 @@ static bool assembler_pass2(FILE *asm_file,
     }
     else if(!strcmp("BASE", mnemonic))
     {
+      if(!operands[0])
+      {
+        symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+        return false;
+      }
+
+      base = symbol_get_locctr(operands[0]);
+      is_base_relative_enabled = true;
     }
     else if(!strcmp("NOBASE", mnemonic))
     {
+      is_base_relative_enabled = false;
     }
     else
     {
