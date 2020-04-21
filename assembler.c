@@ -145,24 +145,27 @@ static bool assembler_tokenize_line(char *buffer,
                                     char *(*operands)[]);
 
 /**
- * @brief              Create symbol table. The symbol table contains
- *                     pairs of symbol and its locctr.
- * @param[in] asm_file A file pointer to an .asm file to be assembled.
- * @param[in] int_file A file pointer to an .int file to be written.
+ * @brief                  Create symbol table. The symbol table contains
+ *                         pairs of symbol and its locctr.
+ * @param[in]  asm_file    A file pointer to an .asm file to be assembled.
+ * @param[in]  int_file    A file pointer to an .int file to be written.
+ * @param[out] program_len A length of prgram.
  */
-static bool assembler_pass1(FILE *asm_file, FILE *int_file);
+static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len);
 
 /**
- * @brief              Write .lst file and obj file.
- * @param[in] asm_file A file pointer to an .asm file to be assembled.
- * @param[in] int_file A file pointer to an .int file to be read.
- * @param[in] lst_file A file pointer to an .lst file to be written.
- * @param[in] obj_file A file pointer to an .obj file to be written.
+ * @brief                 Write .lst file and obj file.
+ * @param[in] asm_file    A file pointer to an .asm file to be assembled.
+ * @param[in] int_file    A file pointer to an .int file to be read.
+ * @param[in] lst_file    A file pointer to an .lst file to be written.
+ * @param[in] obj_file    A file pointer to an .obj file to be written.
+ * @param[in] program_len A length of program.
  */
 static bool assembler_pass2(FILE *asm_file,
                             FILE *int_file,
                             FILE *lst_file,
-                            FILE *obj_file);
+                            FILE *obj_file,
+                            int  program_len);
 
 void assembler_execute(const char *cmd,
                        const int argc,
@@ -223,13 +226,12 @@ static bool assembler_execute_assemble(const char *cmd,
 
   symbol_new_table();
 
-  bool is_success = assembler_pass1(asm_file, int_file);
+  int program_len = 0;
+  bool is_success = assembler_pass1(asm_file, int_file, &program_len);
   if(!is_success)
   {
     symbol_show_error_msg();
 
-    fclose(asm_file);
-    fclose(int_file);
     remove(int_filename);
     free(int_filename);
     return false;
@@ -268,7 +270,7 @@ static bool assembler_execute_assemble(const char *cmd,
     return false;
   }
 
-  is_success = assembler_pass2(asm_file, int_file, lst_file, obj_file);
+  is_success = assembler_pass2(asm_file, int_file, lst_file, obj_file, program_len);
   fclose(asm_file);
   fclose(int_file);
   fclose(lst_file);
@@ -366,7 +368,7 @@ static bool assembler_tokenize_line(char *buffer,
   return true;
 }
 
-static bool assembler_pass1(FILE *asm_file, FILE *int_file)
+static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
 {
   int  line                      = 0; // line is increased by 5.
   int  locctr                    = 0;
@@ -559,11 +561,13 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file)
       }
       line += 5;
 
-      fprintf(int_file, "%d\t%X\n", line, locctr);
-
       // Skip empty or comment lines.
     } while(!assembler_tokenize_line(buffer, &label, &mnemonic, &operands));
+
+    fprintf(int_file, "%d\t%X\t", line, locctr);
   }
+
+  *program_len = locctr - start;
 
   return true;
 }
@@ -571,7 +575,8 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file)
 static bool assembler_pass2(FILE *asm_file,
                             FILE *int_file,
                             FILE *lst_file,
-                            FILE *obj_file)
+                            FILE *obj_file,
+                            int  program_len)
 {
   // TODO: to be implemented.
   printf("pass2 invoked\n");
