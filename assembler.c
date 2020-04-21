@@ -105,6 +105,11 @@ static const int OBJ_EXTENSION_LEN = 3;
 static const int OPERANDS_COUNT = 2;
 
 /**
+ * @brief A const variable that holds the manximum length of text record.
+ */
+static const int TEXT_RECORD_MAX_LEN = 55;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
@@ -704,12 +709,12 @@ static bool assembler_pass2(FILE *asm_file,
   char *mnemonic                 = NULL;
   char *operands[OPERANDS_COUNT];
   char buffer[BUFFER_LEN];
-  char text[BUFFER_LEN];
-  int  text_start                = 0; // The start locctr of this text record.
+  char text_record[BUFFER_LEN];
+  int  text_record_start         = 0; // The start locctr of this text record.
+  bool write_text_record         = false;
   //char modification[BUFFER_LEN];
   int  base                      = 0;
-  bool is_base                   = false;
-  bool is_write_obj              = false;
+  bool is_base_relative_enabled  = false;
 
   // Read the first non-empty and non-comment line.
   assembler_pass2_get_ready_line(asm_file,
@@ -744,14 +749,30 @@ static bool assembler_pass2(FILE *asm_file,
   // Now, buffer has the first non-comment line after the START line.
 
   // Prepare text record that will be written to .obj file.
-  memset(text, 0, sizeof(text));
-  text_start = locctr;
 
   // Start assembly.
   while(strcmp("END", mnemonic))
   {
 
-    assembler_write_lst_object_code(lst_file, new_text);
+    strcat(text_record, object_code);
+    if(TEXT_RECORD_MAX_LEN <= strlen(text_record))
+    {
+      write_text_record = true;
+    }
+
+    // Write text record if there was a variable or text record is full.
+    if(write_text_record)
+    {
+      if(strlen(text_record))
+      {
+        assembler_write_obj_text(obj_file, text_record_start, text_record);
+        memset(text_record, 0, sizeof(text_record));
+        text_record_start = locctr;
+      }
+      write_text_record = false;
+    }
+
+    assembler_write_lst_object_code(lst_file, object_code);
 
     assembler_pass2_get_ready_line(asm_file,
                                    int_file,
@@ -767,7 +788,7 @@ static bool assembler_pass2(FILE *asm_file,
 
   // Write trailing lines to .lst and .obj files.
   assembler_write_lst_newline(lst_file);
-  assembler_write_obj_text(obj_file, text_start, text);
+  assembler_write_obj_text(obj_file, text_record_start, text_record);
   // TODO Write modification records.
   assembler_write_obj_end(obj_file, program_start);
 
