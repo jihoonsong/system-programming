@@ -19,7 +19,7 @@
  * @brief A const variable that holds the length of buffer used for
  *        file reading.
  */
-static const int BUFFER_LEN = 50;
+static const int BUFFER_LEN = 110;
 
 /**
  * @brief A const variable that holds the extension of asm file.
