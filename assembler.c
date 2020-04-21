@@ -422,10 +422,16 @@ static bool assembler_tokenize_line(char *buffer,
 {
   buffer[strlen(buffer) - 1] = '\0';
 
-  char *substr = strtok(buffer, " \t");
-  if(!substr || !strcmp(".", substr))
+  if('.' == buffer[0])
   {
-    // This line is empty or comment.
+    // This line is a comment.
+    return false;
+  }
+
+  char *substr = strtok(buffer, " \t");
+  if(!substr)
+  {
+    // This line is empty.
     return false;
   }
 
