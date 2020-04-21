@@ -179,6 +179,24 @@ float opcode_get_format(const char *mnemonic)
   }
 }
 
+int opcode_get_opcode(const char *mnemonic)
+{
+  if(!mnemonic)
+  {
+    return -1;
+  }
+
+  struct opcode *opcode = opcode_search_opcode(mnemonic);
+  if(opcode)
+  {
+    return opcode->opcode;
+  }
+  else
+  {
+    return -1;
+  }
+}
+
 void opcode_initialize(void)
 {
   srand((unsigned int)time(NULL)); // For universal hashing.
