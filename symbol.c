@@ -73,6 +73,30 @@ static void symbol_release_saved_table(void);
  */
 static void symbol_release_working_table(void);
 
+int symbol_get_locctr(const char *symbol)
+{
+  if(!symbol)
+  {
+    return -1;
+  }
+
+  for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
+  {
+    struct symbol *walk = _working_symbol_table[i];
+    while(walk)
+    {
+      if(!strcmp(symbol, walk->symbol))
+      {
+        return walk->locctr;
+      }
+
+      walk = walk->next;
+    }
+  }
+
+  return -1;
+}
+
 void symbol_initialize(void)
 {
   symbol_terminate();
