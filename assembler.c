@@ -942,6 +942,29 @@ static bool assembler_pass2(FILE *asm_file,
     }
     else if(!strcmp("BYTE", mnemonic))
     {
+      if(!operands[0])
+      {
+        symbol_set_error(REQUIRED_ONE_OPERAND, line, mnemonic);
+        return false;
+      }
+
+      if('C' == operands[0][0])
+      {
+        for(int i = 2; i < strlen(operands[0]) - 1; ++i)
+        {
+          // Store half-word for one byte.
+          sprintf(&object_code[2 * (i - 2)], "%02X", operands[0][i]);
+        }
+      }
+      else if('X' == operands[0][0])
+      {
+        strncpy(object_code, &operands[0][2], strlen(operands[0]) - 3);
+      }
+      else
+      {
+        symbol_set_error(INVALID_OPERAND, line, operands[0]);
+        return false;
+      }
     }
     else if(!strcmp("WORD", mnemonic))
     {
