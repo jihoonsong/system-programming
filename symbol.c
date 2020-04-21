@@ -256,8 +256,19 @@ void symbol_show_table(void)
     struct symbol *walk = _saved_symbol_table[i];
     while(walk)
     {
-      printf("%s\t", walk->symbol);
-      printf("%04X\n", walk->locctr);
+      if(strcmp("A", walk->symbol) &&
+         strcmp("X", walk->symbol) &&
+         strcmp("L", walk->symbol) &&
+         strcmp("PC", walk->symbol) &&
+         strcmp("SW", walk->symbol) &&
+         strcmp("B", walk->symbol) &&
+         strcmp("S", walk->symbol) &&
+         strcmp("T", walk->symbol) &&
+         strcmp("F", walk->symbol))
+      {
+        printf("%s\t", walk->symbol);
+        printf("%04X\n", walk->locctr);
+      }
 
       walk = walk->next;
     }
