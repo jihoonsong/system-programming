@@ -167,6 +167,42 @@ static bool assembler_pass2(FILE *asm_file,
                             FILE *obj_file,
                             int  program_len);
 
+/**
+ * @brief              Write a comment line to .lst file.
+ * @param[in] lst_file A file pointer to an .lst file to be written.
+ * @param[in] line     A line.
+ * @param[in] buffer   A line from .asm file.
+ */
+static void assembler_write_lst_comment(FILE *lst_file,
+                                        const int line,
+                                        const char *buffer);
+
+/**
+ * @brief              Write a line to .lst file.
+ * @param[in] lst_file A file pointer to an .lst file to be written.
+ * @param[in] line     A line.
+ * @param[in] locctr   A locctr.
+ * @param[in] label    A label.
+ * @param[in] mnemonic A mnemonic.
+ * @param[in] operand1 The first operand.
+ * @param[in] operand2 The second operand.
+ */
+static void assembler_write_lst_line(FILE *lst_file,
+                                     const int line,
+                                     const int locctr,
+                                     const char *label,
+                                     const char *mnemonic,
+                                     const char *operand1,
+                                     const char *operand2);
+
+/**
+ * @brief                 Write an object code to .lst file.
+ * @param[in] lst_file    A file pointer to an .lst file to be written.
+ * @param[in] object_code An object code.
+ */
+static void assembler_write_lst_object_code(FILE *lst_file,
+                                            const char *object_code);
+
 void assembler_execute(const char *cmd,
                        const int argc,
                        const char *argv[])
@@ -581,4 +617,42 @@ static bool assembler_pass2(FILE *asm_file,
   // TODO: to be implemented.
   printf("pass2 invoked\n");
   return true;
+}
+
+static void assembler_write_lst_comment(FILE *lst_file,
+                                        const int line,
+                                        const char *buffer)
+{
+  fprintf(lst_file, "%3d\t%3s\t%s\n", line, " ", buffer);
+}
+
+static void assembler_write_lst_line(FILE *lst_file,
+                                     const int line,
+                                     const int locctr,
+                                     const char *label,
+                                     const char *mnemonic,
+                                     const char *operand1,
+                                     const char *operand2)
+{
+  fprintf(lst_file, "%3d", line);
+  if(strcmp("BASE", mnemonic) &&
+     strcmp("NOBASE", mnemonic) &&
+     strcmp("END", mnemonic))
+  {
+    fprintf(lst_file, "\t%04X", locctr);
+  }
+  else
+  {
+    fprintf(lst_file, "\t%4s", " ");
+  }
+  fprintf(lst_file, "\t%-6s", label ? label : " ");
+  fprintf(lst_file, "\t%-6s", mnemonic);
+  fprintf(lst_file, "\t%-6s", operand1 ? : " ");
+  fprintf(lst_file, "%s%-6s", operand2 ? ", " : " ", operand2 ? operand2 : " ");
+}
+
+static void assembler_write_lst_object_code(FILE *lst_file,
+                                            const char *object_code)
+{
+  fprintf(lst_file, "\t%-6s\n", object_code ? object_code : "");
 }
