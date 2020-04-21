@@ -173,6 +173,32 @@ static bool assembler_pass2(FILE *asm_file,
                             int  program_len);
 
 /**
+ * @brief                     Read lines from .asm file and .int file and
+ *                            tokenize them. Skip empty or comment lines.
+ *                            Tokens are written to .lst file.
+ * @param[in] asm_file        A file pointer to an .asm file to be read.
+ * @param[in] int_file        A file pointer to an .int file to be read.
+ * @param[in] lst_file        A file pointer to an .lst file to be written.
+ * @param[in] buffer          A line from .asm file.
+ * @param[in] line            The current line number.
+ * @param[in] locctr          A locctr of the current instruction.
+ * @param[in] instruction_len A length of the current instruction.
+ * @param[in] label           A label of the current line.
+ * @param[in] mnemonic        A mnemonic of the current line.
+ * @param[in] operands        A operands of the current line.
+ */
+static void assembler_pass2_get_ready_line(FILE *asm_file,
+                                           FILE *int_file,
+                                           FILE *lst_file,
+                                           char *buffer,
+                                           int  *line,
+                                           int  *locctr,
+                                           int  *instruction_len,
+                                           char **label,
+                                           char **mnemonic,
+                                           char *(*operands)[]);
+
+/**
  * @brief              Write a comment line to .lst file.
  * @param[in] lst_file A file pointer to an .lst file to be written.
  * @param[in] line     A line.
@@ -663,9 +689,115 @@ static bool assembler_pass2(FILE *asm_file,
                             FILE *obj_file,
                             int  program_len)
 {
-  // TODO: to be implemented.
-  printf("pass2 invoked\n");
+  int  program_start             = 0; // The start locctr of this program.
+  int  line                      = 0; // Line is increased by 5.
+  int  locctr                    = 0;
+  int  instruction_len           = 0;
+  char *label                    = NULL;
+  char *mnemonic                 = NULL;
+  char *operands[OPERANDS_COUNT];
+  char buffer[BUFFER_LEN];
+  char text[BUFFER_LEN];
+  int  text_start                = 0; // The start locctr of this text record.
+  //char modification[BUFFER_LEN];
+  int  base                      = 0;
+  bool is_base                   = false;
+  bool is_write_obj              = false;
+
+  // Read the first non-empty and non-comment line.
+  assembler_pass2_get_ready_line(asm_file,
+                                 int_file,
+                                 lst_file,
+                                 buffer,
+                                 &line,
+                                 &locctr,
+                                 &instruction_len,
+                                 &label,
+                                 &mnemonic,
+                                 &operands);
+
+  // Write header record to .obj file.
+  assembler_write_obj_header(obj_file, label, locctr, program_len);
+
+  if(!strcmp("START", mnemonic))
+  {
+    assembler_write_lst_object_code(lst_file, NULL);
+
+    assembler_pass2_get_ready_line(asm_file,
+                                   int_file,
+                                   lst_file,
+                                   buffer,
+                                   &line,
+                                   &locctr,
+                                   &instruction_len,
+                                   &label,
+                                   &mnemonic,
+                                   &operands);
+  }
+  // Now, buffer has the first non-comment line after the START line.
+
+  // Prepare text record that will be written to .obj file.
+  memset(text, 0, sizeof(text));
+  text_start = locctr;
+
+  // Start assembly.
+  while(strcmp("END", mnemonic))
+  {
+
+    assembler_write_lst_object_code(lst_file, new_text);
+
+    assembler_pass2_get_ready_line(asm_file,
+                                   int_file,
+                                   lst_file,
+                                   buffer,
+                                   &line,
+                                   &locctr,
+                                   &instruction_len,
+                                   &label,
+                                   &mnemonic,
+                                   &operands);
+  }
+
+  // Write trailing lines to .lst and .obj files.
+  assembler_write_lst_newline(lst_file);
+  assembler_write_obj_text(obj_file, text_start, text);
+  // TODO Write modification records.
+  assembler_write_obj_end(obj_file, program_start);
+
   return true;
+}
+
+static void assembler_pass2_get_ready_line(FILE *asm_file,
+                                           FILE *int_file,
+                                           FILE *lst_file,
+                                           char *buffer,
+                                           int  *line,
+                                           int  *locctr,
+                                           int  *instruction_len,
+                                           char **label,
+                                           char **mnemonic,
+                                           char *(*operands)[])
+{
+  while(fgets(buffer, BUFFER_LEN, asm_file))
+  {
+    if(assembler_tokenize_line(buffer, label, mnemonic, operands))
+    {
+      fscanf(int_file, "%d\t%X\t%X\n", line, locctr, instruction_len);
+      assembler_write_lst_line(lst_file,
+                               *line,
+                               *locctr,
+                               *label,
+                               *mnemonic,
+                               (*operands)[0],
+                               (*operands)[1]);
+      break;
+    }
+    else
+    {
+      *line += LINE_INCREMENT;
+      assembler_write_lst_comment(lst_file, *line, buffer);
+    }
+  }
 }
 
 static void assembler_write_lst_comment(FILE       *lst_file,
