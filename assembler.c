@@ -266,14 +266,14 @@ static void assembler_write_obj_header(FILE       *obj_file,
                                        const int  program_len);
 
 /**
- * @brief                  Write a text record to .obj file.
- * @param[in] obj_file     A file pointer to an .obj file to be written.
- * @param[in] start_locctr A start locctr of the text record.
- * @param[in] text         A text record to be written.
+ * @brief                       Write a text record to .obj file.
+ * @param[in] obj_file          A file pointer to an .obj file to be written.
+ * @param[in] text_record_start A start locctr of the text record.
+ * @param[in] text_record       A text record to be written.
  */
 static void assembler_write_obj_text(FILE       *obj_file,
-                                     const int  text_start,
-                                     const char *text);
+                                     const int  text_record_start,
+                                     const char *text_record);
 
 void assembler_execute(const char *cmd,
                        const int  argc,
@@ -888,10 +888,11 @@ static void assembler_write_obj_header(FILE       *obj_file,
 }
 
 static void assembler_write_obj_text(FILE       *obj_file,
-                                     const int  text_start,
-                                     const char *text)
+                                     const int  text_record_start,
+                                     const char *text_record)
 {
-  fprintf(obj_file, "T%06X%02X", text_start, (unsigned int)strlen(text) / 2);
-  fputs(text, obj_file);
+  fprintf(obj_file, "T%06X%02X", text_record_start,
+                                 (unsigned int)strlen(text_record) / 2);
+  fputs(text_record, obj_file);
   fputs("\n", obj_file);
 }
