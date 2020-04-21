@@ -246,13 +246,18 @@ void symbol_show_error_msg(void)
 
 void symbol_show_table(void)
 {
+  if(!_saved_symbol_table)
+  {
+    return;
+  }
+
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
   {
     struct symbol *walk = _saved_symbol_table[i];
     while(walk)
     {
       printf("%s\t", walk->symbol);
-      printf("%4X\n", walk->locctr);
+      printf("%04X\n", walk->locctr);
 
       walk = walk->next;
     }

@@ -296,8 +296,14 @@ static bool assembler_execute_symbol(const char *cmd,
                                      const int argc,
                                      const char *argv[])
 {
-  // TODO: to be implemented.
-  printf("symbol invoked\n");
+  if(0 < argc)
+  {
+    printf("assemble: too many arguments\n");
+    return false;
+  }
+
+  symbol_show_table();
+
   return true;
 }
 
