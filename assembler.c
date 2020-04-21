@@ -749,10 +749,51 @@ static bool assembler_pass2(FILE *asm_file,
   // Now, buffer has the first non-comment line after the START line.
 
   // Prepare text record that will be written to .obj file.
+  memset(text_record, 0, sizeof(text_record));
+  text_record_start = locctr;
 
   // Start assembly.
   while(strcmp("END", mnemonic))
   {
+    char object_code[BUFFER_LEN];
+    int  opcode                  = 0;
+    int  n                       = 0;
+    int  i                       = 0;
+    int  x                       = 0;
+    int  b                       = 0;
+    int  p                       = 0;
+    int  e                       = 0;
+    int  disp                    = 0;
+    int  address                 = 0;
+
+    locctr += instruction_len; // Advance locctr points to the next instruciton.
+
+    if(opcode_is_opcode(mnemonic))
+    {
+    }
+    else if('+' == mnemonic[0] && opcode_is_opcode(&mnemonic[1]))
+    {
+    }
+    else if(!strcmp("BYTE", mnemonic))
+    {
+    }
+    else if(!strcmp("WORD", mnemonic))
+    {
+    }
+    else if(!strcmp("RESB", mnemonic) || !strcmp("RESW", mnemonic))
+    {
+    }
+    else if(!strcmp("BASE", mnemonic))
+    {
+    }
+    else if(!strcmp("NOBASE", mnemonic))
+    {
+    }
+    else
+    {
+      symbol_set_error(INVALID_OPCODE, line, mnemonic);
+      return false;
+    }
 
     strcat(text_record, object_code);
     if(TEXT_RECORD_MAX_LEN <= strlen(text_record))
