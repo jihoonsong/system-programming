@@ -111,7 +111,7 @@ static bool _is_command_executed = false;
  * @param[in] argv An list of arguments.
  */
 static bool assembler_execute_assemble(const char *cmd,
-                                       const int argc,
+                                       const int  argc,
                                        const char *argv[]);
 
 /**
@@ -121,7 +121,7 @@ static bool assembler_execute_assemble(const char *cmd,
  * @param[in] argv An list of arguments.
  */
 static bool assembler_execute_symbol(const char *cmd,
-                                     const int argc,
+                                     const int  argc,
                                      const char *argv[]);
 
 /**
@@ -187,24 +187,60 @@ static void assembler_write_lst_comment(FILE *lst_file,
  * @param[in] operand1 The first operand.
  * @param[in] operand2 The second operand.
  */
-static void assembler_write_lst_line(FILE *lst_file,
-                                     const int line,
-                                     const int locctr,
+static void assembler_write_lst_line(FILE       *lst_file,
+                                     const int  line,
+                                     const int  locctr,
                                      const char *label,
                                      const char *mnemonic,
                                      const char *operand1,
                                      const char *operand2);
 
 /**
+ * @brief              Write a newline to .lst file.
+ * @param[in] lst_file A file pointer to an .lst file to be written.
+ */
+static void assembler_write_lst_newline(FILE *lst_file);
+
+/**
  * @brief                 Write an object code to .lst file.
  * @param[in] lst_file    A file pointer to an .lst file to be written.
  * @param[in] object_code An object code.
  */
-static void assembler_write_lst_object_code(FILE *lst_file,
+static void assembler_write_lst_object_code(FILE       *lst_file,
                                             const char *object_code);
 
+/**
+ * @brief                  Write a end record to .obj file.
+ * @param[in] obj_file     A file pointer to an .obj file to be written.
+ * @param[in] start_locctr A start locctr of the program.
+ */
+static void assembler_write_obj_end(FILE      *obj_file,
+                                    const int program_start);
+
+/**
+ * @brief                  Write a header record to .obj file.
+ * @param[in] obj_file     A file pointer to an .obj file to be written.
+ * @param[in] program_name A name of the program.
+ * @param[in] start_locctr A start locctr of the program.
+ * @param[in] program_len  A length of the program.
+ */
+static void assembler_write_obj_header(FILE       *obj_file,
+                                       const char *program_name,
+                                       const int  program_start,
+                                       const int  program_len);
+
+/**
+ * @brief                  Write a text record to .obj file.
+ * @param[in] obj_file     A file pointer to an .obj file to be written.
+ * @param[in] start_locctr A start locctr of the text record.
+ * @param[in] text         A text record to be written.
+ */
+static void assembler_write_obj_text(FILE       *obj_file,
+                                     const int  text_start,
+                                     const char *text);
+
 void assembler_execute(const char *cmd,
-                       const int argc,
+                       const int  argc,
                        const char *argv[])
 {
   if(!strcmp("assemble", cmd))
@@ -227,7 +263,7 @@ void assembler_execute(const char *cmd,
 }
 
 static bool assembler_execute_assemble(const char *cmd,
-                                       const int argc,
+                                       const int  argc,
                                        const char *argv[])
 {
   if(1 != argc)
@@ -331,7 +367,7 @@ static bool assembler_execute_assemble(const char *cmd,
 }
 
 static bool assembler_execute_symbol(const char *cmd,
-                                     const int argc,
+                                     const int  argc,
                                      const char *argv[])
 {
   if(0 < argc)
@@ -603,7 +639,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
     fprintf(int_file, "%d\t%X\t", line, locctr);
   }
 
-  *program_len = locctr - start;
+  *program_len = locctr - program_start;
 
   return true;
 }
@@ -619,16 +655,16 @@ static bool assembler_pass2(FILE *asm_file,
   return true;
 }
 
-static void assembler_write_lst_comment(FILE *lst_file,
-                                        const int line,
+static void assembler_write_lst_comment(FILE       *lst_file,
+                                        const int  line,
                                         const char *buffer)
 {
   fprintf(lst_file, "%3d\t%3s\t%s\n", line, " ", buffer);
 }
 
-static void assembler_write_lst_line(FILE *lst_file,
-                                     const int line,
-                                     const int locctr,
+static void assembler_write_lst_line(FILE       *lst_file,
+                                     const int  line,
+                                     const int  locctr,
                                      const char *label,
                                      const char *mnemonic,
                                      const char *operand1,
@@ -651,8 +687,38 @@ static void assembler_write_lst_line(FILE *lst_file,
   fprintf(lst_file, "%s%-6s", operand2 ? ", " : " ", operand2 ? operand2 : " ");
 }
 
-static void assembler_write_lst_object_code(FILE *lst_file,
+static void assembler_write_lst_newline(FILE *lst_file)
+{
+  fprintf(lst_file, "\n");
+}
+
+static void assembler_write_lst_object_code(FILE       *lst_file,
                                             const char *object_code)
 {
   fprintf(lst_file, "\t%-6s\n", object_code ? object_code : "");
+}
+
+static void assembler_write_obj_end(FILE      *obj_file,
+                                    const int program_start)
+{
+  fprintf(obj_file, "E%06X\n", program_start);
+}
+
+static void assembler_write_obj_header(FILE       *obj_file,
+                                       const char *program_name,
+                                       const int  program_start,
+                                       const int  program_len)
+{
+  fprintf(obj_file, "H%-6s%06X%06X\n", program_name ? program_name : " ",
+                                       program_start,
+                                       program_len);
+}
+
+static void assembler_write_obj_text(FILE       *obj_file,
+                                     const int  text_start,
+                                     const char *text)
+{
+  fprintf(obj_file, "T%06X%02X", text_start, (unsigned int)strlen(text) / 2);
+  fputs(text, obj_file);
+  fputs("\n", obj_file);
 }
