@@ -246,6 +246,11 @@ void symbol_show_error_msg(void)
 
 void symbol_show_table(void)
 {
+  if(!_saved_symbol_table)
+  {
+    return;
+  }
+
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
   {
     struct symbol *walk = _saved_symbol_table[i];
