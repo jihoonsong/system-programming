@@ -481,8 +481,10 @@ static bool assembler_tokenize_line(char *buffer,
 
 static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
 {
-  int  line                      = 0; // line is increased by 5.
+  int  program_start             = 0; // The start locctr of this program.
+  int  line                      = 0; // Line is increased by 5.
   int  locctr                    = 0;
+  int  instruction_len           = 0;
   char *label                    = NULL;
   char *mnemonic                 = NULL;
   char *operands[OPERANDS_COUNT];
@@ -504,7 +506,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
 
         locctr = strtol(operands[0], NULL, HEX);
 
-        fprintf(int_file, "%d\t%X\n", line, locctr);
+        fprintf(int_file, "%d\t%X\t%X\n", line, locctr, instruction_len);
 
         // Read lines until meet the first non-empty and non-comment line.
         while(fgets(buffer, BUFFER_LEN, asm_file))
@@ -512,7 +514,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
           line += LINE_INCREMENT;
           if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
           {
-            fprintf(int_file, "%d\t%X\n", line, locctr);
+            fprintf(int_file, "%d\t%X\t", line, locctr);
             break;
           }
         }
@@ -521,13 +523,14 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
       {
         locctr = 0;
 
-        fprintf(int_file, "%d\t%X\n", line, locctr);
+        fprintf(int_file, "%d\t%X\t%X\n", line, locctr, instruction_len);
       }
 
       break;
     }
   }
   // Now, buffer has the first non-comment line after the START line.
+  program_start = locctr;
 
   while(strcmp("END", mnemonic))
   {
@@ -553,15 +556,15 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
       float format = opcode_get_format(mnemonic);
       if(fabsf(1.0f - format) <= EPSILON)
       {
-        locctr += 1;
+        instruction_len = 1;
       }
       else if(fabsf(2.0f - format) <= EPSILON)
       {
-        locctr += 2;
+        instruction_len = 2;
       }
       else if(fabsf(3.5f - format) <= EPSILON)
       {
-        locctr += 3;
+        instruction_len = 3;
       }
       else
       {
@@ -574,7 +577,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
       float format = opcode_get_format(&mnemonic[1]);
       if(fabsf(3.5f - format) <= EPSILON)
       {
-        locctr += 4;
+        instruction_len = 4;
       }
       else
       {
@@ -609,12 +612,12 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
 
       if('C' == operands[0][0])
       {
-        locctr += strlen(operands[0]) - 3;
+        instruction_len = strlen(operands[0]) - 3;
       }
       else if('X' == operands[0][0])
       {
         // Round up if length is odd.
-        locctr += (strlen(operands[0]) - 3 + 1) / 2;
+        instruction_len = (strlen(operands[0]) - 3 + 1) / 2;
       }
       else
       {
@@ -630,7 +633,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
         return false;
       }
 
-      locctr += 3;
+      instruction_len = 3;
     }
     else if(!strcmp("RESB", mnemonic))
     {
@@ -640,7 +643,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
         return false;
       }
 
-      locctr += strtol(operands[0], NULL, DECIMAL);
+      instruction_len = strtol(operands[0], NULL, DECIMAL);
     }
     else if(!strcmp("RESW", mnemonic))
     {
@@ -650,7 +653,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
         return false;
       }
 
-      locctr += 3 * strtol(operands[0], NULL, DECIMAL);
+      instruction_len = 3 * strtol(operands[0], NULL, DECIMAL);
     }
     else if(!strcmp("BASE", mnemonic) ||
             !strcmp("NOBASE", mnemonic))
@@ -662,6 +665,10 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
       symbol_set_error(INVALID_OPCODE, line, mnemonic);
       return false;
     }
+
+    fprintf(int_file, "%X\n", instruction_len);
+    locctr += instruction_len;
+    instruction_len = 0;
 
     do
     {
