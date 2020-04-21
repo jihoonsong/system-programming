@@ -948,6 +948,7 @@ static bool assembler_pass2(FILE *asm_file,
     }
     else if(!strcmp("RESB", mnemonic) || !strcmp("RESW", mnemonic))
     {
+      write_text_record = true;
     }
     else if(!strcmp("BASE", mnemonic))
     {
