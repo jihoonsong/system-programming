@@ -281,7 +281,8 @@ static bool assembler_execute_assemble(const char *cmd,
     remove(lst_filename);
     return false;
   }
-  remove(int_filename);
+  // TODO: remove int file!
+  //remove(int_filename);
   free(int_filename);
   free(lst_filename);
   free(obj_filename);
@@ -384,12 +385,15 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file)
 
         locctr = strtol(operands[0], NULL, HEX);
 
+        fprintf(int_file, "%d\t%X\n", line, locctr);
+
         // Read lines until meet the first non-empty and non-comment line.
         while(fgets(buffer, BUFFER_LEN, asm_file))
         {
           line += 5;
           if(assembler_tokenize_line(buffer, &label, &mnemonic, &operands))
           {
+            fprintf(int_file, "%d\t%X\n", line, locctr);
             break;
           }
         }
@@ -397,6 +401,8 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file)
       else
       {
         locctr = 0;
+
+        fprintf(int_file, "%d\t%X\n", line, locctr);
       }
 
       break;
@@ -546,6 +552,8 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file)
         return false;
       }
       line += 5;
+
+      fprintf(int_file, "%d\t%X\n", line, locctr);
 
       // Skip empty or comment lines.
     } while(!assembler_tokenize_line(buffer, &label, &mnemonic, &operands));
