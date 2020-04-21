@@ -257,7 +257,7 @@ void symbol_show_table(void)
     while(walk)
     {
       printf("%s\t", walk->symbol);
-      printf("%4X\n", walk->locctr);
+      printf("%04X\n", walk->locctr);
 
       walk = walk->next;
     }
