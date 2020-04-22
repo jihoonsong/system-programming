@@ -463,16 +463,18 @@ static bool assembler_execute_assemble(const char *cmd,
   fclose(int_file);
   fclose(lst_file);
   fclose(obj_file);
+  remove(int_filename);
+  free(int_filename);
   if(!is_success)
   {
     symbol_show_error_msg();
 
-    remove(obj_filename);
     remove(lst_filename);
+    remove(obj_filename);
+    free(lst_filename);
+    free(obj_filename);
     return false;
   }
-  remove(int_filename);
-  free(int_filename);
   free(lst_filename);
   free(obj_filename);
 
