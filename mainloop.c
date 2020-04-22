@@ -9,10 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "assembler.h"
 #include "logger.h"
 #include "memspace.h"
 #include "opcode.h"
 #include "shell.h"
+#include "symbol.h"
 
 #include "mainloop.h"
 
@@ -45,7 +47,7 @@ struct command
 /**
  * @brief A const variable that holds the length of input.
  */
-const int INPUT_LEN = 64;
+static const int INPUT_LEN = 64;
 
 /**
  * @brief A command object that contains all information need to
@@ -74,6 +76,7 @@ void mainloop_initialize(void)
 {
   logger_initialize(INPUT_LEN);
   opcode_initialize();
+  symbol_initialize();
 }
 
 void mainloop_launch(void)
@@ -116,6 +119,7 @@ void mainloop_terminate(void)
 {
   logger_terminate();
   opcode_terminate();
+  symbol_terminate();
 }
 
 static bool mainloop_assign_handler(void)
@@ -127,30 +131,43 @@ static bool mainloop_assign_handler(void)
     return false;
   }
 
-  const char * const SHELL_CMDS[]    = {"h",
-                                        "help",
-                                        "d",
-                                        "dir",
-                                        "q",
-                                        "quit",
-                                        "hi",
-                                        "history"};
-  const char * const MEMSPACE_CMDS[] = {"du",
-                                        "dump",
-                                        "e",
-                                        "edit",
-                                        "f",
-                                        "fill",
-                                        "reset"};
+  const char * const ASSEMBLER_CMDS[] = {"assemble",
+                                         "symbol"};
+  const char * const SHELL_CMDS[]     = {"h",
+                                         "help",
+                                         "d",
+                                         "dir",
+                                         "q",
+                                         "quit",
+                                         "hi",
+                                         "history",
+                                         "type"};
+  const char * const MEMSPACE_CMDS[]  = {"du",
+                                         "dump",
+                                         "e",
+                                         "edit",
+                                         "f",
+                                         "fill",
+                                         "reset"};
   const char * const OPCODE_CMDS[]    = {"opcode",
                                          "opcodelist"};
-  const int SHELL_CMDS_COUNT    = (int)(sizeof(SHELL_CMDS) /
-                                        sizeof(SHELL_CMDS[0]));
-  const int MEMSPACE_CMDS_COUNT = (int)(sizeof(MEMSPACE_CMDS) /
-                                        sizeof(MEMSPACE_CMDS[0]));
-  const int OPCODE_CMDS_COUNT   = (int)(sizeof(OPCODE_CMDS) /
-                                        sizeof(OPCODE_CMDS[0]));
+  const int ASSEMBLER_CMDS_COUNT = (int)(sizeof(ASSEMBLER_CMDS) /
+                                         sizeof(ASSEMBLER_CMDS[0]));
+  const int SHELL_CMDS_COUNT     = (int)(sizeof(SHELL_CMDS) /
+                                         sizeof(SHELL_CMDS[0]));
+  const int MEMSPACE_CMDS_COUNT  = (int)(sizeof(MEMSPACE_CMDS) /
+                                         sizeof(MEMSPACE_CMDS[0]));
+  const int OPCODE_CMDS_COUNT    = (int)(sizeof(OPCODE_CMDS) /
+                                         sizeof(OPCODE_CMDS[0]));
 
+  for(int i = 0; i < ASSEMBLER_CMDS_COUNT; ++i)
+  {
+    if(!strcmp(ASSEMBLER_CMDS[i], _command.cmd))
+    {
+      _command.handler = assembler_execute;
+      return true;
+    }
+  }
   for(int i = 0; i < SHELL_CMDS_COUNT; ++i)
   {
     if(!strcmp(SHELL_CMDS[i], _command.cmd))

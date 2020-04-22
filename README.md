@@ -66,6 +66,21 @@ opcode ADD // Print opcode corresponding to mnemonic ADD.
 opcodelist
 ```
 
+10. Print content of file. (Same as cat command in Linux)
+```
+type README.md // Show content of 'README.md'.
+```
+
+11. Assemble .asm file.
+```
+assemble copy.asm // Assemble 'copy.asm' and produce 'copy.lst' and 'copy.obj'.
+```
+
+12. Print symbol table used in the last success assembly.
+```
+symbol
+```
+
 ## Built With
 
 * Ubuntu 16.04.6 LTS
