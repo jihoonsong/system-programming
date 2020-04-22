@@ -189,6 +189,12 @@ static bool assembler_execute_symbol(const char *cmd,
 static bool assembler_is_mnemonic(const char *str);
 
 /**
+ * @brief                   Release all modification records.
+ * @param[in] modif_records A list of modification records.
+ */
+static void assembler_release_modif_records(struct modif_record *modif_records);
+
+/**
  * @brief              Tokenize line into label, mnemonic, and operands.
  * @param[in] buffer   A line to be tokenized.
  * @param[in] label    A label.
@@ -463,16 +469,18 @@ static bool assembler_execute_assemble(const char *cmd,
   fclose(int_file);
   fclose(lst_file);
   fclose(obj_file);
+  remove(int_filename);
+  free(int_filename);
   if(!is_success)
   {
     symbol_show_error_msg();
 
-    remove(obj_filename);
     remove(lst_filename);
+    remove(obj_filename);
+    free(lst_filename);
+    free(obj_filename);
     return false;
   }
-  remove(int_filename);
-  free(int_filename);
   free(lst_filename);
   free(obj_filename);
 
@@ -521,6 +529,17 @@ static bool assembler_is_mnemonic(const char *str)
   }
 
   return false;
+}
+
+static void assembler_release_modif_records(struct modif_record *modif_records)
+{
+  struct modif_record *walk = modif_records;
+  while(walk)
+  {
+    struct modif_record *del = walk;
+    walk = walk->next;
+    free(del);
+  }
 }
 
 static bool assembler_tokenize_line(char *buffer,
@@ -805,11 +824,11 @@ static bool assembler_pass2(FILE *asm_file,
                                  &mnemonic,
                                  &operands);
 
-  // Write header record to .obj file.
-  assembler_write_obj_header(obj_file, label, locctr, program_len);
-
   if(!strcmp("START", mnemonic))
   {
+    // Write header record to .obj file with program name.
+    assembler_write_obj_header(obj_file, label, locctr, program_len);
+
     assembler_write_lst_object_code(lst_file, NULL);
 
     assembler_pass2_get_ready_line(asm_file,
@@ -822,6 +841,11 @@ static bool assembler_pass2(FILE *asm_file,
                                    &label,
                                    &mnemonic,
                                    &operands);
+  }
+  else
+  {
+    // Write header record to .obj file without program name.
+    assembler_write_obj_header(obj_file, NULL, locctr, program_len);
   }
   // Now, buffer has the first non-comment line after the START line.
 
@@ -986,6 +1010,13 @@ static bool assembler_pass2(FILE *asm_file,
           }
           else
           {
+            if(!symbol_is_exist(operands[0]))
+            {
+              // Unknown operand.
+              symbol_set_error(INVALID_OPERAND, line, operands[0]);
+              return false;
+            }
+
             // Simple addressing.
             n = 1;
             i = 1;
@@ -1144,6 +1175,9 @@ static bool assembler_pass2(FILE *asm_file,
   assembler_write_obj_modif(obj_file, modif_records);
   assembler_write_obj_end(obj_file, program_start);
 
+  // Release modification records.
+  assembler_release_modif_records(modif_records);
+
   return true;
 }
 
@@ -1208,8 +1242,23 @@ static void assembler_write_lst_line(FILE       *lst_file,
   }
   fprintf(lst_file, "\t%-6s", label ? label : " ");
   fprintf(lst_file, "\t%-6s", mnemonic);
-  fprintf(lst_file, "\t%-6s", operand1 ? : " ");
-  fprintf(lst_file, "%s%-6s", operand2 ? ", " : " ", operand2 ? operand2 : " ");
+  fprintf(lst_file, "\t%s", operand1 ? : "");
+  fprintf(lst_file, "%2s%s", operand2 ? ", " : " ", operand2 ? operand2 : "");
+
+  // Add padding for columns alignment.
+  int padding = 14;
+  if(operand1)
+  {
+    padding -= strlen(operand1);
+  }
+  if(operand2)
+  {
+    padding -= strlen(operand2);
+  }
+  for(int i = 0; i < padding; ++i)
+  {
+    fprintf(lst_file, "%s", " ");
+  }
 }
 
 static void assembler_write_lst_newline(FILE *lst_file)
@@ -1220,7 +1269,7 @@ static void assembler_write_lst_newline(FILE *lst_file)
 static void assembler_write_lst_object_code(FILE       *lst_file,
                                             const char *object_code)
 {
-  fprintf(lst_file, "\t%-6s\n", object_code ? object_code : "");
+  fprintf(lst_file, "%-6s\n", object_code ? object_code : "");
 }
 
 static void assembler_write_obj_end(FILE      *obj_file,
