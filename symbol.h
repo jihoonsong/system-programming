@@ -20,6 +20,13 @@ enum symbol_error
 };
 
 /**
+ * @brief            Return locctro of the symbol if exists in symbol table.
+ * @param[in] symbol A symbol to be searched.
+ * @return           A locctr if exists, -1 otherwise.
+ */
+int symbol_get_locctr(const char *symbol);
+
+/**
  * @brief Initialize symbol table.
  */
 void symbol_initialize(void);
@@ -33,11 +40,18 @@ void symbol_initialize(void);
 bool symbol_insert_symbol(const char *symbol, const int locctr);
 
 /**
- * @brief            Check if the symbol exists in symbol table.
+ * @brief            Check if the symbol exists in symbol table or is register.
  * @param[in] symbol A symbol to be validated.
  * @return           True if exists, false otherwise.
  */
 bool symbol_is_exist(const char *symbol);
+
+/**
+ * @brief            Check if the symbol is register.
+ * @param[in] symbol A symbol to be validated.
+ * @return           True if exists, false otherwise.
+ */
+bool symbol_is_register(const char *symbol);
 
 /**
  * @brief Create new working symbol table. The new symbol table

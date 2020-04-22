@@ -11,12 +11,6 @@
 #include "symbol.h"
 
 /**
- * @def   SYMBOL_TABLE_LEN
- * @brief The length of symbol hash table. Equals to the number of alphabets.
- */
-#define SYMBOL_TABLE_LEN 26
-
-/**
  * @brief Structure of symbol elements.
  */
 struct symbol
@@ -30,6 +24,17 @@ struct symbol
 };
 
 /**
+ * @brief Structure of register.
+ */
+struct reg
+{
+  /** A locctr value. */
+  int  locctr;
+  /** A symbol string. */
+  char *symbol;
+};
+
+/**
  * @brief Structure of symbol error.
  */
 struct _symbol_error
@@ -40,14 +45,40 @@ struct _symbol_error
 };
 
 /**
- * @brief A hash table of symbols, made during the last successful assembly.
+ * @brief A const variable that holds the length of symbol hash table.
+ *        Equals to the number of alphabets.
  */
-struct symbol **_saved_symbol_table = NULL;
+static const int SYMBOL_TABLE_LEN = 26;
+
 
 /**
  * @brief The last occured error during assembly.
  */
 struct _symbol_error *_error = NULL;
+
+/**
+ * @brief A hash table of registers.
+ */
+struct reg _register_table[] = {(struct reg){.symbol = "A", .locctr = 0},
+                                (struct reg){.symbol = "X", .locctr = 1},
+                                (struct reg){.symbol = "L", .locctr = 2},
+                                (struct reg){.symbol = "PC", .locctr = 8},
+                                (struct reg){.symbol = "SW", .locctr = 9},
+                                (struct reg){.symbol = "B", .locctr = 3},
+                                (struct reg){.symbol = "S", .locctr = 4},
+                                (struct reg){.symbol = "T", .locctr = 5},
+                                (struct reg){.symbol = "F", .locctr = 6}};
+
+/**
+ * @brief A const variable that holds the length of register table.
+ */
+const int REGISTER_TABLE_LEN = (int)(sizeof(_register_table) /
+                                     sizeof(_register_table[0]));
+
+/**
+ * @brief A hash table of symbols, made during the last successful assembly.
+ */
+struct symbol **_saved_symbol_table = NULL;
 
 /**
  * @brief A hash table of symbols, which is under construction.
@@ -72,6 +103,38 @@ static void symbol_release_saved_table(void);
  * @brief Release _working_symbol_table.
  */
 static void symbol_release_working_table(void);
+
+int symbol_get_locctr(const char *symbol)
+{
+  if(!symbol)
+  {
+    return -1;
+  }
+
+  for(int i = 0; i < REGISTER_TABLE_LEN; ++i)
+  {
+    if(!strcmp(symbol, _register_table[i].symbol))
+    {
+      return _register_table[i].locctr;
+    }
+  }
+
+  for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
+  {
+    struct symbol *walk = _working_symbol_table[i];
+    while(walk)
+    {
+      if(!strcmp(symbol, walk->symbol))
+      {
+        return walk->locctr;
+      }
+
+      walk = walk->next;
+    }
+  }
+
+  return -1;
+}
 
 void symbol_initialize(void)
 {
@@ -143,6 +206,14 @@ bool symbol_is_exist(const char *symbol)
     return false;
   }
 
+  for(int i = 0; i < REGISTER_TABLE_LEN; ++i)
+  {
+    if(!strcmp(symbol, _register_table[i].symbol))
+    {
+      return true;
+    }
+  }
+
   for(int i = 0; i < SYMBOL_TABLE_LEN; ++i)
   {
     struct symbol *walk = _working_symbol_table[i];
@@ -160,6 +231,24 @@ bool symbol_is_exist(const char *symbol)
   return false;
 }
 
+bool symbol_is_register(const char *symbol)
+{
+  if(!symbol)
+  {
+    return false;
+  }
+
+  for(int i = 0; i < REGISTER_TABLE_LEN; ++i)
+  {
+    if(!strcmp(symbol, _register_table[i].symbol))
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void symbol_new_table(void)
 {
   symbol_release_working_table();
@@ -169,17 +258,6 @@ void symbol_new_table(void)
   memset(_working_symbol_table,
          0,
          SYMBOL_TABLE_LEN * sizeof(*_working_symbol_table));
-
-  // Insert registers as symbols.
-  symbol_insert_symbol("A",  0);
-  symbol_insert_symbol("X",  1);
-  symbol_insert_symbol("L",  2);
-  symbol_insert_symbol("PC", 8);
-  symbol_insert_symbol("SW", 9);
-  symbol_insert_symbol("B",  3);
-  symbol_insert_symbol("S",  4);
-  symbol_insert_symbol("T",  5);
-  symbol_insert_symbol("F",  6);
 }
 
 void symbol_save_table(void)
