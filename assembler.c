@@ -807,11 +807,11 @@ static bool assembler_pass2(FILE *asm_file,
                                  &mnemonic,
                                  &operands);
 
-  // Write header record to .obj file.
-  assembler_write_obj_header(obj_file, label, locctr, program_len);
-
   if(!strcmp("START", mnemonic))
   {
+    // Write header record to .obj file with program name.
+    assembler_write_obj_header(obj_file, label, locctr, program_len);
+
     assembler_write_lst_object_code(lst_file, NULL);
 
     assembler_pass2_get_ready_line(asm_file,
@@ -824,6 +824,11 @@ static bool assembler_pass2(FILE *asm_file,
                                    &label,
                                    &mnemonic,
                                    &operands);
+  }
+  else
+  {
+    // Write header record to .obj file without program name.
+    assembler_write_obj_header(obj_file, NULL, locctr, program_len);
   }
   // Now, buffer has the first non-comment line after the START line.
 
