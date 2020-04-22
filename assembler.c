@@ -311,6 +311,14 @@ static void assembler_write_obj_header(FILE       *obj_file,
                                        const char *program_name,
                                        const int  program_start,
                                        const int  program_len);
+/**
+ * @brief                   Write modificatoin records to .obj file.
+ * @param[in] obj_file      A file pointer to an .obj file to be written.
+ * @param[in] modif_records A list of modification records.
+ */
+static void assembler_write_obj_modif(FILE                      *obj_file,
+                                      const struct modif_record *modif_records);
+
 
 /**
  * @brief                       Write a text record to .obj file.
@@ -1127,10 +1135,13 @@ static bool assembler_pass2(FILE *asm_file,
                                    &operands);
   }
 
-  // Write trailing lines to .lst and .obj files.
+  // Write trailing lines to .lst file.
   assembler_write_lst_newline(lst_file);
+
+  // Write remaining text record, modification record, and end record
+  // to .obj file.
   assembler_write_obj_text(obj_file, text_record_start, text_record);
-  // TODO Write modification records.
+  assembler_write_obj_modif(obj_file, modif_records);
   assembler_write_obj_end(obj_file, program_start);
 
   return true;
@@ -1226,6 +1237,17 @@ static void assembler_write_obj_header(FILE       *obj_file,
   fprintf(obj_file, "H%-6s%06X%06X\n", program_name ? program_name : " ",
                                        program_start,
                                        program_len);
+}
+
+static void assembler_write_obj_modif(FILE                      *obj_file,
+                                      const struct modif_record *modif_records)
+{
+  const struct modif_record *walk = modif_records;
+  while(walk)
+  {
+    fprintf(obj_file, "%s\n", walk->modif);
+    walk = walk->next;
+  }
 }
 
 static void assembler_write_obj_text(FILE       *obj_file,
