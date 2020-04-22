@@ -15,6 +15,19 @@
 #include "opcode.h"
 #include "symbol.h"
 
+#define MODIF_RECORD_LEN 10
+
+/**
+ * @brief Structure of symbol elements.
+ */
+struct modif_record
+{
+  /** A record content. */
+  char modif[MODIF_RECORD_LEN];
+  /** A pointer to the next record element. */
+  struct modif_record *next;
+};
+
 /**
  * @brief A const variable that holds the length of buffer used for
  *        file reading.
@@ -138,6 +151,15 @@ static const int TEXT_RECORD_MAX_LEN = 55;
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
+
+/**
+ * @brief                   Create a new modification record. It is appended on
+ *                          the given modificationi records list.
+ * @param[in] modif_records A list of modification records.
+ * @param[in] modif_start   A start locctr of modification.
+ */
+static void assembler_create_modif_record(struct modif_record **modif_records,
+                                          const int           modif_start);
 
 /**
  * @brief          Read .asm file and create .obj and .lst files.
@@ -320,6 +342,28 @@ void assembler_execute(const char *cmd,
   if(_is_command_executed)
   {
     logger_write_log(cmd, argc, argv);
+  }
+}
+
+static void assembler_create_modif_record(struct modif_record **modif_records,
+                                          const int           modif_start)
+{
+  struct modif_record *new_modif_record = malloc(sizeof(*new_modif_record));
+  sprintf(new_modif_record->modif, "M%06X05", modif_start);
+  new_modif_record->next = NULL;
+
+  if(!*modif_records)
+  {
+    *modif_records = new_modif_record;
+  }
+  else
+  {
+    struct modif_record *walk = *modif_records;
+    while(walk->next)
+    {
+      walk = walk->next;
+    }
+    walk->next = new_modif_record;
   }
 }
 
@@ -726,20 +770,20 @@ static bool assembler_pass2(FILE *asm_file,
                             FILE *obj_file,
                             int  program_len)
 {
-  int  program_start             = 0; // The start locctr of this program.
-  int  line                      = 0; // Line is increased by 5.
-  int  locctr                    = 0;
-  int  instruction_len           = 0;
-  char *label                    = NULL;
-  char *mnemonic                 = NULL;
-  char *operands[OPERANDS_COUNT];
-  char buffer[BUFFER_LEN];
-  char text_record[BUFFER_LEN];
-  int  text_record_start         = 0; // The start locctr of this text record.
-  bool write_text_record         = false;
-  //char modification[BUFFER_LEN];
-  int  base                      = 0;
-  bool is_base_relative_enabled  = false;
+  int                 program_start             = 0;
+  int                 line                      = 0;
+  int                 locctr                    = 0;
+  int                 instruction_len           = 0;
+  char                *label                    = NULL;
+  char                *mnemonic                 = NULL;
+  char                *operands[OPERANDS_COUNT];
+  char                buffer[BUFFER_LEN];
+  char                text_record[BUFFER_LEN];
+  int                 text_record_start         = 0;
+  bool                write_text_record         = false;
+  struct modif_record *modif_records            = NULL;
+  int                 base                      = 0;
+  bool                is_base_relative_enabled  = false;
 
   // Read the first non-empty and non-comment line.
   assembler_pass2_get_ready_line(asm_file,
@@ -1027,6 +1071,14 @@ static bool assembler_pass2(FILE *asm_file,
             p = 0;
             address = target_address;
             is_addressing_success = true;
+
+            if(!symbol_is_register(operands[0]))
+            {
+              // The operand is nor register neither value.
+              // Mark its locctr in modification record for relocation.
+              assembler_create_modif_record(&modif_records,
+                                            locctr - instruction_len + 1);
+            }
           }
         }
 
