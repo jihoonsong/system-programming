@@ -988,6 +988,13 @@ static bool assembler_pass2(FILE *asm_file,
           }
           else
           {
+            if(!symbol_is_exist(operands[0]))
+            {
+              // Unknown operand.
+              symbol_set_error(INVALID_OPERAND, line, operands[0]);
+              return false;
+            }
+
             // Simple addressing.
             n = 1;
             i = 1;
