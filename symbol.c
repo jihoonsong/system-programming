@@ -231,6 +231,24 @@ bool symbol_is_exist(const char *symbol)
   return false;
 }
 
+bool symbol_is_register(const char *symbol)
+{
+  if(!symbol)
+  {
+    return false;
+  }
+
+  for(int i = 0; i < REGISTER_TABLE_LEN; ++i)
+  {
+    if(!strcmp(symbol, _register_table[i].symbol))
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void symbol_new_table(void)
 {
   symbol_release_working_table();
