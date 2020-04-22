@@ -189,6 +189,12 @@ static bool assembler_execute_symbol(const char *cmd,
 static bool assembler_is_mnemonic(const char *str);
 
 /**
+ * @brief                   Release all modification records.
+ * @param[in] modif_records A list of modification records.
+ */
+static void assembler_release_modif_records(struct modif_record *modif_records);
+
+/**
  * @brief              Tokenize line into label, mnemonic, and operands.
  * @param[in] buffer   A line to be tokenized.
  * @param[in] label    A label.
@@ -523,6 +529,17 @@ static bool assembler_is_mnemonic(const char *str)
   }
 
   return false;
+}
+
+static void assembler_release_modif_records(struct modif_record *modif_records)
+{
+  struct modif_record *walk = modif_records;
+  while(walk)
+  {
+    struct modif_record *del = walk;
+    walk = walk->next;
+    free(del);
+  }
 }
 
 static bool assembler_tokenize_line(char *buffer,
@@ -1157,6 +1174,9 @@ static bool assembler_pass2(FILE *asm_file,
   assembler_write_obj_text(obj_file, text_record_start, text_record);
   assembler_write_obj_modif(obj_file, modif_records);
   assembler_write_obj_end(obj_file, program_start);
+
+  // Release modification records.
+  assembler_release_modif_records(modif_records);
 
   return true;
 }
