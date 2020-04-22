@@ -1208,8 +1208,23 @@ static void assembler_write_lst_line(FILE       *lst_file,
   }
   fprintf(lst_file, "\t%-6s", label ? label : " ");
   fprintf(lst_file, "\t%-6s", mnemonic);
-  fprintf(lst_file, "\t%-6s", operand1 ? : " ");
-  fprintf(lst_file, "%s%-6s", operand2 ? ", " : " ", operand2 ? operand2 : " ");
+  fprintf(lst_file, "\t%s", operand1 ? : "");
+  fprintf(lst_file, "%2s%s", operand2 ? ", " : " ", operand2 ? operand2 : "");
+
+  // Add padding for columns alignment.
+  int padding = 14;
+  if(operand1)
+  {
+    padding -= strlen(operand1);
+  }
+  if(operand2)
+  {
+    padding -= strlen(operand2);
+  }
+  for(int i = 0; i < padding; ++i)
+  {
+    fprintf(lst_file, "%s", " ");
+  }
 }
 
 static void assembler_write_lst_newline(FILE *lst_file)
@@ -1220,7 +1235,7 @@ static void assembler_write_lst_newline(FILE *lst_file)
 static void assembler_write_lst_object_code(FILE       *lst_file,
                                             const char *object_code)
 {
-  fprintf(lst_file, "\t%-6s\n", object_code ? object_code : "");
+  fprintf(lst_file, "%-6s\n", object_code ? object_code : "");
 }
 
 static void assembler_write_obj_end(FILE      *obj_file,
