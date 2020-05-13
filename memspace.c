@@ -75,7 +75,7 @@ static bool _is_command_executed = false;
  * @brief A memory on that object file will be loaded.
  * @note  The index range is [ADDRESS_MIN, ADDRESS_MAX].
  */
-static char _memory[MEMORY_SIZE] = {0,};
+static unsigned char _memory[MEMORY_SIZE] = {0,};
 
 /**
  * @brief          Print memory in the given range.
