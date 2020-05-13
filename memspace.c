@@ -199,7 +199,7 @@ static bool memspace_execute_dump(const char *cmd, const int argc, const char *a
 
     if(dump_start > dump_end)
     {
-      printf("dump: start '%x' is larger than end value '%d'\n",
+      printf("dump: start '%x' is larger than end value '%x'\n",
           dump_start, dump_end);
       return false;
     }
