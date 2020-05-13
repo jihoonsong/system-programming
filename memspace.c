@@ -75,7 +75,7 @@ static bool _is_command_executed = false;
  * @brief A memory on that object file will be loaded.
  * @note  The index range is [ADDRESS_MIN, ADDRESS_MAX].
  */
-static char _memory[MEMORY_SIZE] = {0,};
+static unsigned char _memory[MEMORY_SIZE] = {0,};
 
 /**
  * @brief          Print memory in the given range.
@@ -199,7 +199,7 @@ static bool memspace_execute_dump(const char *cmd, const int argc, const char *a
 
     if(dump_start > dump_end)
     {
-      printf("dump: start '%x' is larger than end value '%d'\n",
+      printf("dump: start '%x' is larger than end value '%x'\n",
           dump_start, dump_end);
       return false;
     }
@@ -325,6 +325,12 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
      ADDRESS_MAX < end)
   {
     printf("fill: end '%x' is out of range\n", end);
+    return false;
+  }
+
+  if(start > end)
+  {
+    printf("fill: end '%x' is smaller than start '%x'\n", start, end);
     return false;
   }
 
