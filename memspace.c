@@ -328,6 +328,12 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
     return false;
   }
 
+  if(start > end)
+  {
+    printf("fill: end '%x' is smaller than start '%x'\n", start, end);
+    return false;
+  }
+
   value = strtol(argv[2], &endptr, HEX);
   if('\0' != *endptr)
   {
