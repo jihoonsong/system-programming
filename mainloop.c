@@ -141,7 +141,8 @@ static bool mainloop_assign_handler(void)
                                          "edit",
                                          "f",
                                          "fill",
-                                         "reset"};
+                                         "reset",
+                                         "progaddr"};
   const char * const OPCODE_CMDS[]    = {"opcode",
                                          "opcodelist"};
   const char * const SHELL_CMDS[]     = {"h",
