@@ -102,6 +102,14 @@ static bool memspace_execute_edit(const char *cmd, const int argc, const char *a
 static bool memspace_execute_fill(const char *cmd, const int argc, const char *argv[]);
 
 /**
+ * @brief          Set progaddr the given value.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool memspace_execute_progaddr(const char *cmd, const int argc, const char *argv[]);
+
+/**
  * @brief          Clear all memory.
  * @param[in] cmd  A type of the command.
  * @param[in] argc The number of arguments.
@@ -126,6 +134,10 @@ void memspace_execute(const char *cmd, const int argc, const char *argv[])
   else if(!strcmp("reset", cmd))
   {
     _is_command_executed = memspace_execute_reset(cmd, argc, argv);
+  }
+  else if(!strcmp("progaddr", cmd))
+  {
+    _is_command_executed = memspace_execute_progaddr(cmd, argc, argv);
   }
   else
   {
@@ -348,6 +360,13 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
   }
 
   memset(&_memory[start], value, end - start + 1);
+
+  return true;
+}
+
+static bool memspace_execute_progaddr(const char *cmd, const int argc, const char *argv[])
+{
+  printf("memspace progaddr called\n");
 
   return true;
 }
