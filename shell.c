@@ -163,6 +163,12 @@ static bool shell_execute_help(const char *cmd, const int argc, const char *argv
   printf("assemble filename\n");
   printf("type filename\n");
   printf("symbol\n");
+  printf("progaddr address\n");
+  printf("loader object filename1 object filename2 ...\n");
+  printf("bp address\n");
+  printf("bp clear\n");
+  printf("bp\n");
+  printf("run\n");
 
   return true;
 }
