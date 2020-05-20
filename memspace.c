@@ -78,6 +78,11 @@ static bool _is_command_executed = false;
 static unsigned char _memory[MEMORY_SIZE] = {0,};
 
 /**
+ * @brief An starting address in memory where a program is to be loaded.
+ */
+static int _progaddr = 0;
+
+/**
  * @brief          Print memory in the given range.
  * @param[in] cmd  A type of the command.
  * @param[in] argc The number of arguments.
@@ -366,7 +371,29 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
 
 static bool memspace_execute_progaddr(const char *cmd, const int argc, const char *argv[])
 {
-  printf("memspace progaddr called\n");
+  if(1 != argc)
+  {
+    printf("progaddr: one argument is required\n");
+    return false;
+  }
+
+  int  value   = 0;
+  char *endptr = NULL;
+
+  value = strtol(argv[0], &endptr, HEX);
+  if('\0' != *endptr)
+  {
+    printf("progaddr: argument '%s' is invalid\n", argv[0]);
+    return false;
+  }
+  if(ADDRESS_MIN > value ||
+     ADDRESS_MAX < value)
+  {
+    printf("progaddr: value '%X' is out of range\n", value);
+    return false;
+  }
+
+  _progaddr = value;
 
   return true;
 }
