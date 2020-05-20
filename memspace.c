@@ -181,7 +181,7 @@ static bool memspace_execute_dump(const char *cmd, const int argc, const char *a
     if(ADDRESS_MIN > dump_start ||
        ADDRESS_MAX < dump_start)
     {
-      printf("dump: start '%x' is out of range\n", dump_start);
+      printf("dump: start '%X' is out of range\n", dump_start);
       return false;
     }
   }
@@ -205,13 +205,13 @@ static bool memspace_execute_dump(const char *cmd, const int argc, const char *a
     if(ADDRESS_MIN > dump_end ||
        ADDRESS_MAX < dump_end)
     {
-      printf("dump: end '%x' is out of range\n", dump_end);
+      printf("dump: end '%X' is out of range\n", dump_end);
       return false;
     }
 
     if(dump_start > dump_end)
     {
-      printf("dump: start '%x' is larger than end value '%x'\n",
+      printf("dump: start '%X' is larger than end value '%X'\n",
           dump_start, dump_end);
       return false;
     }
@@ -279,7 +279,7 @@ static bool memspace_execute_edit(const char *cmd, const int argc, const char *a
   if(ADDRESS_MIN > address ||
      ADDRESS_MAX < address)
   {
-    printf("dump: address '%x' is out of range\n", address);
+    printf("dump: address '%X' is out of range\n", address);
     return false;
   }
 
@@ -292,7 +292,7 @@ static bool memspace_execute_edit(const char *cmd, const int argc, const char *a
   if(VALUE_MIN > value ||
      VALUE_MAX < value)
   {
-    printf("dump: value '%x' is out of range\n", value);
+    printf("dump: value '%X' is out of range\n", value);
     return false;
   }
 
@@ -323,7 +323,7 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
   if(ADDRESS_MIN > start ||
      ADDRESS_MAX < start)
   {
-    printf("fill: start '%x' is out of range\n", start);
+    printf("fill: start '%X' is out of range\n", start);
     return false;
   }
 
@@ -336,13 +336,13 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
   if(ADDRESS_MIN > end ||
      ADDRESS_MAX < end)
   {
-    printf("fill: end '%x' is out of range\n", end);
+    printf("fill: end '%X' is out of range\n", end);
     return false;
   }
 
   if(start > end)
   {
-    printf("fill: end '%x' is smaller than start '%x'\n", start, end);
+    printf("fill: end '%X' is smaller than start '%X'\n", start, end);
     return false;
   }
 
@@ -355,7 +355,7 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
   if(VALUE_MIN > value ||
      VALUE_MAX < value)
   {
-    printf("fill: value '%x' is out of range\n", value);
+    printf("fill: value '%X' is out of range\n", value);
     return false;
   }
 
