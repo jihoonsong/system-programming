@@ -119,7 +119,76 @@ static bool loader_execute_loader(const char *cmd,
 
 static void loader_pass1(const int file_count, const char *file_names[])
 {
-  printf("loader_pass1\n");
+  char control_section_name[7] = {0,};
+  int  control_section_length  = 0;
+  int  control_section_address = 0;
+  FILE *obj_file               = NULL;
+  char buffer[BUFFER_LEN];
+
+  control_section_address = memspace_get_progaddr();
+
+  for(int i = 0; i < file_count; ++i)
+  {
+    obj_file = fopen(file_names[i], "r");
+    if(!obj_file)
+    {
+      printf("loader: there is no such file '%s'\n", file_names[i]);
+      return;
+    }
+
+    while(fgets(buffer, BUFFER_LEN, obj_file))
+    {
+      char record_type = buffer[0];
+      if('H' == record_type)
+      {
+        buffer[strlen(buffer) - 1] = '\0'; // Replace newline with null byte.
+        break;
+      }
+    }
+    // Now, buffer has Header record.
+
+    loader_tokenize_header_record(buffer,
+                                  control_section_name,
+                                  &control_section_length);
+    external_symbol_insert_control_section(control_section_name,
+                                           control_section_address,
+                                           control_section_length);
+
+    while(fgets(buffer, BUFFER_LEN, obj_file))
+    {
+      buffer[strlen(buffer) - 1] = '\0'; // Replace newline with null byte.
+
+      char record_type = buffer[0];
+      if('D' == record_type)
+      {
+        char symbol_name[7] = {0,};
+        int  symbol_address = 0;
+        int  symbol_count   = (strlen(buffer) - 1) / 12;
+        for(int i = 0; i < symbol_count; ++i)
+        {
+          loader_tokenize_define_record(&buffer[i * 12],
+                                        symbol_name,
+                                        &symbol_address);
+          external_symbol_insert_symbol(control_section_name,
+                                        symbol_name,
+                                        control_section_address + symbol_address);
+        }
+      }
+      else if('E' == record_type)
+      {
+        break;
+      }
+      else
+      {
+        // Do nothing.
+      }
+    }
+
+    control_section_address += control_section_length;
+
+    memset(control_section_name, 0, sizeof(control_section_name));
+    fclose(obj_file);
+  }
 }
 
 static void loader_pass2(const int file_count, const char *file_names[])
