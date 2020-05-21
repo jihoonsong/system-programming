@@ -55,8 +55,15 @@ static void loader_pass1(const int file_count, const char *file_names[]);
 static void loader_pass2(const int file_count, const char *file_names[]);
 
 /**
- *
+ * @brief                     Tokenize define record.
+ * @param[in]  buffer         The content of record to be tokenized.
+ * @param[out] symbol_name    The name of symbol.
+ * @param[out] symbol_address The relative address of symbol.
  */
+static void loader_tokenize_define_record(const char *buffer,
+                                          char       *symbol_name,
+                                          int        *symbol_address);
+
 /**
  * @brief                             Tokenize header record.
  * @param[in]  buffer                 The content of record to be tokenized.
@@ -118,6 +125,18 @@ static void loader_pass1(const int file_count, const char *file_names[])
 static void loader_pass2(const int file_count, const char *file_names[])
 {
   printf("loader_pass2\n");
+}
+
+static void loader_tokenize_define_record(const char *buffer,
+                                          char       *symbol_name,
+                                          int        *symbol_address)
+{
+  strncpy(symbol_name, &buffer[1], 6);
+  symbol_name[6] = '\0';
+
+  char address[7] = {0,};
+  strncpy(address, &buffer[7], 6);
+  *symbol_address = strtol(address, NULL, HEX);
 }
 
 static void loader_tokenize_header_record(const char *buffer,
