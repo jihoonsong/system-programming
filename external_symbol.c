@@ -58,6 +58,38 @@ void external_symbol_show_table(void)
   {
     return;
   }
+
+  printf("Control\tSymbol\tAddress\tLength\n");
+  printf("section\tname\n");
+  printf("--------------------------------\n");
+
+  int                    total_length = 0;
+  struct control_section *section     = _external_symbol_table;
+  while(section)
+  {
+    printf("%-6s\t%6s\t%2s%04X%s\t%s%04X\n",
+        section->symbol,
+        " ",
+        " ", section->address, " ",
+        " ", section->length);
+
+    struct external_symbol *symbol = section->symbols;
+    while(symbol)
+    {
+      printf("%-6s\t%6s\t%2s%04X\n",
+          " ",
+          symbol->symbol,
+          " ", symbol->address);
+
+      symbol = symbol->next;
+    }
+
+    total_length += section->length;
+    section = section->next;
+  }
+
+  printf("--------------------------------\n");
+  printf("%6s\t%3sTotal length %s%04X\n", " ", " ", " ", total_length);
 }
 
 void external_symbol_terminate(void)
