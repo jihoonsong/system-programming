@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "loader.h"
@@ -12,6 +13,17 @@
 #include "external_symbol.h"
 #include "logger.h"
 #include "memspace.h"
+
+/**
+ * @brief A const variable that holds the length of buffer used for
+ *        file reading.
+ */
+static const int BUFFER_LEN = 0xFF;
+
+/**
+ * @brief Equals to 16.
+ */
+static const int HEX = 16;
 
 /**
  * @brief A flag indicating whether command is executed or not.
@@ -42,6 +54,18 @@ static void loader_pass1(const int file_count, const char *file_names[]);
  */
 static void loader_pass2(const int file_count, const char *file_names[]);
 
+/**
+ *
+ */
+/**
+ * @brief                             Tokenize header record.
+ * @param[in]  buffer                 The content of record to be tokenized.
+ * @param[out] control_section_name   The name of control section.
+ * @param[out] control_section_length The length of control section.
+ */
+static void loader_tokenize_header_record(const char *buffer,
+                                          char       *control_section_name,
+                                          int        *control_section_length);
 void loader_execute(const char *cmd,
                     const int  argc,
                     const char *argv[])
@@ -94,4 +118,14 @@ static void loader_pass1(const int file_count, const char *file_names[])
 static void loader_pass2(const int file_count, const char *file_names[])
 {
   printf("loader_pass2\n");
+}
+
+static void loader_tokenize_header_record(const char *buffer,
+                                          char       *control_section_name,
+                                          int        *control_section_length)
+{
+  strncpy(control_section_name, &buffer[1], 6);
+  control_section_name[6] = '\0';
+
+  *control_section_length = strtol(&buffer[13], NULL, HEX);
 }
