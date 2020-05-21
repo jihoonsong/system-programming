@@ -11,6 +11,7 @@
 
 #include "external_symbol.h"
 #include "logger.h"
+#include "memspace.h"
 
 /**
  * @brief A flag indicating whether command is executed or not.
@@ -26,6 +27,20 @@ static bool _is_command_executed = false;
 static bool loader_execute_loader(const char *cmd,
                                   const int  argc,
                                   const char *argv[]);
+
+/**
+ * @brief                Create external symbol table.
+ * @param[in] file_count The number of object files.
+ * @param[in] file_names A list of object file names.
+ */
+static void loader_pass1(const int file_count, const char *file_names[]);
+
+/**
+ * @brief                Load object code on memory.
+ * @param[in] file_count The number of object files.
+ * @param[in] file_names A list of object file names.
+ */
+static void loader_pass2(const int file_count, const char *file_names[]);
 
 void loader_execute(const char *cmd,
                     const int  argc,
@@ -63,12 +78,20 @@ static bool loader_execute_loader(const char *cmd,
 
   external_symbol_initialize();
 
-  // TODO: pass1 -> pass filenames
-  // TODO: pass2 -> pass filenames
+  loader_pass1(argc, argv);
+  loader_pass2(argc, argv);
 
   external_symbol_show_table();
 
-  printf("loader_execute_loader is called\n");
-
   return true;
+}
+
+static void loader_pass1(const int file_count, const char *file_names[])
+{
+  printf("loader_pass1\n");
+}
+
+static void loader_pass2(const int file_count, const char *file_names[])
+{
+  printf("loader_pass2\n");
 }
