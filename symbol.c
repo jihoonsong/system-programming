@@ -1,6 +1,6 @@
 /**
  * @file  symbol.c
- * @brief A symbol table used when assembly.
+ * @brief A symbol table used during assembly.
  */
 
 #include <stdbool.h>
@@ -49,7 +49,6 @@ struct _symbol_error
  *        Equals to the number of alphabets.
  */
 static const int SYMBOL_TABLE_LEN = 26;
-
 
 /**
  * @brief The last occured error during assembly.

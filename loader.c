@@ -1,5 +1,5 @@
 /**
- * @file  loader.h
+ * @file  loader.c
  * @brief A handler of loader related commands.
  */
 
@@ -59,6 +59,16 @@ static bool loader_execute_loader(const char *cmd,
     printf("loader: at most three object files can be loaded\n");
     return false;
   }
+
+  // create new ext sym tab
+
+  // pass1 -> pass filenames
+  // check if pass1 success
+
+  // pass2 -> pass filenames
+  // check if pass2 success
+
+  // save ext sym tab
 
   printf("loader_execute_loader is called\n");
 
