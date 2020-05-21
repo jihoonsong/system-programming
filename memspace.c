@@ -155,6 +155,11 @@ void memspace_execute(const char *cmd, const int argc, const char *argv[])
   }
 }
 
+int memspace_get_progaddr(void)
+{
+  return _progaddr;
+}
+
 static bool memspace_execute_dump(const char *cmd, const int argc, const char *argv[])
 {
   if(2 < argc)

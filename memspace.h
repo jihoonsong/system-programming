@@ -14,4 +14,10 @@
  */
 void memspace_execute(const char *cmd, const int argc, const char *argv[]);
 
+/**
+ * @brief  Return the starting address that the linked program will be loaded.
+ * @return A prograddr.
+ */
+int memspace_get_progaddr(void);
+
 #endif
