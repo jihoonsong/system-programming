@@ -52,6 +52,34 @@ void external_symbol_initialize(void)
   _external_symbol_table = NULL;
 }
 
+void external_symbol_insert_control_section(const char *symbol,
+                                            const int address,
+                                            const int length)
+{
+  struct control_section *new_section = \
+    malloc(sizeof(*new_section) +
+           sizeof(char) * (strlen(symbol) + 1));
+  new_section->next = NULL;
+  new_section->symbols = NULL;
+  new_section->address = address;
+  new_section->length = length;
+  strcpy(new_section->symbol, symbol);
+
+  if(!_external_symbol_table)
+  {
+    _external_symbol_table = new_section;
+  }
+  else
+  {
+    struct control_section *walk = _external_symbol_table;
+    while(walk->next)
+    {
+      walk = walk->next;
+    }
+    walk->next = new_section;
+  }
+}
+
 void external_symbol_show_table(void)
 {
   if(!_external_symbol_table)
