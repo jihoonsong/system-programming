@@ -22,6 +22,16 @@ void external_symbol_insert_control_section(const char *symbol,
                                             const int length);
 
 /**
+ * @brief                     Insert new symbol to external symbol table.
+ * @param[in] control_section A name of control section the symbol belongs to.
+ * @param[in] symbol          A name of the symbol.
+ * @param[in] address         A starting address of the symbol.
+ */
+void external_symbol_insert_symbol(const char *control_section,
+                                   const char *symbol,
+                                   const int address);
+
+/**
  * @brief Print the last successfully created external symbol table.
  */
 void external_symbol_show_table(void);

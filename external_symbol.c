@@ -80,6 +80,38 @@ void external_symbol_insert_control_section(const char *symbol,
   }
 }
 
+void external_symbol_insert_symbol(const char *control_section,
+                                   const char *symbol,
+                                   const int address)
+{
+  struct external_symbol *new_symbol = \
+    malloc(sizeof(*new_symbol) +
+           sizeof(char) * (strlen(symbol) + 1));
+  new_symbol->next = NULL;
+  new_symbol->address = address;
+  strcpy(new_symbol->symbol, symbol);
+
+  struct control_section *section = _external_symbol_table;
+  while(strcmp(control_section, section->symbol))
+  {
+    section = section->next;
+  }
+
+  if(!section->symbols)
+  {
+    section->symbols = new_symbol;
+  }
+  else
+  {
+    struct external_symbol *walk = section->symbols;
+    while(walk->next)
+    {
+      walk = walk->next;
+    }
+    walk->next = new_symbol;
+  }
+}
+
 void external_symbol_show_table(void)
 {
   if(!_external_symbol_table)
