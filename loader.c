@@ -9,6 +9,7 @@
 
 #include "loader.h"
 
+#include "external_symbol.h"
 #include "logger.h"
 
 /**
@@ -60,15 +61,12 @@ static bool loader_execute_loader(const char *cmd,
     return false;
   }
 
-  // create new ext sym tab
+  external_symbol_initialize();
 
-  // pass1 -> pass filenames
-  // check if pass1 success
+  // TODO: pass1 -> pass filenames
+  // TODO: pass2 -> pass filenames
 
-  // pass2 -> pass filenames
-  // check if pass2 success
-
-  // save ext sym tab
+  external_symbol_show_table();
 
   printf("loader_execute_loader is called\n");
 
