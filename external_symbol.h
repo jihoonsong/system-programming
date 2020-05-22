@@ -7,6 +7,13 @@
 #define __EXTERNAL_SYMBOL_H__
 
 /**
+ * @brief                     Return an address of the given external symbol.
+ * @param[in] symbol          A name of symbol.
+ * @return                    An address of the given external symbol.
+ */
+int external_symbol_get_address(const char *symbol);
+
+/**
  * @brief Initialize external symbol table.
  */
 void external_symbol_initialize(void);

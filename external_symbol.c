@@ -45,6 +45,33 @@ struct control_section
  */
 static struct control_section *_external_symbol_table = NULL;
 
+int external_symbol_get_address(const char *symbol)
+{
+  struct control_section *section = _external_symbol_table;
+  while(section)
+  {
+    if(!strcmp(symbol, section->symbol))
+    {
+      return section->address;
+    }
+
+    struct external_symbol *walk = section->symbols;
+    while(walk)
+    {
+      if(!strcmp(symbol, walk->symbol))
+      {
+        return walk->address;
+      }
+
+      walk = walk->next;
+    }
+
+    section = section->next;
+  }
+
+  return -1;
+}
+
 void external_symbol_initialize(void)
 {
   external_symbol_terminate();
