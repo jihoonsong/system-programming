@@ -20,4 +20,15 @@ void memspace_execute(const char *cmd, const int argc, const char *argv[]);
  */
 int memspace_get_progaddr(void);
 
+/**
+ * @brief      Return memory of the given number of bytes at the given address.
+ * @param[out] A memory of the given number of bytes at the given address.
+ * @param[in]  The address of memory to be obtained.
+ * @param[in]  The number of bytes to obtain.
+ * @return     A memory of the given number of bytes at the given address.
+ */
+unsigned char *memspace_get_memory(unsigned char *memory,
+                                   const int address,
+                                   const int byte_count);
+
 #endif

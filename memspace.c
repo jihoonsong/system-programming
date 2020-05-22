@@ -160,6 +160,33 @@ int memspace_get_progaddr(void)
   return _progaddr;
 }
 
+unsigned char *memspace_get_memory(unsigned char *memory,
+                                   const int address,
+                                   const int byte_count)
+{
+  if(ADDRESS_MIN > address ||
+     ADDRESS_MAX < address)
+  {
+    printf("memspace: address '%X' is out of range\n", address);
+    return NULL;
+  }
+  if(ADDRESS_MAX < address + byte_count)
+  {
+    printf("memspace: '%d' bytes from the address '%X' is out of range\n",
+        byte_count,
+        address);
+    return NULL;
+  }
+  if(!memory)
+  {
+    printf("memspace: the address of memory to obtain is NULL\n");
+    return NULL;
+  }
+
+  memcpy(memory, &_memory[address], byte_count);
+  return memory;
+}
+
 static bool memspace_execute_dump(const char *cmd, const int argc, const char *argv[])
 {
   if(2 < argc)
