@@ -21,6 +21,11 @@
 static const int BUFFER_LEN = 0xFF;
 
 /**
+ * @brief Equals to 10.
+ */
+static const int DECIMAL = 10;
+
+/**
  * @brief Equals to 16.
  */
 static const int HEX = 16;
@@ -85,6 +90,15 @@ static void loader_tokenize_text_record(const char    *buffer,
                                         int           *object_code_address,
                                         int           *object_code_length,
                                         unsigned char *object_code);
+
+/**
+ * @brief                         Tokenize refer record.
+ * @param[in]  buffer             The content of record to be tokenized.
+ * @param[out] external_reference A list of addresses of external references.
+ */
+static void loader_tokenize_refer_record(const char *buffer,
+                                         int        *external_references);
+
 void loader_execute(const char *cmd,
                     const int  argc,
                     const char *argv[])
@@ -248,5 +262,30 @@ static void loader_tokenize_text_record(const char    *buffer,
     char byte[3] = {0,};
     strncpy(byte, &buffer[9 + i * 2], 2);
     object_code[i] = strtol(byte, NULL, HEX);
+  }
+}
+
+static void loader_tokenize_refer_record(const char *buffer,
+                                         int        *external_references)
+{
+  int external_reference_count = (strlen(buffer) - 1 + 5) / 8;
+  for(int i = 0; i < external_reference_count; ++i)
+  {
+    char num[3] = {0,};
+    strncpy(num, &buffer[1 + i * 8], 2);
+    int reference_num = strtol(num, NULL, DECIMAL);
+
+    char symbol[7] = {0,};
+    strncpy(symbol, &buffer[3 + i * 8], 6);
+    for(int i = strlen(symbol); i < 6; ++i)
+    {
+      // A length of the last symbol of refer record could be shorter than 6.
+      // However, all symbols are blank space padded 6 letters long, so pad
+      // blank spaces at the end of the last symbol.
+      symbol[i] = ' ';
+    }
+
+    int address = external_symbol_get_address(symbol);
+    external_references[reference_num] = address;
   }
 }
