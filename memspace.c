@@ -187,6 +187,32 @@ unsigned char *memspace_get_memory(unsigned char *memory,
   return memory;
 }
 
+void memspace_set_memory(const int address,
+                         unsigned char *memory,
+                         const int byte_count)
+{
+  if(ADDRESS_MIN > address ||
+     ADDRESS_MAX < address)
+  {
+    printf("memspace: address '%X' is out of range\n", address);
+    return;
+  }
+  if(ADDRESS_MAX < address + byte_count)
+  {
+    printf("memspace: '%d' bytes from the address '%X' is out of range\n",
+        byte_count,
+        address);
+    return;
+  }
+  if(!memory)
+  {
+    printf("memspace: the address of memory to set is NULL\n");
+    return;
+  }
+
+  memcpy(&_memory[address], memory, byte_count);
+}
+
 static bool memspace_execute_dump(const char *cmd, const int argc, const char *argv[])
 {
   if(2 < argc)
