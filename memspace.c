@@ -88,7 +88,9 @@ static int _progaddr = 0;
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_dump(const char *cmd, const int argc, const char *argv[]);
+static bool memspace_execute_dump(const char *cmd,
+                                  const int  argc,
+                                  const char *argv[]);
 
 /**
  * @brief          Set memory the given value.
@@ -96,7 +98,9 @@ static bool memspace_execute_dump(const char *cmd, const int argc, const char *a
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_edit(const char *cmd, const int argc, const char *argv[]);
+static bool memspace_execute_edit(const char *cmd,
+                                  const int  argc,
+                                  const char *argv[]);
 
 /**
  * @brief          Fill memory the given value.
@@ -104,7 +108,9 @@ static bool memspace_execute_edit(const char *cmd, const int argc, const char *a
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_fill(const char *cmd, const int argc, const char *argv[]);
+static bool memspace_execute_fill(const char *cmd,
+                                  const int  argc,
+                                  const char *argv[]);
 
 /**
  * @brief          Set progaddr the given value.
@@ -112,7 +118,9 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_progaddr(const char *cmd, const int argc, const char *argv[]);
+static bool memspace_execute_progaddr(const char *cmd,
+                                      const int  argc,
+                                      const char *argv[]);
 
 /**
  * @brief          Clear all memory.
@@ -120,7 +128,9 @@ static bool memspace_execute_progaddr(const char *cmd, const int argc, const cha
  * @param[in] argc The number of arguments.
  * @param[in] argv An list of arguments.
  */
-static bool memspace_execute_reset(const char *cmd, const int argc, const char *argv[]);
+static bool memspace_execute_reset(const char *cmd,
+                                   const int  argc,
+                                   const char *argv[]);
 
 void memspace_execute(const char *cmd, const int argc, const char *argv[])
 {
@@ -161,8 +171,8 @@ int memspace_get_progaddr(void)
 }
 
 unsigned char *memspace_get_memory(unsigned char *memory,
-                                   const int address,
-                                   const int byte_count)
+                                   const int     address,
+                                   const int     byte_count)
 {
   if(ADDRESS_MIN > address ||
      ADDRESS_MAX < address)
@@ -187,9 +197,9 @@ unsigned char *memspace_get_memory(unsigned char *memory,
   return memory;
 }
 
-void memspace_set_memory(const int address,
+void memspace_set_memory(const int     address,
                          unsigned char *memory,
-                         const int byte_count)
+                         const int     byte_count)
 {
   if(ADDRESS_MIN > address ||
      ADDRESS_MAX < address)
@@ -213,7 +223,9 @@ void memspace_set_memory(const int address,
   memcpy(&_memory[address], memory, byte_count);
 }
 
-static bool memspace_execute_dump(const char *cmd, const int argc, const char *argv[])
+static bool memspace_execute_dump(const char *cmd,
+                                  const int  argc,
+                                  const char *argv[])
 {
   if(2 < argc)
   {
@@ -321,7 +333,9 @@ static bool memspace_execute_dump(const char *cmd, const int argc, const char *a
   return true;
 }
 
-static bool memspace_execute_edit(const char *cmd, const int argc, const char *argv[])
+static bool memspace_execute_edit(const char *cmd,
+                                  const int  argc,
+                                  const char *argv[])
 {
   if(2 != argc)
   {
@@ -364,7 +378,9 @@ static bool memspace_execute_edit(const char *cmd, const int argc, const char *a
   return true;
 }
 
-static bool memspace_execute_fill(const char *cmd, const int argc, const char *argv[])
+static bool memspace_execute_fill(const char *cmd,
+                                  const int  argc,
+                                  const char *argv[])
 {
   if(3 != argc)
   {
@@ -427,7 +443,9 @@ static bool memspace_execute_fill(const char *cmd, const int argc, const char *a
   return true;
 }
 
-static bool memspace_execute_progaddr(const char *cmd, const int argc, const char *argv[])
+static bool memspace_execute_progaddr(const char *cmd,
+                                      const int  argc,
+                                      const char *argv[])
 {
   if(1 != argc)
   {
@@ -456,7 +474,9 @@ static bool memspace_execute_progaddr(const char *cmd, const int argc, const cha
   return true;
 }
 
-static bool memspace_execute_reset(const char *cmd, const int argc, const char *argv[])
+static bool memspace_execute_reset(const char *cmd,
+                                   const int  argc,
+                                   const char *argv[])
 {
   if(0 < argc)
   {

@@ -28,8 +28,8 @@ int memspace_get_progaddr(void);
  * @return     A memory of the given number of bytes at the given address.
  */
 unsigned char *memspace_get_memory(unsigned char *memory,
-                                   const int address,
-                                   const int byte_count);
+                                   const int     address,
+                                   const int     byte_count);
 
 /**
  * @brief     Set memory of the given number of bytes at the given address.
@@ -37,8 +37,8 @@ unsigned char *memspace_get_memory(unsigned char *memory,
  * @param[in] A memory to set.
  * @param[in] The number of bytes to set.
  */
-void memspace_set_memory(const int address,
+void memspace_set_memory(const int     address,
                          unsigned char *memory,
-                         const int byte_count);
+                         const int     byte_count);
 
 #endif
