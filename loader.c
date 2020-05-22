@@ -92,6 +92,22 @@ static void loader_tokenize_text_record(const char    *buffer,
                                         unsigned char *object_code);
 
 /**
+ * @brief                           Tokenize modification record.
+ * @param[in]  buffer               The content of record to be tokenized.
+ * @param[out] modification_address The address of the field to be modified.
+ * @param[out] modification_length  The length of the field to be modified.
+ * @param[out] modification_flag    Modification flag. (+ or -)
+ * @param[out] reference_num        The reference number of external symbol
+ *                                  whose value is to be added to or subtracted
+ *                                  from the field.
+ */
+static void loader_tokenize_modification_record(const char *buffer,
+                                                int        *modification_address,
+                                                int        *modification_length,
+                                                char       *modification_flag,
+                                                int        *reference_num);
+
+/**
  * @brief                         Tokenize refer record.
  * @param[in]  buffer             The content of record to be tokenized.
  * @param[out] external_reference A list of addresses of external references.
@@ -263,6 +279,27 @@ static void loader_tokenize_text_record(const char    *buffer,
     strncpy(byte, &buffer[9 + i * 2], 2);
     object_code[i] = strtol(byte, NULL, HEX);
   }
+}
+
+static void loader_tokenize_modification_record(const char *buffer,
+                                                int        *modification_address,
+                                                int        *modification_length,
+                                                char       *modification_flag,
+                                                int        *reference_num)
+{
+  char address[7] = {0,};
+  strncpy(address, &buffer[1], 6);
+  *modification_address = strtol(address, NULL, HEX);
+
+  char length[3] = {0,};
+  strncpy(length, &buffer[7], 2);
+  *modification_length = strtol(length, NULL, HEX);
+
+  *modification_flag = buffer[9];
+
+  char num[3] = {0,};
+  strncpy(num, &buffer[10], 2);
+  *reference_num = strtol(num, NULL, DECIMAL);
 }
 
 static void loader_tokenize_refer_record(const char *buffer,
