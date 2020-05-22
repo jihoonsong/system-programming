@@ -73,6 +73,18 @@ static void loader_tokenize_define_record(const char *buffer,
 static void loader_tokenize_header_record(const char *buffer,
                                           char       *control_section_name,
                                           int        *control_section_length);
+
+/**
+ * @brief                          Tokenize text record.
+ * @param[in]  buffer              The content of record to be tokenized.
+ * @param[out] object_code_address The address of object code.
+ * @param[out] object_code_length  The length of object code.
+ * @param[out] object_code         The packed object code. (1 column per byte)
+ */
+static void loader_tokenize_text_record(const char    *buffer,
+                                        int           *object_code_address,
+                                        int           *object_code_length,
+                                        unsigned char *object_code);
 void loader_execute(const char *cmd,
                     const int  argc,
                     const char *argv[])
@@ -216,4 +228,25 @@ static void loader_tokenize_header_record(const char *buffer,
   control_section_name[6] = '\0';
 
   *control_section_length = strtol(&buffer[13], NULL, HEX);
+}
+
+static void loader_tokenize_text_record(const char    *buffer,
+                                        int           *object_code_address,
+                                        int           *object_code_length,
+                                        unsigned char *object_code)
+{
+  char address[7] = {0,};
+  strncpy(address, &buffer[1], 6);
+  *object_code_address = strtol(address, NULL, HEX);
+
+  char length[3] = {0,};
+  strncpy(length, &buffer[7], 2);
+  *object_code_length = strtol(length, NULL, HEX);
+
+  for(int i = 0; i < *object_code_length; ++i)
+  {
+    char byte[3] = {0,};
+    strncpy(byte, &buffer[9 + i * 2], 2);
+    object_code[i] = strtol(byte, NULL, HEX);
+  }
 }
