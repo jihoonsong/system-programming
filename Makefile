@@ -5,7 +5,7 @@ TARGET = 20131567.out
 SRCS := $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
 DEPS := $(SRCS:.c=.d)
-INTS := $(wildcard *.lst *obj)
+INTS := $(wildcard *.lst *.obj)
 
 .PHONY: all
 all: $(TARGET)
