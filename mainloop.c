@@ -121,10 +121,11 @@ void mainloop_quit(void)
 
 void mainloop_terminate(void)
 {
+  debugger_terminate();
+  external_symbol_terminate();
   logger_terminate();
   opcode_terminate();
   symbol_terminate();
-  external_symbol_terminate();
 }
 
 static bool mainloop_assign_handler(void)

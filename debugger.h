@@ -16,4 +16,10 @@ void debugger_execute(const char *cmd,
                       const int  argc,
                       const char *argv[]);
 
+
+/**
+ * @brief Release breakpoints.
+ */
+void debugger_terminate(void);
+
 #endif

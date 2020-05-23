@@ -131,6 +131,11 @@ void debugger_execute(const char *cmd,
   }
 }
 
+void debugger_terminate(void)
+{
+  debugger_clear_breakpoints();
+}
+
 static bool debugger_execute_bp(const char *cmd,
                                 const int  argc,
                                 const char *argv[])
