@@ -139,6 +139,13 @@ void debugger_initialize(void)
   _program_length = 0;
 }
 
+void debugger_prepare_run(const int program_address, const int program_length)
+{
+  _registers.L    = program_length;
+  _registers.PC   = program_address;
+  _program_length = program_length;
+}
+
 void debugger_terminate(void)
 {
   debugger_clear_breakpoints();
