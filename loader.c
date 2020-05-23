@@ -235,7 +235,96 @@ static void loader_pass1(const int file_count, const char *file_names[])
 
 static void loader_pass2(const int file_count, const char *file_names[])
 {
-  printf("loader_pass2\n");
+  char control_section_name[7]  = {0,};
+  int  control_section_length   = 0;
+  int  control_section_address  = 0;
+  int  external_references[100] = {0,};
+  FILE *obj_file                = NULL;
+  char buffer[BUFFER_LEN];
+
+  control_section_address = memspace_get_progaddr();
+
+  for(int i = 0; i < file_count; ++i)
+  {
+    obj_file = fopen(file_names[i], "r");
+    if(!obj_file)
+    {
+      printf("loader: there is no such file '%s'\n", file_names[i]);
+      return;
+    }
+
+    while(fgets(buffer, BUFFER_LEN, obj_file))
+    {
+      char record_type = buffer[0];
+      if('H' == record_type)
+      {
+        buffer[strlen(buffer) - 1] = '\0'; // Replace newline with null byte.
+        break;
+      }
+    }
+    // Now, buffer has Header record.
+
+    loader_tokenize_header_record(buffer,
+                                  control_section_name,
+                                  &control_section_length);
+    external_references[1] = external_symbol_get_address(control_section_name);
+
+    while(fgets(buffer, BUFFER_LEN, obj_file))
+    {
+      buffer[strlen(buffer) - 1] = '\0'; // Replace newline with null byte.
+
+      char record_type = buffer[0];
+      if('T' == record_type)
+      {
+        int           object_code_address = 0;
+        int           object_code_length  = 0;
+        unsigned char object_code[60]     = {0,};
+        loader_tokenize_text_record(buffer,
+                                    &object_code_address,
+                                    &object_code_length,
+                                    object_code);
+        memspace_set_memory(control_section_address + object_code_address,
+                            object_code,
+                            object_code_length);
+      }
+      else if('M' == record_type)
+      {
+        int  modification_address = 0;
+        int  modification_length  = 0;
+        char modification_flag    = 0;
+        int  reference_num        = 0;
+        loader_tokenize_modification_record(buffer,
+                                            &modification_address,
+                                            &modification_length,
+                                            &modification_flag,
+                                            &reference_num);
+        memspace_modify_memory(control_section_address + modification_address,
+                               modification_length,
+                               modification_flag,
+                               external_references[reference_num]);
+      }
+      else if('R' == record_type)
+      {
+        loader_tokenize_refer_record(buffer,
+                                     external_references);
+      }
+      else if('E' == record_type)
+      {
+        break;
+      }
+      else
+      {
+        // When record type is 'D' or comment line.
+        // Do nothing.
+      }
+    }
+
+    control_section_address += control_section_length;
+
+    memset(control_section_name, 0, sizeof(control_section_name));
+    memset(external_references, 0, sizeof(external_references));
+    fclose(obj_file);
+  }
 }
 
 static void loader_tokenize_define_record(const char *buffer,
