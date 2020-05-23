@@ -24,6 +24,11 @@ struct breakpoint
 };
 
 /**
+ * @brief Equals to 16.
+ */
+static const int HEX = 16;
+
+/**
  * @brief A list of breakpoints. All breakpoints are stored in ascending order.
  */
 static struct breakpoint *_breakpoint_list = NULL;
@@ -37,6 +42,11 @@ static bool _is_command_executed = false;
  * @brief Clear all stored breakpoints.
  */
 static void debugger_clear_breakpoints(void);
+
+/**
+ * @brief Set breakpoint.
+ */
+static void debugger_set_breakpoint(const int address);
 
 /**
  * @brief Show all stored breakpoints.
@@ -102,6 +112,43 @@ static void debugger_clear_breakpoints(void)
   }
 
   _breakpoint_list = NULL;
+}
+
+static void debugger_set_breakpoint(const int address)
+{
+  struct breakpoint *new_bp = malloc(sizeof(*new_bp));
+  new_bp->next    = NULL;
+  new_bp->address = address;
+
+  if(!_breakpoint_list)
+  {
+    _breakpoint_list = new_bp;
+  }
+  else
+  {
+    if(new_bp->address < _breakpoint_list->address)
+    {
+      new_bp->next = _breakpoint_list;
+      _breakpoint_list = new_bp;
+      return;
+    }
+
+    struct breakpoint *prev = NULL;
+    struct breakpoint *walk = _breakpoint_list;
+    while(walk->next)
+    {
+      prev = walk;
+      walk = walk->next;
+
+      if(new_bp->address < walk->address)
+      {
+        prev->next   = new_bp;
+        new_bp->next = walk;
+        return;
+      }
+    }
+    walk->next = new_bp;
+  }
 }
 
 static void debugger_show_breakpoints(void)
