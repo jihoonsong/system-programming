@@ -227,7 +227,24 @@ static bool debugger_execute_run(const char *cmd,
     return false;
   }
 
-  printf("run is called\n");
+  if(0 == _program_length)
+  {
+    printf("debugger: no program is loaded\n");
+    return false;
+  }
+
+  if(_program_length == _registers.PC)
+  {
+    debugger_show_registers();
+    printf("Program finished\n");
+    debugger_initialize();
+  }
+  else
+  {
+    // TODO: Proceed program execution.
+    // printf("Breakpoint at %X", /** bp here */);
+  }
+
   return true;
 }
 
