@@ -108,6 +108,11 @@ static void debugger_set_breakpoint(const int address);
  */
 static void debugger_show_breakpoints(void);
 
+/**
+ * @brief Show values of registers.
+ */
+static void debugger_show_registers(void);
+
 void debugger_execute(const char *cmd,
                       const int  argc,
                       const char *argv[])
@@ -274,4 +279,12 @@ static void debugger_show_breakpoints(void)
     printf("%X\n", walk->address);
     walk = walk->next;
   }
+}
+
+static void debugger_show_registers(void)
+{
+  printf("A: %06X   X: %06X\n", _registers.A, _registers.X);
+  printf("L: %06X  PC: %06X\n", _registers.L, _registers.PC);
+  printf("B: %06X   S: %06X\n", _registers.B, _registers.S);
+  printf("T: %06X\n", _registers.T);
 }
