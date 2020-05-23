@@ -13,6 +13,22 @@
 #include "logger.h"
 
 /**
+ * @brief Structure of breakpoint elements.
+ */
+struct breakpoint
+{
+  /** A pointer to the next breakpoint element. */
+  struct breakpoint *next;
+  /** An address value. */
+  int               address;
+};
+
+/**
+ * @brief A list of breakpoints. All breakpoints are stored in ascending order.
+ */
+static struct breakpoint *_breakpoint_list = NULL;
+
+/**
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
