@@ -10,6 +10,7 @@
 
 #include "loader.h"
 
+#include "debugger.h"
 #include "external_symbol.h"
 #include "logger.h"
 #include "memspace.h"
@@ -172,13 +173,15 @@ static bool loader_execute_loader(const char *cmd,
 
 static bool loader_pass1(const int file_count, const char *file_names[])
 {
+  int  program_address         = 0;
   char control_section_name[7] = {0,};
   int  control_section_length  = 0;
   int  control_section_address = 0;
   FILE *obj_file               = NULL;
   char buffer[BUFFER_LEN];
 
-  control_section_address = memspace_get_progaddr();
+  program_address         = memspace_get_progaddr();
+  control_section_address = program_address;
 
   for(int i = 0; i < file_count; ++i)
   {
@@ -242,6 +245,8 @@ static bool loader_pass1(const int file_count, const char *file_names[])
     memset(control_section_name, 0, sizeof(control_section_name));
     fclose(obj_file);
   }
+
+  debugger_prepare_run(program_address, control_section_address);
 
   return true;
 }
