@@ -34,6 +34,11 @@ static struct breakpoint *_breakpoint_list = NULL;
 static bool _is_command_executed = false;
 
 /**
+ * @brief Clear all stored breakpoints.
+ */
+static void debugger_clear_breakpoints(void);
+
+/**
  * @brief          Set or unset breakpoint, or show all breakpoints.
  * @param[in] cmd  A type of the command.
  * @param[in] argc The number of arguments.
@@ -74,4 +79,22 @@ static bool debugger_execute_bp(const char *cmd,
 
   printf("bp is called\n");
   return true;
+}
+
+static void debugger_clear_breakpoints(void)
+{
+  if(!_breakpoint_list)
+  {
+    return;
+  }
+
+  struct breakpoint *walk = _breakpoint_list;
+  while(walk)
+  {
+    struct breakpoint *del = walk;
+    walk = walk->next;
+    free(del);
+  }
+
+  _breakpoint_list = NULL;
 }
