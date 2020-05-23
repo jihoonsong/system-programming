@@ -49,15 +49,17 @@ static bool loader_execute_loader(const char *cmd,
  * @brief                Create external symbol table.
  * @param[in] file_count The number of object files.
  * @param[in] file_names A list of object file names.
+ * @return               True on success, false otherwise.
  */
-static void loader_pass1(const int file_count, const char *file_names[]);
+static bool loader_pass1(const int file_count, const char *file_names[]);
 
 /**
  * @brief                Load object code on memory.
  * @param[in] file_count The number of object files.
  * @param[in] file_names A list of object file names.
+ * @return               True on success, false otherwise.
  */
-static void loader_pass2(const int file_count, const char *file_names[]);
+static bool loader_pass2(const int file_count, const char *file_names[]);
 
 /**
  * @brief                     Tokenize define record.
@@ -151,15 +153,24 @@ static bool loader_execute_loader(const char *cmd,
 
   external_symbol_initialize();
 
-  loader_pass1(argc, argv);
-  loader_pass2(argc, argv);
+  bool is_success = loader_pass1(argc, argv);
+  if(!is_success)
+  {
+    return false;
+  }
+
+  is_success = loader_pass2(argc, argv);
+  if(!is_success)
+  {
+    return false;
+  }
 
   external_symbol_show_table();
 
   return true;
 }
 
-static void loader_pass1(const int file_count, const char *file_names[])
+static bool loader_pass1(const int file_count, const char *file_names[])
 {
   char control_section_name[7] = {0,};
   int  control_section_length  = 0;
@@ -175,7 +186,7 @@ static void loader_pass1(const int file_count, const char *file_names[])
     if(!obj_file)
     {
       printf("loader: there is no such file '%s'\n", file_names[i]);
-      return;
+      return false;
     }
 
     while(fgets(buffer, BUFFER_LEN, obj_file))
@@ -231,9 +242,11 @@ static void loader_pass1(const int file_count, const char *file_names[])
     memset(control_section_name, 0, sizeof(control_section_name));
     fclose(obj_file);
   }
+
+  return true;
 }
 
-static void loader_pass2(const int file_count, const char *file_names[])
+static bool loader_pass2(const int file_count, const char *file_names[])
 {
   char control_section_name[7]  = {0,};
   int  control_section_length   = 0;
@@ -250,7 +263,7 @@ static void loader_pass2(const int file_count, const char *file_names[])
     if(!obj_file)
     {
       printf("loader: there is no such file '%s'\n", file_names[i]);
-      return;
+      return false;
     }
 
     while(fgets(buffer, BUFFER_LEN, obj_file))
@@ -325,6 +338,8 @@ static void loader_pass2(const int file_count, const char *file_names[])
     memset(external_references, 0, sizeof(external_references));
     fclose(obj_file);
   }
+
+  return true;
 }
 
 static void loader_tokenize_define_record(const char *buffer,
