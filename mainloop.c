@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "assembler.h"
+#include "debugger.h"
 #include "external_symbol.h"
 #include "loader.h"
 #include "logger.h"
@@ -137,6 +138,8 @@ static bool mainloop_assign_handler(void)
 
   const char * const ASSEMBLER_CMDS[] = {"assemble",
                                          "symbol"};
+  const char * const DEBUGGER_CMDS[]  = {"bp",
+                                         "run"};
   const char * const LOADER_CMDS[]    = {"loader"};
   const char * const MEMSPACE_CMDS[]  = {"du",
                                          "dump",
@@ -159,6 +162,8 @@ static bool mainloop_assign_handler(void)
                                          "type"};
   const int ASSEMBLER_CMDS_COUNT = (int)(sizeof(ASSEMBLER_CMDS) /
                                          sizeof(ASSEMBLER_CMDS[0]));
+  const int DEBUGGER_CMDS_COUNT  = (int)(sizeof(DEBUGGER_CMDS) /
+                                         sizeof(DEBUGGER_CMDS[0]));
   const int LOADER_CMDS_COUNT    = (int)(sizeof(LOADER_CMDS) /
                                          sizeof(LOADER_CMDS[0]));
   const int MEMSPACE_CMDS_COUNT  = (int)(sizeof(MEMSPACE_CMDS) /
@@ -173,6 +178,14 @@ static bool mainloop_assign_handler(void)
     if(!strcmp(ASSEMBLER_CMDS[i], _command.cmd))
     {
       _command.handler = assembler_execute;
+      return true;
+    }
+  }
+  for(int i = 0; i < DEBUGGER_CMDS_COUNT; ++i)
+  {
+    if(!strcmp(DEBUGGER_CMDS[i], _command.cmd))
+    {
+      _command.handler = debugger_execute;
       return true;
     }
   }

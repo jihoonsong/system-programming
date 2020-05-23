@@ -13,7 +13,7 @@
  * @param[in] argv An list of arguments.
  */
 void loader_execute(const char *cmd,
-                    const int argc,
+                    const int  argc,
                     const char *argv[]);
 
 #endif
