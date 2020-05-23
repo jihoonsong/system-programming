@@ -197,6 +197,66 @@ unsigned char *memspace_get_memory(unsigned char *memory,
   return memory;
 }
 
+void memspace_modify_memory(const int  address,
+                            const int  length,
+                            const char flag,
+                            const int  amount)
+{
+  if(ADDRESS_MIN > address ||
+     ADDRESS_MAX < address)
+  {
+    printf("memspace: address '%X' is out of range\n", address);
+    return;
+  }
+  if(ADDRESS_MAX < address + 2)
+  {
+    printf("memspace: '%d' half-bytes from the address '%X' is out of range\n",
+        length,
+        address);
+  }
+
+  const int     byte_count                 = (length + 1) / 2;
+  unsigned char new_memory[byte_count + 1];
+  unsigned char leftmost_nibble            = 0;
+  unsigned int  new_address                = 0;
+
+  memcpy(new_memory, &_memory[address], byte_count);
+  new_memory[byte_count] = '\0';
+  if(0 != length % 2)
+  {
+    leftmost_nibble = new_memory[0] & 0xF0;
+    new_memory[0] &= 0x0F;
+  }
+
+  for(int i = 0; i < byte_count; ++i)
+  {
+    new_address = new_address << 8;
+    new_address += new_memory[i];
+  }
+  if('+' == flag)
+  {
+    new_address += amount;
+  }
+  else if('-' == flag)
+  {
+    new_address -= amount;
+  }
+  else
+  {
+    printf("memspace: unknown modification flag '%c'\n", flag);
+    return;
+  }
+
+  for(int i = byte_count - 1; i >= 0; --i)
+  {
+    new_memory[i] = new_address & 0xFF;
+    new_address = new_address >> 8;
+  }
+  new_memory[0] |= leftmost_nibble;
+
+  memcpy(&_memory[address], new_memory, (length + 1) / 2);
+}
+
 void memspace_set_memory(const int     address,
                          unsigned char *memory,
                          const int     byte_count)

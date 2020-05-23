@@ -32,6 +32,19 @@ unsigned char *memspace_get_memory(unsigned char *memory,
                                    const int     byte_count);
 
 /**
+ * @brief             Modify memory at the given address by the given flag
+ *                    and amount.
+ * @param[in] address The address of memory to be modified.
+ * @param[in] length  The length of field to be modified, in half-bytes.
+ * @param[in] flag    A modification flag. (+ or -)
+ * @param[in] amount  An amount of modification.
+ */
+void memspace_modify_memory(const int  address,
+                            const int  length,
+                            const char flag,
+                            const int  amount);
+
+/**
  * @brief     Set memory of the given number of bytes at the given address.
  * @param[in] The address of memory to be set.
  * @param[in] A memory to set.
