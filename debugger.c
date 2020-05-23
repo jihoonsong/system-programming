@@ -131,6 +131,14 @@ void debugger_execute(const char *cmd,
   }
 }
 
+void debugger_initialize(void)
+{
+  debugger_terminate();
+
+  memset(&_registers, 0, sizeof(_registers));
+  _program_length = 0;
+}
+
 void debugger_terminate(void)
 {
   debugger_clear_breakpoints();
