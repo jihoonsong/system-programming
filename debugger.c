@@ -65,6 +65,11 @@ static struct breakpoint *_breakpoint_list = NULL;
 static bool _is_command_executed = false;
 
 /**
+ * @brief A length of program that currently loaded on memory.
+ */
+static int _program_length = 0;
+
+/**
  * @brief Registers used for program execution.
  */
 static struct registers _registers = {0,};
