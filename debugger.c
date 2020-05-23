@@ -24,6 +24,16 @@ struct breakpoint
 };
 
 /**
+ * @brief Equals to 0x00000.
+ */
+static const int ADDRESS_MIN = 0x00000;
+
+/**
+ * @brief Equals to 0xFFFFF.
+ */
+static const int ADDRESS_MAX = 0xFFFFF;
+
+/**
  * @brief Equals to 16.
  */
 static const int HEX = 16;
@@ -92,7 +102,36 @@ static bool debugger_execute_bp(const char *cmd,
     return false;
   }
 
-  printf("bp is called\n");
+  if(0 == argc)
+  {
+    debugger_show_breakpoints();
+  }
+  else
+  {
+    if(!strcmp("clear", argv[0]))
+    {
+      debugger_clear_breakpoints();
+    }
+    else
+    {
+      char *endptr = NULL;
+      int  address = strtol(argv[0], &endptr, HEX);
+      if('\0' != *endptr)
+      {
+        printf("debugger: argument '%s' is invalid\n", argv[0]);
+        return false;
+      }
+      if(ADDRESS_MIN > address ||
+         ADDRESS_MAX < address)
+      {
+        printf("debugger: address '%X' is out of range\n", address);
+        return false;
+      }
+
+      debugger_set_breakpoint(address);
+    }
+  }
+
   return true;
 }
 
