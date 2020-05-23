@@ -213,6 +213,7 @@ static bool assembler_tokenize_line(char *buffer,
  * @param[in]  asm_file    A file pointer to an .asm file to be assembled.
  * @param[in]  int_file    A file pointer to an .int file to be written.
  * @param[out] program_len A length of prgram.
+ * @return                 True on success, false otherwise.
  */
 static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len);
 
@@ -223,6 +224,7 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len);
  * @param[in] lst_file    A file pointer to an .lst file to be written.
  * @param[in] obj_file    A file pointer to an .obj file to be written.
  * @param[in] program_len A length of program.
+ * @return                 True on success, false otherwise.
  */
 static bool assembler_pass2(FILE *asm_file,
                             FILE *int_file,
