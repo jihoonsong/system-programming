@@ -17,14 +17,45 @@
  */
 static bool _is_command_executed = false;
 
+/**
+ * @brief          Set or unset breakpoint, or show all breakpoints.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool debugger_execute_bp(const char *cmd,
+                                const int  argc,
+                                const char *argv[]);
+
 void debugger_execute(const char *cmd,
                       const int  argc,
                       const char *argv[])
 {
-  printf("debugger invoked\n");
+  if(!strcmp("bp", cmd))
+  {
+    _is_command_executed = debugger_execute_bp(cmd, argc, argv);
+  }
+  else
+  {
+    printf("%s: command not found\n", cmd);
+  }
 
   if(_is_command_executed)
   {
     logger_write_log(cmd, argc, argv);
   }
+}
+
+static bool debugger_execute_bp(const char *cmd,
+                                const int  argc,
+                                const char *argv[])
+{
+  if(1 < argc)
+  {
+    printf("debugger: too many arguments\n");
+    return false;
+  }
+
+  printf("bp is called\n");
+  return true;
 }
