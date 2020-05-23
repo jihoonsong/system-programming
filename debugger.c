@@ -54,6 +54,25 @@ static bool _is_command_executed = false;
 static void debugger_clear_breakpoints(void);
 
 /**
+ * @brief          Set or unset breakpoint, or show all breakpoints.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool debugger_execute_bp(const char *cmd,
+                                const int  argc,
+                                const char *argv[]);
+/**
+ * @brief          Run loaded program and show value of each registers.
+ * @param[in] cmd  A type of the command.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv An list of arguments.
+ */
+static bool debugger_execute_run(const char *cmd,
+                                 const int  argc,
+                                 const char *argv[]);
+
+/**
  * @brief Set breakpoint.
  */
 static void debugger_set_breakpoint(const int address);
@@ -63,16 +82,6 @@ static void debugger_set_breakpoint(const int address);
  */
 static void debugger_show_breakpoints(void);
 
-/**
- * @brief          Set or unset breakpoint, or show all breakpoints.
- * @param[in] cmd  A type of the command.
- * @param[in] argc The number of arguments.
- * @param[in] argv An list of arguments.
- */
-static bool debugger_execute_bp(const char *cmd,
-                                const int  argc,
-                                const char *argv[]);
-
 void debugger_execute(const char *cmd,
                       const int  argc,
                       const char *argv[])
@@ -80,6 +89,10 @@ void debugger_execute(const char *cmd,
   if(!strcmp("bp", cmd))
   {
     _is_command_executed = debugger_execute_bp(cmd, argc, argv);
+  }
+  else if(!strcmp("run", cmd))
+  {
+    _is_command_executed = debugger_execute_run(cmd, argc, argv);
   }
   else
   {
@@ -151,6 +164,20 @@ static void debugger_clear_breakpoints(void)
   }
 
   _breakpoint_list = NULL;
+}
+
+static bool debugger_execute_run(const char *cmd,
+                                 const int  argc,
+                                 const char *argv[])
+{
+  if(0 < argc)
+  {
+    printf("debugger: too many arguments\n");
+    return false;
+  }
+
+  printf("run is called\n");
+  return true;
 }
 
 static void debugger_set_breakpoint(const int address)
