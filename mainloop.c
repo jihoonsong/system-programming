@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "assembler.h"
+#include "external_symbol.h"
 #include "loader.h"
 #include "logger.h"
 #include "memspace.h"
@@ -78,6 +79,7 @@ void mainloop_initialize(void)
   logger_initialize(INPUT_LEN);
   opcode_initialize();
   symbol_initialize();
+  external_symbol_initialize();
 }
 
 void mainloop_launch(void)
@@ -121,6 +123,7 @@ void mainloop_terminate(void)
   logger_terminate();
   opcode_terminate();
   symbol_terminate();
+  external_symbol_terminate();
 }
 
 static bool mainloop_assign_handler(void)

@@ -1,6 +1,6 @@
 /**
  * @file  symbol.h
- * @brief A symbol table used when assembly.
+ * @brief A symbol table used during assembly.
  */
 
 #ifndef __SYMBOL_H__
@@ -20,7 +20,7 @@ enum symbol_error
 };
 
 /**
- * @brief            Return locctro of the symbol if exists in symbol table.
+ * @brief            Return locctr of the symbol if exists in symbol table.
  * @param[in] symbol A symbol to be searched.
  * @return           A locctr if exists, -1 otherwise.
  */
