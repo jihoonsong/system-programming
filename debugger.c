@@ -24,6 +24,22 @@ struct breakpoint
 };
 
 /**
+ * @brief Structure of registers.
+ */
+struct registers
+{
+  unsigned int A;  // Accumulator; used for arithmetic operations.
+  unsigned int X;  // Index register; used for addressing.
+  unsigned int L;  // Linkage register; the Jump to Subroutine (JSUB)
+                   // instruction stores the return address in this register.
+  unsigned int PC; // Program counter; contains the address of the next
+                   // instruction to be fetched for execution.
+  unsigned int B;  // Base register; used for addressing.
+  unsigned int S;  // General working register - no special use.
+  unsigned int T;  // General working register - no special use.
+};
+
+/**
  * @brief Equals to 0x00000.
  */
 static const int ADDRESS_MIN = 0x00000;
@@ -47,6 +63,11 @@ static struct breakpoint *_breakpoint_list = NULL;
  * @brief A flag indicating whether command is executed or not.
  */
 static bool _is_command_executed = false;
+
+/**
+ * @brief Registers used for program execution.
+ */
+static struct registers _registers = {0,};
 
 /**
  * @brief Clear all stored breakpoints.
