@@ -117,6 +117,53 @@ static bool debugger_execute_run(const char *cmd,
 static int debugger_get_format(const unsigned int opcode);
 
 /**
+ * @brief            Execute instruction format 1.
+ * @param[in] opcode An opcode of instruction to be executed.
+ */
+static void debugger_instruction_format1(const unsigned int opcode);
+
+/**
+ * @brief            Execute instruction format 2.
+ * @param[in] opcode An opcode of instruction to be executed.
+ * @param[in] r1     A register 1.
+ * @param[in] r2     A register 2.
+ */
+static void debugger_instruction_format2(const unsigned int opcode,
+                                         const int          r1,
+                                         const int          r2);
+
+/**
+ * @brief                  Execute instruction format 3.
+ * @param[in] opcode       An opcode of instruction to be executed.
+ * @param[in] n            A flag n.
+ * @param[in] i            A flag i.
+ * @param[in] x            A flag x.
+ * @param[in] b            A flag b.
+ * @param[in] p            A flag p.
+ * @param[in] displacement A displacement.
+ */
+static void debugger_instruction_format3(const unsigned int opcode,
+                                         const unsigned int n,
+                                         const unsigned int i,
+                                         const unsigned int x,
+                                         const unsigned int b,
+                                         const unsigned int p,
+                                         const int          displacement);
+
+/**
+ * @brief             Execute instruction format 4.
+ * @param[in] opcode  An opcode of instruction to be executed.
+ * @param[in] n       A flag n.
+ * @param[in] i       A flag i.
+ * @param[in] x       A flag x.
+ * @param[in] address An address.
+ */
+static void debugger_instruction_format4(const unsigned int opcode,
+                                         const unsigned int n,
+                                         const unsigned int i,
+                                         const unsigned int x,
+                                         const int          address);
+/**
  * @brief             Check if PC reached any breakpoint.
  * @param[in] address An address that PC has.
  * @return    True if PC reached any breakpoint, false otherwise.
@@ -271,14 +318,16 @@ static bool debugger_execute_run(const char *cmd,
       // Format 1.
       _registers[REGISTER_PC] += 1;
 
-      // TODO
+      debugger_instruction_format1(opcode);
     }
     else if(2 == format)
     {
       // Format 2.
       _registers[REGISTER_PC] += 2;
 
-      // TODO
+      int r1 = instruction[1] & 0xF0;
+      int r2 = instruction[1] & 0x0F;
+      debugger_instruction_format2(opcode, r1, r2);
     }
     else if(3 == format)
     {
@@ -294,17 +343,26 @@ static bool debugger_execute_run(const char *cmd,
         // Format 3.
         _registers[REGISTER_PC] += 3;
 
-        // TODO
+        int displacement = instruction[1] & 0x0F;
+        displacement     = displacement << 8;
+        displacement     += instruction[2];
+        debugger_instruction_format3(opcode, n, i, x, b, p, displacement);
       }
       else
       {
         // Format 4.
-        // In real design, memory is fetched by the size of register. (in SIC/XE, it's 3 bytes.)
-        // However, in this implementation, we just fetch one byte for conveinence.
+        // In real design, memory is fetched by the size of register.
+        // (in SIC/XE, it's 3 bytes.) However, in this implementation,
+        // we just fetch one byte for conveinence.
         memspace_get_memory(&instruction[3], _registers[REGISTER_PC] + 3, 1);
         _registers[REGISTER_PC] += 4;
 
-        // TODO
+        int address = instruction[1] & 0x0F;
+        address     = address << 8;
+        address     += instruction[2];
+        address     = address << 8;
+        address     += instruction[3];
+        debugger_instruction_format4(opcode, n, i, x, address);
       }
 
     }
@@ -416,6 +474,42 @@ static int debugger_get_format(const unsigned int opcode)
     printf("debugger: cannot find opcode '%02X'\n", opcode);
     return 0;
   }
+}
+
+static void debugger_instruction_format1(const unsigned int opcode)
+{
+  // TODO: to be implemented.
+  printf("format1: %02X\n", opcode);
+}
+
+static void debugger_instruction_format2(const unsigned int opcode,
+                                         const int          r1,
+                                         const int          r2)
+{
+  // TODO: to be implemented.
+  printf("format2: %02X %d %d\n", opcode, r1, r2);
+}
+
+static void debugger_instruction_format3(const unsigned int opcode,
+                                         const unsigned int n,
+                                         const unsigned int i,
+                                         const unsigned int x,
+                                         const unsigned int b,
+                                         const unsigned int p,
+                                         const int          displacement)
+{
+  // TODO: to be implemented.
+  printf("format3: %02X %d %d %d %d %d %03X\n", opcode, n, i, x, b, p, displacement);
+}
+
+static void debugger_instruction_format4(const unsigned int opcode,
+                                         const unsigned int n,
+                                         const unsigned int i,
+                                         const unsigned int x,
+                                         const int          address)
+{
+  // TODO: to be implemented.
+  printf("format4: %02X %d %d %d %020X\n", opcode, n, i, x, address);
 }
 
 static bool debugger_is_reached_breakpoint(const int address)
