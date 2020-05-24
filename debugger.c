@@ -14,6 +14,12 @@
 #include "memspace.h"
 
 /**
+ * @def   REGISTER_FILE_LEN
+ * @brief The length of register file.
+ */
+#define REGISTER_FILE_LEN 10
+
+/**
  * @brief Structure of breakpoint elements.
  */
 struct breakpoint
@@ -22,22 +28,6 @@ struct breakpoint
   struct breakpoint *next;
   /** An address value. */
   int               address;
-};
-
-/**
- * @brief Structure of registers.
- */
-struct registers
-{
-  unsigned int A;  // Accumulator; used for arithmetic operations.
-  unsigned int X;  // Index register; used for addressing.
-  unsigned int L;  // Linkage register; the Jump to Subroutine (JSUB)
-                   // instruction stores the return address in this register.
-  unsigned int PC; // Program counter; contains the address of the next
-                   // instruction to be fetched for execution.
-  unsigned int B;  // Base register; used for addressing.
-  unsigned int S;  // General working register - no special use.
-  unsigned int T;  // General working register - no special use.
 };
 
 /**
@@ -56,6 +46,26 @@ static const int ADDRESS_MAX = 0xFFFFF;
 static const int HEX = 16;
 
 /**
+ * @brief An assigned number of each register.
+ */
+static const int REGISTER_A  = 0; // Accumulator; used for arithmetic
+                                  // operations.
+static const int REGISTER_X  = 1; // Index register; used for addressing.
+static const int REGISTER_L  = 2; // Linkage register; the Jump to Subroutine
+                                  // (JSUB) instruction stores the return
+                                  // address in this register.
+static const int REGISTER_B  = 3; // Base register; used for addressing.
+static const int REGISTER_S  = 4; // General working register - no special use.
+static const int REGISTER_T  = 5; // General working register - no special use.
+static const int REGISTER_F  = 6; // Floating-point accumulator. (48 bits)
+static const int REGISTER_PC = 8; // Program counter; contains the address of
+                                  // the next instruction to be fetched for
+                                  // execution.
+static const int REGISTER_SW = 9; // Status word; contains a variety of
+                                  // information, including a Condition Code.
+                                  // (CC)
+
+/**
  * @brief A list of breakpoints. All breakpoints are stored in ascending order.
  */
 static struct breakpoint *_breakpoint_list = NULL;
@@ -71,9 +81,9 @@ static bool _is_command_executed = false;
 static int _program_length = 0;
 
 /**
- * @brief Registers used for program execution.
+ * @brief A list of registers.
  */
-static struct registers _registers = {0,};
+static unsigned int _registers[REGISTER_FILE_LEN] = {0,};
 
 /**
  * @brief Clear all stored breakpoints.
@@ -155,15 +165,15 @@ void debugger_initialize(void)
 {
   debugger_terminate();
 
-  memset(&_registers, 0, sizeof(_registers));
+  memset(_registers, 0, sizeof(_registers));
   _program_length = 0;
 }
 
 void debugger_prepare_run(const int program_address, const int program_length)
 {
-  _registers.L    = program_length;
-  _registers.PC   = program_address;
-  _program_length = program_length;
+  _registers[REGISTER_L]  = program_length;
+  _registers[REGISTER_PC] = program_address;
+  _program_length         = program_length;
 }
 
 void debugger_terminate(void)
@@ -252,21 +262,21 @@ static bool debugger_execute_run(const char *cmd,
   while(!is_break)
   {
     unsigned char instruction[4] = {0,};
-    memspace_get_memory(instruction, _registers.PC, 3);
+    memspace_get_memory(instruction, _registers[REGISTER_PC], 3);
 
     unsigned int opcode = instruction[0] & 0xFC;
     int          format = debugger_get_format(opcode);
     if(1 == format)
     {
       // Format 1.
-      _registers.PC += 1;
+      _registers[REGISTER_PC] += 1;
 
       // TODO
     }
     else if(2 == format)
     {
       // Format 2.
-      _registers.PC += 2;
+      _registers[REGISTER_PC] += 2;
 
       // TODO
     }
@@ -282,7 +292,7 @@ static bool debugger_execute_run(const char *cmd,
       if(!e)
       {
         // Format 3.
-        _registers.PC += 3;
+        _registers[REGISTER_PC] += 3;
 
         // TODO
       }
@@ -291,8 +301,8 @@ static bool debugger_execute_run(const char *cmd,
         // Format 4.
         // In real design, memory is fetched by the size of register. (in SIC/XE, it's 3 bytes.)
         // However, in this implementation, we just fetch one byte for conveinence.
-        memspace_get_memory(&instruction[3], _registers.PC + 3, 1);
-        _registers.PC += 4;
+        memspace_get_memory(&instruction[3], _registers[REGISTER_PC] + 3, 1);
+        _registers[REGISTER_PC] += 4;
 
         // TODO
       }
@@ -304,7 +314,7 @@ static bool debugger_execute_run(const char *cmd,
       return false;
     }
 
-    if(_program_length <= _registers.PC)
+    if(_program_length <= _registers[REGISTER_PC])
     {
       debugger_show_registers();
       printf("Program finished\n");
@@ -312,10 +322,10 @@ static bool debugger_execute_run(const char *cmd,
       debugger_initialize();
       is_break = true;
     }
-    else if(debugger_is_reached_breakpoint(_registers.PC))
+    else if(debugger_is_reached_breakpoint(_registers[REGISTER_PC]))
     {
       debugger_show_registers();
-      printf("Breakpoint at %X\n", _registers.PC);
+      printf("Breakpoint at %X\n", _registers[REGISTER_PC]);
 
       is_break = true;
     }
@@ -476,8 +486,8 @@ static void debugger_show_breakpoints(void)
 
 static void debugger_show_registers(void)
 {
-  printf("A: %06X   X: %06X\n", _registers.A, _registers.X);
-  printf("L: %06X  PC: %06X\n", _registers.L, _registers.PC);
-  printf("B: %06X   S: %06X\n", _registers.B, _registers.S);
-  printf("T: %06X\n", _registers.T);
+  printf("A: %06X   X: %06X\n", _registers[REGISTER_A], _registers[REGISTER_X]);
+  printf("L: %06X  PC: %06X\n", _registers[REGISTER_L], _registers[REGISTER_PC]);
+  printf("B: %06X   S: %06X\n", _registers[REGISTER_B], _registers[REGISTER_S]);
+  printf("T: %06X\n", _registers[REGISTER_T]);
 }
