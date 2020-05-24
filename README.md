@@ -2,6 +2,8 @@
 
 This is a course project of System Programming lecture at Sogang University.
 
+This SIC/XE machine can do assembly, linking and loading, and execute the loaded program.
+
 ## Execution
 
 Use makefile to build. The execution file is 20131567.out - my student id.
@@ -79,6 +81,36 @@ assemble copy.asm // Assemble 'copy.asm' and produce 'copy.lst' and 'copy.obj'.
 12. Print symbol table used in the last success assembly.
 ```
 symbol
+```
+
+13. Set the starting address where a program will be loaded.
+```
+progaddr 4000 // A program will be loaded on 0x4000.
+```
+
+14. Load .obj files on memory.
+```
+loader proga.obj progb.obj progc.obj
+```
+
+15. Set breakpoints.
+```
+bp 4036 // Set breakpoint at 0x4036.
+```
+
+16. Clear all breakpoints.
+```
+bp clear
+```
+
+17. Show all breakpoints.
+```
+bp
+```
+
+18. Run the last loaded program.
+```
+run // Execute the program until PC reaches any breakpoint.
 ```
 
 ## Built With
