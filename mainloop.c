@@ -77,10 +77,11 @@ static void mainloop_tokenize_input(char *input);
 
 void mainloop_initialize(void)
 {
+  debugger_initialize();
+  external_symbol_initialize();
   logger_initialize(INPUT_LEN);
   opcode_initialize();
   symbol_initialize();
-  external_symbol_initialize();
 }
 
 void mainloop_launch(void)
@@ -121,10 +122,11 @@ void mainloop_quit(void)
 
 void mainloop_terminate(void)
 {
+  debugger_terminate();
+  external_symbol_terminate();
   logger_terminate();
   opcode_terminate();
   symbol_terminate();
-  external_symbol_terminate();
 }
 
 static bool mainloop_assign_handler(void)

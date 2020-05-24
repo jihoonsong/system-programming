@@ -15,6 +15,10 @@
 #include "opcode.h"
 #include "symbol.h"
 
+/**
+ * @def   MODIF_RECORD_LEN
+ * @brief The length of modification record.
+ */
 #define MODIF_RECORD_LEN 10
 
 /**
@@ -91,11 +95,6 @@ static const char *DIRECTIVES[] = {"START",
  */
 const int DIRECTIVES_COUNT = (int)(sizeof(DIRECTIVES) /
                                    sizeof(DIRECTIVES[0]));
-
-/**
- * @brief A const variable that holds the maximum error margin between floats.
- */
-const float EPSILON = 1e-3f;
 
 /**
  * @brief Equals to 16.
@@ -656,16 +655,16 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
 
     if(opcode_is_opcode(mnemonic))
     {
-      float format = opcode_get_format(mnemonic);
-      if(fabsf(1.0f - format) <= EPSILON)
+      int format = opcode_get_format(mnemonic);
+      if(1 == format)
       {
         instruction_len = 1;
       }
-      else if(fabsf(2.0f - format) <= EPSILON)
+      else if(2 == format)
       {
         instruction_len = 2;
       }
-      else if(fabsf(3.5f - format) <= EPSILON)
+      else if(3 == format)
       {
         instruction_len = 3;
       }
@@ -677,8 +676,8 @@ static bool assembler_pass1(FILE *asm_file, FILE *int_file, int *program_len)
     }
     else if('+' == mnemonic[0] && opcode_is_opcode(&mnemonic[1]))
     {
-      float format = opcode_get_format(&mnemonic[1]);
-      if(fabsf(3.5f - format) <= EPSILON)
+      int format = opcode_get_format(&mnemonic[1]);
+      if(3 == format)
       {
         instruction_len = 4;
       }
@@ -946,8 +945,8 @@ static bool assembler_pass2(FILE *asm_file,
       }
 
       opcode       = opcode_get_opcode(mnemonic);
-      float format = opcode_get_format(mnemonic);
-      if(fabsf(1.0f - format) <= EPSILON)
+      int format = opcode_get_format(mnemonic);
+      if(1 == format)
       {
         if(e)
         {
@@ -958,7 +957,7 @@ static bool assembler_pass2(FILE *asm_file,
 
         sprintf(object_code, "%02X", opcode);
       }
-      else if(fabsf(2.0f - format) <= EPSILON)
+      else if(2 == format)
       {
         if(e)
         {
@@ -979,7 +978,7 @@ static bool assembler_pass2(FILE *asm_file,
                                         symbol_get_locctr(operands[1]) :
                                         0);
       }
-      else if(fabsf(3.5f - format) <= EPSILON)
+      else if(3 == format)
       {
         if(!strcmp("RSUB", mnemonic))
         {
