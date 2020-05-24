@@ -41,6 +41,16 @@ static const int ADDRESS_MIN = 0x00000;
 static const int ADDRESS_MAX = 0xFFFFF;
 
 /**
+ * @brief Equals to 0xFFF. The displacement field is 12-bits long.
+ */
+static const int DISPLACEMENT_MASK = 0xFFF;
+
+/**
+ * @brief Equals to 0x7FF, equals to decimal 2047 in two's complement.
+ */
+static const int DISPLACEMENT_MAX = 0x7FF;
+
+/**
  * @brief Equals to 16.
  */
 static const int HEX = 16;
@@ -326,7 +336,47 @@ static bool debugger_execute_run(const char *cmd,
         int displacement = instruction[1] & 0x0F;
         displacement     = displacement << 8;
         displacement     += instruction[2];
-        debugger_instruction_format3(opcode, n, i, x, b, p, displacement);
+
+        int target_address = 0;
+        if(0 == n && 0 == i)
+        {
+          // A backward compatiblity to SIC machine.
+          target_address = (b << 14) + (p << 13) + (e << 12) + displacement;
+        }
+        else
+        {
+          if(1 == b && 0 == p)
+          {
+            // Base relative addressing.
+            target_address = _registers[REGISTER_B] + displacement;
+          }
+          else if(0 == b && 1 == p)
+          {
+            // PC relative addressing.
+            if(DISPLACEMENT_MAX < displacement)
+            {
+              // A displacment is a negative value, so perform sign extension.
+              displacement = -(-displacement & DISPLACEMENT_MASK);
+            }
+            target_address = _registers[REGISTER_PC] + displacement;
+          }
+          else if(0 == b && 0 == p)
+          {
+            target_address = displacement;
+          }
+          else
+          {
+            printf("debugger: invalid addressing\n");
+            return false;
+          }
+        }
+        if(1 == x)
+        {
+          // Indexed addressing.
+          target_address += _registers[REGISTER_X];
+        }
+
+        debugger_instruction_format3_4(opcode, n, i, target_address);
       }
       else
       {
@@ -342,13 +392,21 @@ static bool debugger_execute_run(const char *cmd,
         address     += instruction[2];
         address     = address << 8;
         address     += instruction[3];
-        debugger_instruction_format4(opcode, n, i, x, address);
-      }
 
+        int target_address = address;
+        if(1 == x)
+        {
+          // Indexed addressing.
+          target_address += _registers[REGISTER_X];
+        }
+
+        debugger_instruction_format3_4(opcode, n, i, target_address);
+      }
     }
     else
     {
       // Invalid opcode.
+      printf("debugger: invalid opcode\n");
       return false;
     }
 
