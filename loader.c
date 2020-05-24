@@ -301,9 +301,16 @@ static bool loader_pass2(const int file_count, const char *file_names[])
                                     &object_code_address,
                                     &object_code_length,
                                     object_code);
-        memspace_set_memory(control_section_address + object_code_address,
-                            object_code,
-                            object_code_length);
+        bool is_load_success = memspace_set_memory(control_section_address +
+                                                   object_code_address,
+                                                   object_code,
+                                                   object_code_length);
+        if(!is_load_success)
+        {
+          printf("loader: loading text record at '%05X' failed\n",
+              control_section_address + object_code_address);
+          return false;
+        }
       }
       else if('M' == record_type)
       {
@@ -316,10 +323,17 @@ static bool loader_pass2(const int file_count, const char *file_names[])
                                             &modification_length,
                                             &modification_flag,
                                             &reference_num);
-        memspace_modify_memory(control_section_address + modification_address,
-                               modification_length,
-                               modification_flag,
-                               external_references[reference_num]);
+        bool is_modify_success = memspace_modify_memory(control_section_address +
+                                                        modification_address,
+                                                        modification_length,
+                                                        modification_flag,
+                                                        external_references[reference_num]);
+        if(!is_modify_success)
+        {
+          printf("loader: modifying memory at '%05X' failed\n",
+              control_section_address + modification_address);
+          return false;
+        }
       }
       else if('R' == record_type)
       {

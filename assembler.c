@@ -1148,8 +1148,8 @@ static bool assembler_pass2(FILE *asm_file,
       {
         assembler_write_obj_text(obj_file, text_record_start, text_record);
         memset(text_record, 0, sizeof(text_record));
-        text_record_start = locctr;
       }
+      text_record_start = locctr;
       write_text_record = false;
     }
 

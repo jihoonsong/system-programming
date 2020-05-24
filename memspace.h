@@ -38,8 +38,9 @@ unsigned char *memspace_get_memory(unsigned char *memory,
  * @param[in] length  The length of field to be modified, in half-bytes.
  * @param[in] flag    A modification flag. (+ or -)
  * @param[in] amount  An amount of modification.
+ * @return            True if modification is success, false otherwise.
  */
-void memspace_modify_memory(const int  address,
+bool memspace_modify_memory(const int  address,
                             const int  length,
                             const char flag,
                             const int  amount);
@@ -49,8 +50,9 @@ void memspace_modify_memory(const int  address,
  * @param[in] The address of memory to be set.
  * @param[in] A memory to set.
  * @param[in] The number of bytes to set.
+ * @return    True if set is success, false otherwise.
  */
-void memspace_set_memory(const int     address,
+bool memspace_set_memory(const int     address,
                          unsigned char *memory,
                          const int     byte_count);
 
