@@ -478,8 +478,41 @@ static int debugger_get_format(const unsigned int opcode)
 
 static void debugger_instruction_format1(const unsigned int opcode)
 {
-  // TODO: to be implemented.
-  printf("format1: %02X\n", opcode);
+  if(0xC4 == opcode)
+  {
+    // FIX: A <- (F) [convert to integer].
+    // This implementation ignores this opcode.
+  }
+  else if(0xC0 == opcode)
+  {
+    // FLOAT: F <- (A) [convert to floating].
+    // This implementation ignores this opcode.
+  }
+  else if(0xF4 == opcode)
+  {
+    // HIO: Halt I/O channel number (A).
+    // This implementation ignores this opcode.
+  }
+  else if(0xC8 == opcode)
+  {
+    // NORM: F <- (F) [normalized].
+    // This implementation ignores this opcode.
+  }
+  else if(0xF0 == opcode)
+  {
+    // SIO: Start I/O channel number (A); address of
+    //      channel program is given by (S).
+    // This implementation ignores this opcode.
+  }
+  else if(0xF8 == opcode)
+  {
+    // TIO: Test I/O channel number (A).
+    // This implementation ignores this opcode.
+  }
+  else
+  {
+    printf("debugger: cannot find opcode '%02X'\n", opcode);
+  }
 }
 
 static void debugger_instruction_format2(const unsigned int opcode,
