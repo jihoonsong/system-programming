@@ -99,6 +99,13 @@ static bool debugger_execute_run(const char *cmd,
                                  const char *argv[]);
 
 /**
+ * @brief             Check if PC reached any breakpoint.
+ * @param[in] address An address that PC has.
+ * @return    True if PC reached any breakpoint, false otherwise.
+ */
+static bool debugger_is_reached_breakpoint(const int address);
+
+/**
  * @brief Set breakpoint.
  */
 static void debugger_set_breakpoint(const int address);
@@ -239,13 +246,21 @@ static bool debugger_execute_run(const char *cmd,
     printf("Program finished\n");
     debugger_initialize();
   }
-  else
+
+static bool debugger_is_reached_breakpoint(const int address)
+{
+  struct breakpoint *walk = _breakpoint_list;
+  while(walk)
   {
-    // TODO: Proceed program execution.
-    // printf("Breakpoint at %X", /** bp here */);
+    if(address == walk->address)
+    {
+      return true;
+    }
+
+    walk = walk->next;
   }
 
-  return true;
+  return false;
 }
 
 static void debugger_set_breakpoint(const int address)
