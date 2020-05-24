@@ -99,6 +99,13 @@ static bool debugger_execute_run(const char *cmd,
                                  const char *argv[]);
 
 /**
+ * @brief            Return a format of the given opcode.
+ * @param[in] opcode An opcode to be examined.
+ * @return           A format of the given opcode.
+ */
+static int debugger_get_format(const unsigned int opcode);
+
+/**
  * @brief             Check if PC reached any breakpoint.
  * @param[in] address An address that PC has.
  * @return    True if PC reached any breakpoint, false otherwise.
@@ -267,6 +274,86 @@ static bool debugger_execute_run(const char *cmd,
   }
 
   return true;
+}
+
+static int debugger_get_format(const unsigned int opcode)
+{
+  if(0xC4 == opcode ||
+     0xC0 == opcode ||
+     0xF4 == opcode ||
+     0xC8 == opcode ||
+     0xF0 == opcode ||
+     0xF8 == opcode)
+  {
+    // Format 1.
+    return 1;
+  }
+  else if(0x90 == opcode ||
+          0xB4 == opcode ||
+          0xA0 == opcode ||
+          0x9C == opcode ||
+          0x98 == opcode ||
+          0xAC == opcode ||
+          0xA4 == opcode ||
+          0xA8 == opcode ||
+          0x94 == opcode ||
+          0xB0 == opcode ||
+          0xB8 == opcode)
+  {
+    // Format 2.
+    return 2;
+  }
+  else if(0x18 == opcode ||
+          0x58 == opcode ||
+          0x40 == opcode ||
+          0x28 == opcode ||
+          0x88 == opcode ||
+          0x24 == opcode ||
+          0x64 == opcode ||
+          0x3C == opcode ||
+          0x30 == opcode ||
+          0x34 == opcode ||
+          0x38 == opcode ||
+          0x48 == opcode ||
+          0x00 == opcode ||
+          0x68 == opcode ||
+          0x50 == opcode ||
+          0x70 == opcode ||
+          0x08 == opcode ||
+          0x6C == opcode ||
+          0x74 == opcode ||
+          0x04 == opcode ||
+          0xD0 == opcode ||
+          0x20 == opcode ||
+          0x60 == opcode ||
+          0x44 == opcode ||
+          0xD8 == opcode ||
+          0x4C == opcode ||
+          0xEC == opcode ||
+          0x0C == opcode ||
+          0x78 == opcode ||
+          0x54 == opcode ||
+          0x80 == opcode ||
+          0xD4 == opcode ||
+          0x14 == opcode ||
+          0x7C == opcode ||
+          0xE8 == opcode ||
+          0x84 == opcode ||
+          0x10 == opcode ||
+          0x1C == opcode ||
+          0x5C == opcode ||
+          0xE0 == opcode ||
+          0x2C == opcode ||
+          0xDC == opcode)
+  {
+    // Format 3/4.
+    return 3;
+  }
+  else
+  {
+    printf("debugger: cannot find opcode '%02X'\n", opcode);
+    return 0;
+  }
 }
 
 static bool debugger_is_reached_breakpoint(const int address)
