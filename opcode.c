@@ -153,11 +153,11 @@ void opcode_execute(const char *cmd, const int argc, const char *argv[])
   }
 }
 
-float opcode_get_format(const char *mnemonic)
+int opcode_get_format(const char *mnemonic)
 {
   if(!mnemonic)
   {
-    return 0.0f;
+    return 0;
   }
 
   struct opcode *opcode = opcode_search_opcode(mnemonic);
@@ -165,21 +165,22 @@ float opcode_get_format(const char *mnemonic)
   {
     if(opcode->format1)
     {
-      return 1.0f;
+      return 1;
     }
     else if(opcode->format2)
     {
-      return 2.0f;
+      return 2;
     }
     else
     {
       // Format 3/4.
-      return 3.5f;
+      return 3;
     }
   }
   else
   {
-    return 0.0f;
+    printf("opcode: cannot find mnemonic '%s'\n", mnemonic);
+    return 0;
   }
 }
 

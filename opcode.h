@@ -17,10 +17,10 @@ void opcode_execute(const char *cmd, const int argc, const char *argv[]);
 /**
  * @brief              Get format of mnemonic.
  * @param[in] mnemonic A mnemonic to be examined.
- * @return             1.0 if format 1, 2.0 if format 2, 3.5 if format 3/4, and
- *                     0.0 if invalid mnemonic.
+ * @return             1 if format 1, 2 if format 2, 3 if format 3/4, and
+ *                     0 if invalid mnemonic.
  */
-float opcode_get_format(const char *mnemonic);
+int opcode_get_format(const char *mnemonic);
 
 /**
  * @brief              Return opcode of the mnemonic.
