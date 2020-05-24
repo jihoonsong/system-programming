@@ -10,6 +10,9 @@
 #include <string.h>
 
 #include "assembler.h"
+#include "debugger.h"
+#include "external_symbol.h"
+#include "loader.h"
 #include "logger.h"
 #include "memspace.h"
 #include "opcode.h"
@@ -74,6 +77,8 @@ static void mainloop_tokenize_input(char *input);
 
 void mainloop_initialize(void)
 {
+  debugger_initialize();
+  external_symbol_initialize();
   logger_initialize(INPUT_LEN);
   opcode_initialize();
   symbol_initialize();
@@ -117,6 +122,8 @@ void mainloop_quit(void)
 
 void mainloop_terminate(void)
 {
+  debugger_terminate();
+  external_symbol_terminate();
   logger_terminate();
   opcode_terminate();
   symbol_terminate();
@@ -133,6 +140,19 @@ static bool mainloop_assign_handler(void)
 
   const char * const ASSEMBLER_CMDS[] = {"assemble",
                                          "symbol"};
+  const char * const DEBUGGER_CMDS[]  = {"bp",
+                                         "run"};
+  const char * const LOADER_CMDS[]    = {"loader"};
+  const char * const MEMSPACE_CMDS[]  = {"du",
+                                         "dump",
+                                         "e",
+                                         "edit",
+                                         "f",
+                                         "fill",
+                                         "reset",
+                                         "progaddr"};
+  const char * const OPCODE_CMDS[]    = {"opcode",
+                                         "opcodelist"};
   const char * const SHELL_CMDS[]     = {"h",
                                          "help",
                                          "d",
@@ -142,23 +162,18 @@ static bool mainloop_assign_handler(void)
                                          "hi",
                                          "history",
                                          "type"};
-  const char * const MEMSPACE_CMDS[]  = {"du",
-                                         "dump",
-                                         "e",
-                                         "edit",
-                                         "f",
-                                         "fill",
-                                         "reset"};
-  const char * const OPCODE_CMDS[]    = {"opcode",
-                                         "opcodelist"};
   const int ASSEMBLER_CMDS_COUNT = (int)(sizeof(ASSEMBLER_CMDS) /
                                          sizeof(ASSEMBLER_CMDS[0]));
-  const int SHELL_CMDS_COUNT     = (int)(sizeof(SHELL_CMDS) /
-                                         sizeof(SHELL_CMDS[0]));
+  const int DEBUGGER_CMDS_COUNT  = (int)(sizeof(DEBUGGER_CMDS) /
+                                         sizeof(DEBUGGER_CMDS[0]));
+  const int LOADER_CMDS_COUNT    = (int)(sizeof(LOADER_CMDS) /
+                                         sizeof(LOADER_CMDS[0]));
   const int MEMSPACE_CMDS_COUNT  = (int)(sizeof(MEMSPACE_CMDS) /
                                          sizeof(MEMSPACE_CMDS[0]));
   const int OPCODE_CMDS_COUNT    = (int)(sizeof(OPCODE_CMDS) /
                                          sizeof(OPCODE_CMDS[0]));
+  const int SHELL_CMDS_COUNT     = (int)(sizeof(SHELL_CMDS) /
+                                         sizeof(SHELL_CMDS[0]));
 
   for(int i = 0; i < ASSEMBLER_CMDS_COUNT; ++i)
   {
@@ -168,11 +183,19 @@ static bool mainloop_assign_handler(void)
       return true;
     }
   }
-  for(int i = 0; i < SHELL_CMDS_COUNT; ++i)
+  for(int i = 0; i < DEBUGGER_CMDS_COUNT; ++i)
   {
-    if(!strcmp(SHELL_CMDS[i], _command.cmd))
+    if(!strcmp(DEBUGGER_CMDS[i], _command.cmd))
     {
-      _command.handler = shell_execute;
+      _command.handler = debugger_execute;
+      return true;
+    }
+  }
+  for(int i = 0; i < LOADER_CMDS_COUNT; ++i)
+  {
+    if(!strcmp(LOADER_CMDS[i], _command.cmd))
+    {
+      _command.handler = loader_execute;
       return true;
     }
   }
@@ -189,6 +212,14 @@ static bool mainloop_assign_handler(void)
     if(!strcmp(OPCODE_CMDS[i], _command.cmd))
     {
       _command.handler = opcode_execute;
+      return true;
+    }
+  }
+  for(int i = 0; i < SHELL_CMDS_COUNT; ++i)
+  {
+    if(!strcmp(SHELL_CMDS[i], _command.cmd))
+    {
+      _command.handler = shell_execute;
       return true;
     }
   }

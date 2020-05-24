@@ -1,6 +1,6 @@
 /**
  * @file  symbol.c
- * @brief A symbol table used when assembly.
+ * @brief A symbol table used during assembly.
  */
 
 #include <stdbool.h>
@@ -50,40 +50,39 @@ struct _symbol_error
  */
 static const int SYMBOL_TABLE_LEN = 26;
 
-
 /**
  * @brief The last occured error during assembly.
  */
-struct _symbol_error *_error = NULL;
+static struct _symbol_error *_error = NULL;
 
 /**
  * @brief A hash table of registers.
  */
-struct reg _register_table[] = {(struct reg){.symbol = "A", .locctr = 0},
-                                (struct reg){.symbol = "X", .locctr = 1},
-                                (struct reg){.symbol = "L", .locctr = 2},
-                                (struct reg){.symbol = "PC", .locctr = 8},
-                                (struct reg){.symbol = "SW", .locctr = 9},
-                                (struct reg){.symbol = "B", .locctr = 3},
-                                (struct reg){.symbol = "S", .locctr = 4},
-                                (struct reg){.symbol = "T", .locctr = 5},
-                                (struct reg){.symbol = "F", .locctr = 6}};
+static struct reg _register_table[] = {(struct reg){.symbol = "A", .locctr = 0},
+                                       (struct reg){.symbol = "X", .locctr = 1},
+                                       (struct reg){.symbol = "L", .locctr = 2},
+                                       (struct reg){.symbol = "PC", .locctr = 8},
+                                       (struct reg){.symbol = "SW", .locctr = 9},
+                                       (struct reg){.symbol = "B", .locctr = 3},
+                                       (struct reg){.symbol = "S", .locctr = 4},
+                                       (struct reg){.symbol = "T", .locctr = 5},
+                                       (struct reg){.symbol = "F", .locctr = 6}};
 
 /**
  * @brief A const variable that holds the length of register table.
  */
-const int REGISTER_TABLE_LEN = (int)(sizeof(_register_table) /
-                                     sizeof(_register_table[0]));
+static const int REGISTER_TABLE_LEN = (int)(sizeof(_register_table) /
+                                            sizeof(_register_table[0]));
 
 /**
  * @brief A hash table of symbols, made during the last successful assembly.
  */
-struct symbol **_saved_symbol_table = NULL;
+static struct symbol **_saved_symbol_table = NULL;
 
 /**
  * @brief A hash table of symbols, which is under construction.
  */
-struct symbol **_working_symbol_table = NULL;
+static struct symbol **_working_symbol_table = NULL;
 
 /**
  * @brief          Compare two strings.
