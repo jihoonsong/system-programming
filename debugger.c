@@ -133,36 +133,16 @@ static void debugger_instruction_format2(const unsigned int opcode,
                                          const int          r2);
 
 /**
- * @brief                  Execute instruction format 3.
- * @param[in] opcode       An opcode of instruction to be executed.
- * @param[in] n            A flag n.
- * @param[in] i            A flag i.
- * @param[in] x            A flag x.
- * @param[in] b            A flag b.
- * @param[in] p            A flag p.
- * @param[in] displacement A displacement.
+ * @brief                    Execute instruction format 3.
+ * @param[in] opcode         An opcode of instruction to be executed.
+ * @param[in] n              A flag n.
+ * @param[in] i              A flag i.
+ * @param[in] target_address A target address.
  */
-static void debugger_instruction_format3(const unsigned int opcode,
-                                         const unsigned int n,
-                                         const unsigned int i,
-                                         const unsigned int x,
-                                         const unsigned int b,
-                                         const unsigned int p,
-                                         const int          displacement);
-
-/**
- * @brief             Execute instruction format 4.
- * @param[in] opcode  An opcode of instruction to be executed.
- * @param[in] n       A flag n.
- * @param[in] i       A flag i.
- * @param[in] x       A flag x.
- * @param[in] address An address.
- */
-static void debugger_instruction_format4(const unsigned int opcode,
-                                         const unsigned int n,
-                                         const unsigned int i,
-                                         const unsigned int x,
-                                         const int          address);
+static void debugger_instruction_format3_4(const unsigned int opcode,
+                                           const unsigned int n,
+                                           const unsigned int i,
+                                           const int          target_address);
 /**
  * @brief             Check if PC reached any breakpoint.
  * @param[in] address An address that PC has.
@@ -596,26 +576,12 @@ static void debugger_instruction_format2(const unsigned int opcode,
   }
 }
 
-static void debugger_instruction_format3(const unsigned int opcode,
-                                         const unsigned int n,
-                                         const unsigned int i,
-                                         const unsigned int x,
-                                         const unsigned int b,
-                                         const unsigned int p,
-                                         const int          displacement)
+static void debugger_instruction_format3_4(const unsigned int opcode,
+                                           const unsigned int n,
+                                           const unsigned int i,
+                                           const int          target_address)
 {
-  // TODO: to be implemented.
-  printf("format3: %02X %d %d %d %d %d %03X\n", opcode, n, i, x, b, p, displacement);
-}
-
-static void debugger_instruction_format4(const unsigned int opcode,
-                                         const unsigned int n,
-                                         const unsigned int i,
-                                         const unsigned int x,
-                                         const int          address)
-{
-  // TODO: to be implemented.
-  printf("format4: %02X %d %d %d %020X\n", opcode, n, i, x, address);
+  // TODO
 }
 
 static bool debugger_is_reached_breakpoint(const int address)
