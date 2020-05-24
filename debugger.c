@@ -519,8 +519,81 @@ static void debugger_instruction_format2(const unsigned int opcode,
                                          const int          r1,
                                          const int          r2)
 {
-  // TODO: to be implemented.
-  printf("format2: %02X %d %d\n", opcode, r1, r2);
+  if(0x90 == opcode)
+  {
+    // ADDR: r2 <- (r2) + (r1).
+    _registers[r1] = _registers[r1] + _registers[r2];
+  }
+  else if(0xB4 == opcode)
+  {
+    // CLEAR: r1 <- 0.
+    _registers[r1] = 0;
+  }
+  else if(0xA0 == opcode)
+  {
+    // COMPR: (r1) : (r2).
+    int diff = _registers[r1] - _registers[r2];
+    if(diff > 0)
+    {
+      _registers[REGISTER_SW] = '>';
+    }
+    else if(diff < 0)
+    {
+      _registers[REGISTER_SW] = '<';
+    }
+    else
+    {
+      _registers[REGISTER_SW] = '=';
+    }
+  }
+  else if(0x9C == opcode)
+  {
+    // DIVR: r2 <- (r2) / (r1).
+    _registers[r2] = _registers[r2] / _registers[r1];
+  }
+  else if(0x98 == opcode)
+  {
+    // MULR: r2 <- (r2) * (r1).
+    _registers[r2] = _registers[r2] * _registers[r1];
+  }
+  else if(0xAC == opcode)
+  {
+    // RMO: r2 <- (r1).
+    _registers[r2] = _registers[r1];
+  }
+  else if(0xA4 == opcode)
+  {
+    // SHIFTL: r1 <- (r1); left circular shift n bits.
+    //         {in assembled instruction, r2 = n-1}.
+    // This implementation ignores this opcode.
+  }
+  else if(0xA8 == opcode)
+  {
+    // SHIFTR: r1 <- (r1); right shift n bits, with vacated bit positions set
+    //         equal to leftmost bit of (r1).
+    //         {In assembled instruction, r2 = n-1}.
+    // This implementation ignores this opcode.
+  }
+  else if(0x94 == opcode)
+  {
+    // SUBR: r2 <- (r2) - (r1).
+    _registers[r2] = _registers[r2] - _registers[r1];
+  }
+  else if(0xB0 == opcode)
+  {
+    // SVC: Generate SVC interrupt. {In assembled instruction, r1 = n}.
+    // This implementation ignores this opcode.
+  }
+  else if(0xB8 == opcode)
+  {
+    // TIXR: X <- (X) + 1; (X): (r1).
+    _registers[REGISTER_X]  = _registers[REGISTER_X] + 1;
+    _registers[REGISTER_SW] = (_registers[REGISTER_X] == _registers[r1]);
+  }
+  else
+  {
+    printf("debugger: cannot find opcode '%02X'\n", opcode);
+  }
 }
 
 static void debugger_instruction_format3(const unsigned int opcode,
