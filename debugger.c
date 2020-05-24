@@ -11,6 +11,7 @@
 #include "debugger.h"
 
 #include "logger.h"
+#include "memspace.h"
 
 /**
  * @brief Structure of breakpoint elements.
@@ -250,9 +251,60 @@ static bool debugger_execute_run(const char *cmd,
   bool is_break = false;
   while(!is_break)
   {
-    // TODO: Program execution.
+    unsigned char instruction[4] = {0,};
+    memspace_get_memory(instruction, _registers.PC, 3);
 
-    if(_program_length == _registers.PC)
+    unsigned int opcode = instruction[0] & 0xFC;
+    int          format = debugger_get_format(opcode);
+    if(1 == format)
+    {
+      // Format 1.
+      _registers.PC += 1;
+
+      // TODO
+    }
+    else if(2 == format)
+    {
+      // Format 2.
+      _registers.PC += 2;
+
+      // TODO
+    }
+    else if(3 == format)
+    {
+      unsigned int n = (instruction[0] & 0x02) ? 1 : 0;
+      unsigned int i = (instruction[0] & 0x01) ? 1 : 0;
+      unsigned int x = (instruction[1] & 0x80) ? 1 : 0;
+      unsigned int b = (instruction[1] & 0x40) ? 1 : 0;
+      unsigned int p = (instruction[1] & 0x20) ? 1 : 0;
+      unsigned int e = (instruction[1] & 0x10) ? 1 : 0;
+
+      if(!e)
+      {
+        // Format 3.
+        _registers.PC += 3;
+
+        // TODO
+      }
+      else
+      {
+        // Format 4.
+        // In real design, memory is fetched by the size of register. (in SIC/XE, it's 3 bytes.)
+        // However, in this implementation, we just fetch one byte for conveinence.
+        memspace_get_memory(&instruction[3], _registers.PC + 3, 1);
+        _registers.PC += 4;
+
+        // TODO
+      }
+
+    }
+    else
+    {
+      // Invalid opcode.
+      return false;
+    }
+
+    if(_program_length <= _registers.PC)
     {
       debugger_show_registers();
       printf("Program finished\n");
