@@ -240,12 +240,34 @@ static bool debugger_execute_run(const char *cmd,
     return false;
   }
 
-  if(_program_length == _registers.PC)
+  bool is_break = false;
+  while(!is_break)
   {
-    debugger_show_registers();
-    printf("Program finished\n");
-    debugger_initialize();
+    // TODO: Program execution.
+
+    if(_program_length == _registers.PC)
+    {
+      debugger_show_registers();
+      printf("Program finished\n");
+
+      debugger_initialize();
+      is_break = true;
+    }
+    else if(debugger_is_reached_breakpoint(_registers.PC))
+    {
+      debugger_show_registers();
+      printf("Breakpoint at %X\n", _registers.PC);
+
+      is_break = true;
+    }
+    else
+    {
+      // Continue program execution.
+    }
   }
+
+  return true;
+}
 
 static bool debugger_is_reached_breakpoint(const int address)
 {
