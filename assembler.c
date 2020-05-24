@@ -15,6 +15,10 @@
 #include "opcode.h"
 #include "symbol.h"
 
+/**
+ * @def   MODIF_RECORD_LEN
+ * @brief The length of modification record.
+ */
 #define MODIF_RECORD_LEN 10
 
 /**
