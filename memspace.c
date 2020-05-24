@@ -225,7 +225,7 @@ void memspace_modify_memory(const int  address,
   if(0 != length % 2)
   {
     leftmost_nibble = new_memory[0] & 0xF0;
-    new_memory[0] &= 0x0F;
+    new_memory[0]   &= 0x0F;
   }
 
   for(int i = 0; i < byte_count; ++i)
@@ -250,11 +250,11 @@ void memspace_modify_memory(const int  address,
   for(int i = byte_count - 1; i >= 0; --i)
   {
     new_memory[i] = new_address & 0xFF;
-    new_address = new_address >> 8;
+    new_address   = new_address >> 8;
   }
   new_memory[0] |= leftmost_nibble;
 
-  memcpy(&_memory[address], new_memory, (length + 1) / 2);
+  memcpy(&_memory[address], new_memory, byte_count);
 }
 
 void memspace_set_memory(const int     address,
