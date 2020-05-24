@@ -86,6 +86,11 @@ static struct breakpoint *_breakpoint_list = NULL;
 static bool _is_command_executed = false;
 
 /**
+ * @brief A starting address of program that currently loaded on memory.
+ */
+static int _program_address = 0;
+
+/**
  * @brief A length of program that currently loaded on memory.
  */
 static int _program_length = 0;
@@ -148,11 +153,13 @@ static void debugger_instruction_format2(const unsigned int opcode,
  * @param[in] n              A flag n.
  * @param[in] i              A flag i.
  * @param[in] target_address A target address.
+ * @note                     The value of target address get changed
+ *                           during indirect addressing.
  */
 static void debugger_instruction_format3_4(const unsigned int opcode,
                                            const unsigned int n,
                                            const unsigned int i,
-                                           const int          target_address);
+                                           int                target_address);
 /**
  * @brief             Check if PC reached any breakpoint.
  * @param[in] address An address that PC has.
@@ -210,6 +217,7 @@ void debugger_prepare_run(const int program_address, const int program_length)
 {
   _registers[REGISTER_L]  = program_length;
   _registers[REGISTER_PC] = program_address;
+  _program_address        = program_address;
   _program_length         = program_length;
 }
 
@@ -315,8 +323,8 @@ static bool debugger_execute_run(const char *cmd,
       // Format 2.
       _registers[REGISTER_PC] += 2;
 
-      int r1 = instruction[1] & 0xF0;
-      int r2 = instruction[1] & 0x0F;
+      int r1 = (instruction[1] >> 4) & 0xF;
+      int r2 = instruction[1] & 0xF;
       debugger_instruction_format2(opcode, r1, r2);
     }
     else if(3 == format)
@@ -410,7 +418,7 @@ static bool debugger_execute_run(const char *cmd,
       return false;
     }
 
-    if(_program_length <= _registers[REGISTER_PC])
+    if(_program_address + _program_length <= _registers[REGISTER_PC])
     {
       debugger_show_registers();
       printf("Program finished\n");
@@ -625,8 +633,21 @@ static void debugger_instruction_format2(const unsigned int opcode,
   else if(0xB8 == opcode)
   {
     // TIXR: X <- (X) + 1; (X): (r1).
-    _registers[REGISTER_X]  = _registers[REGISTER_X] + 1;
-    _registers[REGISTER_SW] = (_registers[REGISTER_X] == _registers[r1]);
+    _registers[REGISTER_X] = _registers[REGISTER_X] + 1;
+
+    int diff = _registers[REGISTER_X] - _registers[r1];
+    if(diff > 0)
+    {
+      _registers[REGISTER_SW] = '>';
+    }
+    else if(diff < 0)
+    {
+      _registers[REGISTER_SW] = '<';
+    }
+    else
+    {
+      _registers[REGISTER_SW] = '=';
+    }
   }
   else
   {
@@ -637,9 +658,313 @@ static void debugger_instruction_format2(const unsigned int opcode,
 static void debugger_instruction_format3_4(const unsigned int opcode,
                                            const unsigned int n,
                                            const unsigned int i,
-                                           const int          target_address)
+                                           int                target_address)
 {
-  // TODO
+  unsigned int value = 0;
+  if(1 == n && 0 == i)
+  {
+    // Indirect addressing.
+    unsigned char memory[3] = {0,};
+    memspace_get_memory(memory, target_address, 3);
+
+    target_address = (memory[0] << 16) + (memory[1] << 8) + memory[2];
+    memspace_get_memory(memory, target_address, 3);
+
+    value = (memory[0] << 16) + (memory[1] << 8) + memory[2];
+  }
+  else if(0 == n && 1 == i)
+  {
+    // Immediate addressing.
+    value = target_address;
+  }
+  else if(1 == n && 1 == i)
+  {
+    // Simple addressing.
+    unsigned char memory[3] = {0,};
+    memspace_get_memory(memory, target_address, 3);
+
+    value = (memory[0] << 16) + (memory[1] << 8) + memory[2];
+  }
+  else
+  {
+    // A backward compatiblity to SIC machine.
+    value = target_address;
+  }
+
+  if(0x18 == opcode)
+  {
+    // ADD: A <- (A) + (m..m+2).
+    _registers[REGISTER_A] = _registers[REGISTER_A] + (value & 0xFFFFFF);
+  }
+  else if(0x58 == opcode)
+  {
+    // ADDF: F <= (F) + (m..m+5).
+    // This implementation ignores this opcode.
+  }
+  else if(0x40 == opcode)
+  {
+    // AND: A <- (A) & (m..m+2).
+    _registers[REGISTER_A] = _registers[REGISTER_A] & (value & 0xFFFFFF);
+  }
+  else if(0x28 == opcode)
+  {
+    // COMP: (A) : (m..m+2).
+    int diff = _registers[REGISTER_A] - (value & 0xFFFFFF);
+    if(diff > 0)
+    {
+      _registers[REGISTER_SW] = '>';
+    }
+    else if(diff < 0)
+    {
+      _registers[REGISTER_SW] = '<';
+    }
+    else
+    {
+      _registers[REGISTER_SW] = '=';
+    }
+  }
+  else if(0x88 == opcode)
+  {
+    // COMPF: (F) : (m..m+5).
+    // This implementation ignores this opcode.
+  }
+  else if(0x24 == opcode)
+  {
+    // DIV: A <- (A) / (m..m+2).
+    _registers[REGISTER_A] = _registers[REGISTER_A] / (value & 0xFFFFFF);
+  }
+  else if(0x64 == opcode)
+  {
+    // DIVF: F <- (F) / (m..m+5).
+    // This implementation ignores this opcode.
+  }
+  else if(0x3C == opcode)
+  {
+    // J: PC <- m.
+    _registers[REGISTER_PC] = target_address;
+  }
+  else if(0x30 == opcode)
+  {
+    // JEQ: PC <- m if CC set to =.
+    if('=' == _registers[REGISTER_SW])
+    {
+      _registers[REGISTER_PC] = target_address;
+    }
+  }
+  else if(0x34 == opcode)
+  {
+    // JGT: PC <- m if CC set to >.
+    if('>' == _registers[REGISTER_SW])
+    {
+      _registers[REGISTER_PC] = target_address;
+    }
+  }
+  else if(0x38 == opcode)
+  {
+    // JLT: PC <- m if CC set to <.
+    if('<' == _registers[REGISTER_SW])
+    {
+      _registers[REGISTER_PC] = target_address;
+    }
+  }
+  else if(0x48 == opcode)
+  {
+    // JSUB: L <- (PC); PC <- m.
+    _registers[REGISTER_L]  = _registers[REGISTER_PC];
+    _registers[REGISTER_PC] = target_address;
+  }
+  else if(0x00 == opcode)
+  {
+    // LDA: A <- (m..m+2).
+    _registers[REGISTER_A] = (value & 0xFFFFFF);
+  }
+  else if(0x68 == opcode)
+  {
+    // LDB: B <- (m..m+2).
+    _registers[REGISTER_B] = (value & 0xFFFFFF);
+  }
+  else if(0x50 == opcode)
+  {
+    // LDCH: A[rightmost byte] <- (m).
+    _registers[REGISTER_A] = ((value >> 16) & 0xFF);
+  }
+  else if(0x70 == opcode)
+  {
+    // LDF: F <- (m..m+5).
+    // This implementation ignores this opcode.
+  }
+  else if(0x08 == opcode)
+  {
+    // LDL: L <- (m..m+2).
+    _registers[REGISTER_L] = (value & 0xFFFFFF);
+  }
+  else if(0x6C == opcode)
+  {
+    // LDS: S <- (m..m+2).
+    _registers[REGISTER_S] = (value & 0xFFFFFF);
+  }
+  else if(0x74 == opcode)
+  {
+    // LDT: T <- (m..m+2).
+    _registers[REGISTER_T] = (value & 0xFFFFFF);
+  }
+  else if(0x04 == opcode)
+  {
+    // LDX: X <- (m..m+2).
+    _registers[REGISTER_X] = (value & 0xFFFFFF);
+  }
+  else if(0xD0 == opcode)
+  {
+    // LPS: Load processor status from information beginning at address m.
+    // This implementation ignores this opcode.
+  }
+  else if(0x20 == opcode)
+  {
+    // MUL: A <- (A) * (m..m+2).
+    _registers[REGISTER_A] = _registers[REGISTER_A] * (value & 0xFFFFFF);
+  }
+  else if(0x60 == opcode)
+  {
+    // MULF: F <- (F) * (m..m+5).
+    // This implementation ignores this opcode.
+  }
+  else if(0x44 == opcode)
+  {
+    // OR: A <- (A) | (m..m+2).
+    _registers[REGISTER_A] = _registers[REGISTER_A] | (value & 0xFFFFFF);
+  }
+  else if(0xD8 == opcode)
+  {
+    // RD: A[rightmost byte] <- data from device specified by (m).
+    // This implementation assumes that RD receives 0.
+    _registers[REGISTER_A] = 0;
+  }
+  else if(0x4C == opcode)
+  {
+    // RSUB: PC <- (L).
+    _registers[REGISTER_PC] = _registers[REGISTER_L];
+  }
+  else if(0xEC == opcode)
+  {
+    // SSK: Protection key for address m <- (A).
+    // This implementation ignores this opcode.
+  }
+  else if(0x0C == opcode)
+  {
+    // STA: m..m+2 <- (A).
+    unsigned char memory[3] = {(_registers[REGISTER_A] >> 16) & 0xFF,
+                               (_registers[REGISTER_A] >> 8) & 0xFF,
+                               _registers[REGISTER_A] & 0xFF};
+    memspace_set_memory(target_address, memory, 3);
+  }
+  else if(0x78 == opcode)
+  {
+    // STB: m..m+2 <- (B).
+    unsigned char memory[3] = {(_registers[REGISTER_B] >> 16) & 0xFF,
+                               (_registers[REGISTER_B] >> 8) & 0xFF,
+                               _registers[REGISTER_B] & 0xFF};
+    memspace_set_memory(target_address, memory, 3);
+  }
+  else if(0x54 == opcode)
+  {
+    // STCH: m <- (A)[rightmost byte].
+    unsigned char memory[1] = {_registers[REGISTER_A] & 0xFF};
+    memspace_set_memory(target_address, memory, 1);
+  }
+  else if(0x80 == opcode)
+  {
+    // STF: m..m+5 <- (F).
+    // This implementation ignores this opcode.
+  }
+  else if(0xD4 == opcode)
+  {
+    // STI: Interval timer value <- (m..m+2).
+    // This implementation ignores this opcode.
+  }
+  else if(0x14 == opcode)
+  {
+    // STL: m..m+2 <- (L).
+    unsigned char memory[3] = {(_registers[REGISTER_L] >> 16) & 0xFF,
+                               (_registers[REGISTER_L] >> 8) & 0xFF,
+                               _registers[REGISTER_L] & 0xFF};
+    memspace_set_memory(target_address, memory, 3);
+  }
+  else if(0x7C == opcode)
+  {
+    // STS: m..m+2 <- (S).
+    unsigned char memory[3] = {(_registers[REGISTER_S] >> 16) & 0xFF,
+                               (_registers[REGISTER_S] >> 8) & 0xFF,
+                               _registers[REGISTER_S] & 0xFF};
+    memspace_set_memory(target_address, memory, 3);
+  }
+  else if(0xE8 == opcode)
+  {
+    // STSW: m..m+2 <- (SW).
+    unsigned char memory[3] = {(_registers[REGISTER_SW] >> 16) & 0xFF,
+                               (_registers[REGISTER_SW] >> 8) & 0xFF,
+                               _registers[REGISTER_SW] & 0xFF};
+    memspace_set_memory(target_address, memory, 3);
+  }
+  else if(0x84 == opcode)
+  {
+    // STT: m..m+2 <- (T).
+    unsigned char memory[3] = {(_registers[REGISTER_T] >> 16) & 0xFF,
+                               (_registers[REGISTER_T] >> 8) & 0xFF,
+                               _registers[REGISTER_T] & 0xFF};
+    memspace_set_memory(target_address, memory, 3);
+  }
+  else if(0x10 == opcode)
+  {
+    // STX: m..m+2 <- (X).
+    unsigned char memory[3] = {(_registers[REGISTER_X] >> 16) & 0xFF,
+                               (_registers[REGISTER_X] >> 8) & 0xFF,
+                               _registers[REGISTER_X] & 0xFF};
+    memspace_set_memory(target_address, memory, 3);
+  }
+  else if(0x1C == opcode)
+  {
+    // SUB: A <- (A) - (m..m+2).
+    _registers[REGISTER_A] = _registers[REGISTER_A] - (value & 0xFFFFFF);
+  }
+  else if(0x5C == opcode)
+  {
+    // SUBF: F <- (F) - (m..m+2).
+    // This implementation ignores this opcode.
+  }
+  else if(0xE0 == opcode)
+  {
+    // TD: Test device specified by (m).
+    // This implementation assumes that device is always ready.
+    _registers[REGISTER_SW] = '<';
+  }
+  else if(0x2C == opcode)
+  {
+    // TIX: X <- (X) + 1; (X): (m..m+2).
+    _registers[REGISTER_X] = _registers[REGISTER_X] + 1;
+
+    int diff = _registers[REGISTER_X] - value;
+    if(diff > 0)
+    {
+      _registers[REGISTER_SW] = '>';
+    }
+    else if(diff < 0)
+    {
+      _registers[REGISTER_SW] = '<';
+    }
+    else
+    {
+      _registers[REGISTER_SW] = '=';
+    }
+  }
+  else if(0xDC == opcode)
+  {
+    // WD: Device specified by (m) <- (A)[rightmost byte].
+    // This implementation ignores this opcode.
+  }
+  else
+  {
+    printf("debugger: cannot find opcode '%02X'\n", opcode);
+  }
 }
 
 static bool debugger_is_reached_breakpoint(const int address)
